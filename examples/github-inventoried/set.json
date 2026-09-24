@@ -1,0 +1,27 @@
+{
+  "created_at": "2026-09-23T13:00:00Z",
+  "files": [
+    {
+      "bytes": 264,
+      "path": "README.md",
+      "sha256": "45e59c25b2fb8da339b4b53f1e914947149aec05dea554c54f09fa26a2c80484"
+    },
+    {
+      "bytes": 53,
+      "path": "keys.txt",
+      "sha256": "770de8f4885f93d4530b8d43b5c1242a98c7375b5789bf759d7049fdf82a50e1"
+    },
+    {
+      "bytes": 36,
+      "path": "links.txt",
+      "sha256": "11c48c0809e2cf0bbe56cab03cc4b5bb73ca7efad2b9654835c4c26078312b97"
+    },
+    {
+      "bytes": 104,
+      "origin": "pubky://dbnm5egbtdsk7c5hhufrbpmdxge6h7of7c83qc7wygy1m7qhug6y/pub/slime-example/tags/github-1.json",
+      "path": "records/dbnm5egbtdsk7c5hhufrbpmdxge6h7of7c83qc7wygy1m7qhug6y/pub/slime-example/tags/github-1.json",
+      "sha256": "4c559178fd99eb9ba50a779ea1fc35630611df103b0ad8e32d20a3085192d7a2"
+    }
+  ],
+  "format": "slime-set/1"
+}

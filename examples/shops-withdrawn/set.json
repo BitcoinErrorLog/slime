@@ -1,0 +1,86 @@
+{
+  "created_at": "2026-09-23T13:00:00Z",
+  "files": [
+    {
+      "bytes": 340,
+      "path": "README.md",
+      "sha256": "ec1714394b904eba9677e6bdd7103a2d7056b91e9d5c38e5e8b5851ab2f6dc0b"
+    },
+    {
+      "bytes": 474,
+      "origin": "pubky://kq47ts1oghjief4acyjc7q8nuut5iodyw48atubb5d9h1gmoz1no/pub/slime-example/listings/shirt-1.json",
+      "path": "history/listing-before-withdrawal.json",
+      "sha256": "99a2e249dcf6baf80b8deefe07a0851f54463b0bda5e13a0e09d5cb398d1e640"
+    },
+    {
+      "bytes": 106,
+      "path": "keys.txt",
+      "sha256": "16c682eb19510a359caba3899748836f8a4926238b29f7b6273478a2a902e2e0"
+    },
+    {
+      "bytes": 101,
+      "path": "links.txt",
+      "sha256": "424d6b873043b8f56f6b07ee8a749aa4a6ea7ad16f062e29f57cfd7a2dc8b597"
+    },
+    {
+      "bytes": 316,
+      "path": "proofs/3b7db4cb049f0d74c7220245e936e5db4b5c5cf0e76a4618488fdb5cf72e05a3.json",
+      "sha256": "3b7db4cb049f0d74c7220245e936e5db4b5c5cf0e76a4618488fdb5cf72e05a3"
+    },
+    {
+      "bytes": 345,
+      "path": "proofs/3b7db4cb049f0d74c7220245e936e5db4b5c5cf0e76a4618488fdb5cf72e05a3.sig.json",
+      "sha256": "22dfe0210a1beb50a9664b403aa9ce9e35fa45087f5eb6595f6228228d1a5802"
+    },
+    {
+      "bytes": 304,
+      "path": "proofs/58db0515e74b102d052c06e202fe34636c068e6dfc45352ef669f53c241a7cfd.json",
+      "sha256": "58db0515e74b102d052c06e202fe34636c068e6dfc45352ef669f53c241a7cfd"
+    },
+    {
+      "bytes": 345,
+      "path": "proofs/58db0515e74b102d052c06e202fe34636c068e6dfc45352ef669f53c241a7cfd.sig.json",
+      "sha256": "d90cc06004d48c6a6dd9da2e0cffa05a03c4a8e8e4a95bfe2c8778602af5e431"
+    },
+    {
+      "bytes": 397,
+      "path": "proofs/5cd9754791a8c5518d39444d20695bec1c17b6168689e10440e6402fbd757aca.json",
+      "sha256": "5cd9754791a8c5518d39444d20695bec1c17b6168689e10440e6402fbd757aca"
+    },
+    {
+      "bytes": 345,
+      "path": "proofs/5cd9754791a8c5518d39444d20695bec1c17b6168689e10440e6402fbd757aca.sig.json",
+      "sha256": "fd40e3e3601f34d22e4ebc9b326a8644d4d528fbf5e132663c0243ff6f0740a1"
+    },
+    {
+      "bytes": 311,
+      "path": "proofs/c756e288a9502bc82f01f6a4d8eb26812dce9ae5148dfa76991da7468e70f906.json",
+      "sha256": "c756e288a9502bc82f01f6a4d8eb26812dce9ae5148dfa76991da7468e70f906"
+    },
+    {
+      "bytes": 345,
+      "path": "proofs/c756e288a9502bc82f01f6a4d8eb26812dce9ae5148dfa76991da7468e70f906.sig.json",
+      "sha256": "37fd6da2ea4e92d21d063d0063869e6ad4e42412123b53ec4fde19abea6eac7b"
+    },
+    {
+      "bytes": 176,
+      "origin": "pubky://8nwd7x787d4xxy6r349npowdz136ibmmnpmyk1m8oxw6faa6oigy/pub/slime-example/tags/shop-1.json",
+      "path": "records/8nwd7x787d4xxy6r349npowdz136ibmmnpmyk1m8oxw6faa6oigy/pub/slime-example/tags/shop-1.json",
+      "sha256": "ea1461ba8b814b6c74c88a71de988c4a68aee4f35e66f0a3d73a3e9d915aebb9"
+    },
+    {
+      "bytes": 474,
+      "origin": "pubky://kq47ts1oghjief4acyjc7q8nuut5iodyw48atubb5d9h1gmoz1no/pub/slime-example/listings/shirt-1.json",
+      "path": "records/kq47ts1oghjief4acyjc7q8nuut5iodyw48atubb5d9h1gmoz1no/pub/slime-example/listings/shirt-1.json",
+      "sha256": "615b98b3c859f0a29ac85313907623d8b63178e2027aceaa078a5f0e65de4df1"
+    },
+    {
+      "bytes": 326,
+      "origin": "pubky://kq47ts1oghjief4acyjc7q8nuut5iodyw48atubb5d9h1gmoz1no/pub/slime-example/shop.json",
+      "path": "records/kq47ts1oghjief4acyjc7q8nuut5iodyw48atubb5d9h1gmoz1no/pub/slime-example/shop.json",
+      "sha256": "d470c2bf78ebf40c4a58834e4282209f4d33eb1701cbfe4c482d7f6752b21c24"
+    }
+  ],
+  "format": "slime-set/1",
+  "previous": "sha256:ab9454f308f2ea05858dc7309ca6dd4788ce717c716a2dd0874354e008eab64d"
+}

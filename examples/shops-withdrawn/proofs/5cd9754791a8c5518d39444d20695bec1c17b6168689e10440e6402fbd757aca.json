@@ -1,0 +1,10 @@
+{
+  "claimed_at": "2026-09-23T12:05:00Z",
+  "content_sha256": "615b98b3c859f0a29ac85313907623d8b63178e2027aceaa078a5f0e65de4df1",
+  "format": "slime-record/1",
+  "operation": "put",
+  "origin": "pubky://kq47ts1oghjief4acyjc7q8nuut5iodyw48atubb5d9h1gmoz1no/pub/slime-example/listings/shirt-1.json",
+  "parents": [
+    "sha256:3b7db4cb049f0d74c7220245e936e5db4b5c5cf0e76a4618488fdb5cf72e05a3"
+  ]
+}

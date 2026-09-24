@@ -1,0 +1,8 @@
+{
+  "claimed_at": "2026-09-23T12:00:00Z",
+  "content_sha256": "4c559178fd99eb9ba50a779ea1fc35630611df103b0ad8e32d20a3085192d7a2",
+  "format": "slime-record/1",
+  "operation": "put",
+  "origin": "pubky://dbnm5egbtdsk7c5hhufrbpmdxge6h7of7c83qc7wygy1m7qhug6y/pub/slime-example/tags/github-1.json",
+  "parents": []
+}

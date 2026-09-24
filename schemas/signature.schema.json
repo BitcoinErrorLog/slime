@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Slime signature v1",
+  "type": "object",
+  "properties": {
+    "format": {
+      "const": "slime-signature/1"
+    },
+    "purpose": {
+      "enum": [
+        "set",
+        "record"
+      ]
+    },
+    "algorithm": {
+      "const": "Ed25519"
+    },
+    "signer": {
+      "type": "string",
+      "pattern": "^[ybndrfg8ejkmcpqxot1uwisza345h769]{52}$"
+    },
+    "digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "signature": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_-]{86}$"
+    }
+  },
+  "required": [
+    "format",
+    "purpose",
+    "algorithm",
+    "signer",
+    "digest",
+    "signature"
+  ],
+  "additionalProperties": false
+}

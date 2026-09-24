@@ -1,0 +1,16 @@
+{
+  "availability": "withdrawn",
+  "contact": "pubky://kq47ts1oghjief4acyjc7q8nuut5iodyw48atubb5d9h1gmoz1no",
+  "description": "Synthetic public listing; no customer data.",
+  "example_schema": "demo-listing/1",
+  "listing_id": "shirt-1",
+  "price": {
+    "amount": "50.00",
+    "kind": "indicative",
+    "unit": "USD"
+  },
+  "quantity": 0,
+  "seller": "kq47ts1oghjief4acyjc7q8nuut5iodyw48atubb5d9h1gmoz1no",
+  "title": "Independent print, size L",
+  "variant": "black-L"
+}

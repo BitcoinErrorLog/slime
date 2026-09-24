@@ -1,0 +1,33 @@
+test_all_inventoried_sets (test_checks.Conformance.test_all_inventoried_sets) ... ok
+test_author_and_curator_are_distinct (test_checks.Conformance.test_author_and_curator_are_distinct) ... ok
+test_author_join (test_checks.Conformance.test_author_join) ... ok
+test_bad_signature (test_checks.Conformance.test_bad_signature) ... ok
+test_bom (test_checks.Conformance.test_bom) ... ok
+test_catalog_withdrawal_survives_old_copy (test_checks.Conformance.test_catalog_withdrawal_survives_old_copy) ... ok
+test_concurrent_heads_retained (test_checks.Conformance.test_concurrent_heads_retained) ... ok
+test_delete_resists_ancestor_replay (test_checks.Conformance.test_delete_resists_ancestor_replay) ... ok
+test_duplicate_evidence_is_not_extra_stock (test_checks.Conformance.test_duplicate_evidence_is_not_extra_stock) ... ok
+test_duplicate_json_keys (test_checks.Conformance.test_duplicate_json_keys) ... ok
+test_expected_exporter (test_checks.Conformance.test_expected_exporter) ... ok
+test_extra_member (test_checks.Conformance.test_extra_member) ... ok
+test_fixture_public_catalog_no_private_fields (test_checks.Conformance.test_fixture_public_catalog_no_private_fields) ... ok
+test_import_order_independent_heads (test_checks.Conformance.test_import_order_independent_heads) ... ok
+test_inventory_reserialization_breaks_signature (test_checks.Conformance.test_inventory_reserialization_breaks_signature) ... ok
+test_key_codec_roundtrip (test_checks.Conformance.test_key_codec_roundtrip) ... ok
+test_missing_member (test_checks.Conformance.test_missing_member) ... ok
+test_plain_set_has_no_required_metadata (test_checks.Conformance.test_plain_set_has_no_required_metadata) ... ok
+test_repack_invariance (test_checks.Conformance.test_repack_invariance) ... ok
+test_signature_role_confusion (test_checks.Conformance.test_signature_role_confusion) ... ok
+test_signed_source_cannot_downgrade_to_unsigned (test_checks.Conformance.test_signed_source_cannot_downgrade_to_unsigned) ... ok
+test_symlink (test_checks.Conformance.test_symlink) ... ok
+test_tamper_readme (test_checks.Conformance.test_tamper_readme) ... ok
+test_tamper_record (test_checks.Conformance.test_tamper_record) ... ok
+test_unknown_control_fields (test_checks.Conformance.test_unknown_control_fields) ... ok
+test_unsafe_paths (test_checks.Conformance.test_unsafe_paths) ... ok
+test_unsigned_inventory_allowed (test_checks.Conformance.test_unsigned_inventory_allowed) ... ok
+test_wrong_exporter_pin (test_checks.Conformance.test_wrong_exporter_pin) ... ok
+
+----------------------------------------------------------------------
+Ran 28 tests in 0.083s
+
+OK

@@ -3,22 +3,22 @@
   "complete": true,
   "entries": [
     {
-      "blake3": "0Wzbbbkcd6tMm2XFgdoAwThkNLEIPCI3Fyf5Ah7/Aps=",
+      "blake3": "blyTIJiFYOnlHU1ny9lAZLuK2JVAvw1ctHU5m6bvvqA=",
       "kind": "tag",
       "label": "great-print",
       "refs": [
-        "pubky://pz6c7qywejnprcr9ixrscfpm88mxjxjx8kgpurk5qsx657i81mco/pub/pubky.app/posts/0035R99S3KA80"
+        "pubky://451qzkxosuipo54canbsqqx3uz44nmbfe9ebwcagjjyto9zct6fo/pub/pubky.app/posts/0035R99S3KA80"
       ],
       "seq": "7",
-      "uri": "pubky://qe6hdrmq1i9te5bggtkkjq93fxy39jgg1dkgjw5jkhhk6ryzirdy/pub/pubky.app/tags/08BDG67JTNQAMC7YSBN2KKNHNM"
+      "uri": "pubky://9m6qdf7idnd934ukps7qt53j1thu7yy61k9phoq6cr9qkg3sommy/pub/pubky.app/tags/PQ98B856HYWHHQQAEYG1DEEVB4"
     }
   ],
   "format": "slime-candidates/1",
-  "provider": "7d6cn61a6xa6kfaq19bepdgb8w3zi9cudu7sm9xfcps9mb887nby",
+  "provider": "pngqa3xbs7baahkgerq1faxhtwrety1z4ezuogtsqw7wk3917rpy",
   "query": {
     "after": "6",
     "kind": "tag",
     "op": "refs",
-    "uri": "pubky://pz6c7qywejnprcr9ixrscfpm88mxjxjx8kgpurk5qsx657i81mco/pub/pubky.app/posts/0035R99S3KA80"
+    "uri": "pubky://451qzkxosuipo54canbsqqx3uz44nmbfe9ebwcagjjyto9zct6fo/pub/pubky.app/posts/0035R99S3KA80"
   }
 }

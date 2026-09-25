@@ -33,7 +33,7 @@ CONTROL = {'set.json', 'set.jws'}
 LIMITS = {'set': 16*1024*1024, 'jws': 8192, 'provider': 65536, 'slice': 16*1024*1024,
           'candidates': 4*1024*1024, 'notice': 8192, 'services': 65536, 'home': 16384}
 APP = '/pub/pubky.app/'
-SLIME_PATH = '/pub/slime.pubky.app/'
+SLIME_PATH = '/pub/slime/'
 LIVE_ROLES = {'records', 'query', 'notices'}
 MAX_REFS = 64
 TAG_LABEL_MAX = 20

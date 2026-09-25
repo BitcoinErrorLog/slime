@@ -190,11 +190,11 @@ class Grants(NoNetwork):
         with self.assertRaises(InvalidSet):verify_grant(self.grant(),AFTER_GRANTS)
     def test_write_capability(self):
         claims=lambda *caps:{'caps':list(caps)}
-        self.assertTrue(grant_allows_write(claims('/pub/:rw'),'/pub/slime.pubky.app/'))
-        self.assertTrue(grant_allows_write(claims('/pub/slime.pubky.app/:w'),'/pub/slime.pubky.app/'))
-        self.assertFalse(grant_allows_write(claims('/pub/slime.pubky.app/:r'),'/pub/slime.pubky.app/'))
-        self.assertFalse(grant_allows_write(claims('/pub/pubky.app/:rw'),'/pub/slime.pubky.app/'))
-        self.assertFalse(grant_allows_write(claims('pub/:rw','/pub/:x'),'/pub/slime.pubky.app/'))
+        self.assertTrue(grant_allows_write(claims('/pub/:rw'),'/pub/slime/'))
+        self.assertTrue(grant_allows_write(claims('/pub/slime/:w'),'/pub/slime/'))
+        self.assertFalse(grant_allows_write(claims('/pub/slime/:r'),'/pub/slime/'))
+        self.assertFalse(grant_allows_write(claims('/pub/pubky.app/:rw'),'/pub/slime/'))
+        self.assertFalse(grant_allows_write(claims('pub/:rw','/pub/:x'),'/pub/slime/'))
 
 class Slices(NoNetwork):
     def slice_doc(self):

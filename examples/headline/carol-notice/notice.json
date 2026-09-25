@@ -1,8 +1,8 @@
 {
-  "blake3": "0Wzbbbkcd6tMm2XFgdoAwThkNLEIPCI3Fyf5Ah7/Aps=",
+  "blake3": "blyTIJiFYOnlHU1ny9lAZLuK2JVAvw1ctHU5m6bvvqA=",
   "created_at": "2026-09-25T10:00:05Z",
   "format": "slime-notice/1",
-  "pow": "0442a9f3819f0668284083f06c7bb8b9",
-  "source": "pubky://qe6hdrmq1i9te5bggtkkjq93fxy39jgg1dkgjw5jkhhk6ryzirdy/pub/pubky.app/tags/08BDG67JTNQAMC7YSBN2KKNHNM",
-  "target": "pubky://pz6c7qywejnprcr9ixrscfpm88mxjxjx8kgpurk5qsx657i81mco/pub/pubky.app/posts/0035R99S3KA80"
+  "pow": "6d2fc39ae1bb583db6e4350c0a7d2c21",
+  "source": "pubky://9m6qdf7idnd934ukps7qt53j1thu7yy61k9phoq6cr9qkg3sommy/pub/pubky.app/tags/PQ98B856HYWHHQQAEYG1DEEVB4",
+  "target": "pubky://451qzkxosuipo54canbsqqx3uz44nmbfe9ebwcagjjyto9zct6fo/pub/pubky.app/posts/0035R99S3KA80"
 }

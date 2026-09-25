@@ -7,7 +7,7 @@
       "path": "README.md"
     },
     {
-      "blake3": "CGl0oJwS9FtxGkMhvtojfj97tQMpklrOiEcaL/dsq7M=",
+      "blake3": "z/OdoVXTBgW9Le+WPGveNDPJBjVS7/xLunF8qy+/BdM=",
       "bytes": 53,
       "path": "keys.txt"
     },
@@ -19,14 +19,14 @@
     {
       "blake3": "Cf3aHf7VuVnYd9DbxPfIPg38dRf5cvEatWsPS8gwgQc=",
       "bytes": 145,
-      "origin": "pubky://tke7gs7j44k35jgmnk4euezqedx85gh6b4bn6wkbs7gc4mgow5yy/pub/pubky.app/profile.json",
-      "path": "records/tke7gs7j44k35jgmnk4euezqedx85gh6b4bn6wkbs7gc4mgow5yy/pub/pubky.app/profile.json"
+      "origin": "pubky://be9uh3uu3ex3jdouo5hw5j791mt6i1fiwun1a93tdh35541u1ahy/pub/pubky.app/profile.json",
+      "path": "records/be9uh3uu3ex3jdouo5hw5j791mt6i1fiwun1a93tdh35541u1ahy/pub/pubky.app/profile.json"
     },
     {
       "blake3": "3izzXT9D9svUlGDFrDS+JfJ3njiCNfS8Gb8UVo2Othk=",
       "bytes": 96,
-      "origin": "pubky://tke7gs7j44k35jgmnk4euezqedx85gh6b4bn6wkbs7gc4mgow5yy/pub/pubky.app/tags/AHF3FGYT714TDAYH5101WPGTV8",
-      "path": "records/tke7gs7j44k35jgmnk4euezqedx85gh6b4bn6wkbs7gc4mgow5yy/pub/pubky.app/tags/AHF3FGYT714TDAYH5101WPGTV8"
+      "origin": "pubky://be9uh3uu3ex3jdouo5hw5j791mt6i1fiwun1a93tdh35541u1ahy/pub/pubky.app/tags/AHF3FGYT714TDAYH5101WPGTV8",
+      "path": "records/be9uh3uu3ex3jdouo5hw5j791mt6i1fiwun1a93tdh35541u1ahy/pub/pubky.app/tags/AHF3FGYT714TDAYH5101WPGTV8"
     }
   ],
   "format": "slime-set/1"

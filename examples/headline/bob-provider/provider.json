@@ -4,7 +4,7 @@
   ],
   "expires_at": "2026-10-25T11:00:00Z",
   "format": "slime-provider/1",
-  "grant": "eyJhbGciOiJFZERTQSIsInR5cCI6InB1Ymt5LWdyYW50In0.eyJpc3MiOiJ5YmE1emhncGVycXA0ZXl6N3Q2YzdpM2diNWRkeTlmZmM1OWJmeXB3YzUzZzh5Z3BoeXJ5IiwiY2xpZW50X2lkIjoicHJvdmlkZXIuYm9iLmV4YW1wbGUiLCJjYXBzIjpbIi9wdWIvc2xpbWUucHVia3kuYXBwLzpydyJdLCJjbmYiOiI3ZDZjbjYxYTZ4YTZrZmFxMTliZXBkZ2I4dzN6aTljdWR1N3NtOXhmY3BzOW1iODg3bmJ5IiwianRpIjoibE9XZk13dFlOZWh6Rm9mWDhnX1oxQSIsImlhdCI6MTc5MDA3ODQwMCwiZXhwIjoxODUzMTUwNDAwfQ.3NW8KP_qurjeUdgBW9eD-gfF0ZSw6K5Bd3LWZbqMT8nqOyFejGEVYW7H47CQG5qKeKiypAj-0pGyUBsHeSbqDg",
+  "grant": "eyJhbGciOiJFZERTQSIsInR5cCI6InB1Ymt5LWdyYW50In0.eyJpc3MiOiJhaGo5MWlwajVzdWlyb2RqdGhxN25jbnF1eGRudWVteWFpY29mcDdqbzFoemFtNmU1ZGF5IiwiY2xpZW50X2lkIjoicHJvdmlkZXIuYm9iLmV4YW1wbGUiLCJjYXBzIjpbIi9wdWIvc2xpbWUvOnJ3Il0sImNuZiI6InBuZ3FhM3hiczdiYWFoa2dlcnExZmF4aHR3cmV0eTF6NGV6dW9ndHNxdzd3azM5MTdycHkiLCJqdGkiOiJLSk5nWW1adzFsVUZ4c0Fkei1CSmp3IiwiaWF0IjoxNzkwMDc4NDAwLCJleHAiOjE4NTMxNTA0MDB9.LOf1nyyPlR5xXTw3jzr6i8NGalwSYuvGoCbzJEZ4IvMevGNG5VG2nJfGvq_yfFdaUvhZ0z4lugg4MznlZHS9AQ",
   "issued_at": "2026-09-25T11:00:00Z",
   "limits": {
     "max_entries": 500,
@@ -14,14 +14,14 @@
     "pow_floor_bits": 8,
     "requests_per_minute": 60
   },
-  "operator": "yba5zhgperqp4eyz7t6c7i3gb5ddy9ffc59bfypwc53g8ygphyry",
+  "operator": "ahj91ipj5suirodjthq7ncnquxdnuemyaicofp7jo1hzam6e5day",
   "peers": [
     {
-      "operator": "c6gu1yyozeupcsj71piu33xjzjjmr4mtzz71o57icuz4hmrapuso",
-      "provider": "wdm6w9kzn8mto8z53obao55bhtuoxq784w54nyk1f3c34yr6tk9o"
+      "operator": "gxtiocxfuar9meefw6n5q7cyzcahciofojb8duug85bdrp35r4io",
+      "provider": "9bgghohzqcert6k6w5cce5mbc6fxkrogxgttctekpk93imzser1o"
     }
   ],
-  "provider": "7d6cn61a6xa6kfaq19bepdgb8w3zi9cudu7sm9xfcps9mb887nby",
+  "provider": "pngqa3xbs7baahkgerq1faxhtwrety1z4ezuogtsqw7wk3917rpy",
   "roles": [
     "notices",
     "query",
@@ -30,15 +30,15 @@
   ],
   "scopes": [
     {
-      "key": "pz6c7qywejnprcr9ixrscfpm88mxjxjx8kgpurk5qsx657i81mco"
+      "key": "451qzkxosuipo54canbsqqx3uz44nmbfe9ebwcagjjyto9zct6fo"
     }
   ],
   "sequence": 2,
   "slices": [
     {
-      "set": "RbQvTmgEtffaBFx8qTxFPhgU4E188/Jx+Od2YKc/i2s=",
+      "set": "wTwjvzpcbWyEXUKztcqa4F9Jm8xQI7VkczoJCMM9Hug=",
       "through": "7",
-      "url": "pubky://yba5zhgperqp4eyz7t6c7i3gb5ddy9ffc59bfypwc53g8ygphyry/pub/slime.pubky.app/slices/2/"
+      "url": "pubky://ahj91ipj5suirodjthq7ncnquxdnuemyaicofp7jo1hzam6e5day/pub/slime/slices/2/"
     }
   ]
 }

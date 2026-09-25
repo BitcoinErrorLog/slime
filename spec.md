@@ -32,7 +32,7 @@ Requirements use MUST, SHOULD, and MAY.
 - **Notice.** A pointer that says: this public record references you, fetch it here.
 - **Familiar scope.** The public records a device collects and keeps (section 3.1).
 
-Slime writes its own documents under the namespace `/pub/slime.pubky.app/`.
+Slime writes its own documents under the namespace `/pub/slime/`.
 
 Three conformance levels:
 
@@ -239,7 +239,7 @@ A scope is one of `{"key": K}`, `{"label": L}`, `{"host": H}`, or `{"uri": U}`, 
 
 An entries-only slice lists entries. A slice with records also carries the records under `records/<author>/<path>` and their public dependencies. Every record body in it MUST have an entry with the same URI and content hash. The next slice from the same provider names the previous one in `set.json` `previous`.
 
-Slices live at the operator's namespace (`pubky://<operator>/pub/slime.pubky.app/slices/<n>/`), at a provider endpoint, and at any mirror. Anyone MAY mirror one, because the signature and the hashes travel with it. A torrent MAY carry a snapshot, for example through Torky (`pubky-swarm`). Nothing requires one.
+Slices live at the operator's namespace (`pubky://<operator>/pub/slime/slices/<n>/`), at a provider endpoint, and at any mirror. Anyone MAY mirror one, because the signature and the hashes travel with it. A torrent MAY carry a snapshot, for example through Torky (`pubky-swarm`). Nothing requires one.
 
 A receiver verifies the set, checks that the signer is the slice's provider and that its grant is valid (section 7.2), checks order and scope, checks each carried body against its entry, and imports the bodies with the provider recorded as supplier. Entries without bodies become fetch candidates. The provider never learns what the receiver searches afterward. That is why the read order (section 6.3) puts retained slices before any live lookup. Publishing one needs only the user's own homeserver, with no server process on the device.
 
@@ -290,7 +290,7 @@ A provider publishes `slime-provider/1`, signed by its provider key (section 8.1
 
 The provider key is a grant client key (section 7.2). It MUST NOT be the operator's identity key. A reader accepts an advertisement only when its signature verifies under the provider key and the grant passes the checks in section 7.2 with the operator as issuer.
 
-An advertisement lives at `pubky://<operator>/pub/slime.pubky.app/providers/<provider-key>.json`, with its `.jws` signature, written through the provider key's own grant session. That is the same pattern Paykit uses to bind a receiver's Noise key to an identity: its receiver marker at `/pub/paykit/v0/{receiver_path}/receiver.json` is written through a session the identity granted. Copies also live at the endpoint and inside folders under `providers/`. Slime adds no PKARR record types.
+An advertisement lives at `pubky://<operator>/pub/slime/providers/<provider-key>.json`, with its `.jws` signature, written through the provider key's own grant session. That is the same pattern Paykit uses to bind a receiver's Noise key to an identity: its receiver marker at `/pub/paykit/v0/{receiver_path}/receiver.json` is written through a session the identity granted. Copies also live at the endpoint and inside folders under `providers/`. Slime adds no PKARR record types.
 
 ### 4.5 Discovery
 
@@ -298,7 +298,7 @@ The **configured mesh** is the set of providers a client may use:
 
 1. Providers the user added.
 2. The defaults the app ships. A Synonym-operated provider sits in the same table as the others, with no special case.
-3. Providers operated by familiar keys: advertisements under `pubky://<key>/pub/slime.pubky.app/providers/`.
+3. Providers operated by familiar keys: advertisements under `pubky://<key>/pub/slime/providers/`.
 4. Mirrors and notice providers named in familiar keys' services documents, for those keys' scopes only.
 5. Providers named in `peers` of advertisements already held, within the crawl budget.
 
@@ -461,10 +461,10 @@ Anyone can verify a grant offline: the EdDSA signature over the JWS against `iss
 
 | Key | Grant capabilities | Held by | Signs |
 |---|---|---|---|
-| Provider key | Write on `/pub/slime.pubky.app/` | The provider process: the user's app, a companion, or a host | Its advertisement and its slices |
+| Provider key | Write on `/pub/slime/` | The provider process: the user's app, a companion, or a host | Its advertisement and its slices |
 | Failover key | Write on `/pub/` | The designated publisher: the device or companion that publishes for the account | Home statements |
 
-A Slime document signed by one of these keys carries its grant. A reader accepts the signature only when the grant verifies against the identity the document names, the grant's `cnf` is the signing key, the grant has not expired, and its capabilities allow writing `/pub/slime.pubky.app/`.
+A Slime document signed by one of these keys carries its grant. A reader accepts the signature only when the grant verifies against the identity the document names, the grant's `cnf` is the signing key, the grant has not expired, and its capabilities allow writing `/pub/slime/`.
 
 Revocation is not visible to readers. It lives on each homeserver, and only the identity's own sessions can list or revoke grants. A revoked key loses its sessions, so it can no longer write under the identity's namespace, but documents it already signed still verify until `exp`. Readers prefer copies read from the identity's own homeservers.
 
@@ -476,7 +476,7 @@ The identity's PKARR packet lists every enrolled homeserver as its own `_pubky` 
 
 The packet has to stay on the DHT when the primary stops republishing it. So the designated publisher and the mirrors in the services document republish the identity's last signed packet unchanged, which PKARR allows anyone to do, and each enrolled homeserver republishes it too.
 
-An identity publishes a services document, `slime-services/1`, at `pubky://<identity>/pub/slime.pubky.app/services.json`, through its own session. It carries only what does not belong in DNS. Its authority is the homeserver's: only a session the identity granted can write there.
+An identity publishes a services document, `slime-services/1`, at `pubky://<identity>/pub/slime/services.json`, through its own session. It carries only what does not belong in DNS. Its authority is the homeserver's: only a session the identity granted can write there.
 
 | Field | Meaning |
 |---|---|
@@ -513,7 +513,7 @@ It picks the next enrolled homeserver in priority order whose `publish` health i
 | `issued_at` | UTC time. |
 | `grant` | The failover key's grant. |
 
-It writes the statement to `pubky://<identity>/pub/slime.pubky.app/home.json`, with `home.jws`, on every enrolled homeserver it can reach, and sends it to the mirrors in the services document.
+It writes the statement to `pubky://<identity>/pub/slime/home.json`, with `home.jws`, on every enrolled homeserver it can reach, and sends it to the mirrors in the services document.
 
 A Slime reader resolves an identity like this:
 

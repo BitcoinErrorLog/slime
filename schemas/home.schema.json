@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Slime home statement v1",
+  "type": "object",
+  "properties": {
+    "format": {
+      "const": "slime-home/1"
+    },
+    "identity": {
+      "$ref": "urn:slime:schema:common#/$defs/key"
+    },
+    "home": {
+      "$ref": "urn:slime:schema:common#/$defs/key"
+    },
+    "route": {
+      "$ref": "urn:slime:schema:common#/$defs/set_id"
+    },
+    "cert_id": {
+      "$ref": "urn:slime:schema:common#/$defs/cert_id"
+    },
+    "sequence": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "issued_at": {
+      "$ref": "urn:slime:schema:common#/$defs/time"
+    }
+  },
+  "required": [
+    "format",
+    "identity",
+    "home",
+    "route",
+    "cert_id",
+    "sequence",
+    "issued_at"
+  ],
+  "additionalProperties": false
+}

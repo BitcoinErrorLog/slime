@@ -1,10 +1,15 @@
 {
-  "created_at": "2026-09-25T11:00:00Z",
+  "created_at": "2026-09-25T09:00:00Z",
   "files": [
     {
-      "bytes": 203,
+      "bytes": 397,
       "path": "README.md",
-      "sha256": "5371eefd89843e6f7ac8d8ea7167264ca02c39ff35c232b02bf062e9e3a8e683"
+      "sha256": "721161a5b3533bb51cf621ad65ff782c823cc647578abdd7ecae32126785c8a5"
+    },
+    {
+      "bytes": 2190,
+      "path": "index.json",
+      "sha256": "bfe57bf1d58eb89ec207b3baed11828396c534dbf2e64cac8452a1d5481b61fb"
     },
     {
       "bytes": 316,
@@ -65,19 +70,7 @@
       "origin": "pubky://kq47ts1oghjief4acyjc7q8nuut5iodyw48atubb5d9h1gmoz1no/pub/slime-example/shop.json",
       "path": "records/kq47ts1oghjief4acyjc7q8nuut5iodyw48atubb5d9h1gmoz1no/pub/slime-example/shop.json",
       "sha256": "d470c2bf78ebf40c4a58834e4282209f4d33eb1701cbfe4c482d7f6752b21c24"
-    },
-    {
-      "bytes": 176,
-      "origin": "pubky://q6t3ip69n3t75uw349peoee36raxsqm49e1nep61a45pw3b8pp5o/pub/slime-example/tags/print-2.json",
-      "path": "records/q6t3ip69n3t75uw349peoee36raxsqm49e1nep61a45pw3b8pp5o/pub/slime-example/tags/print-2.json",
-      "sha256": "8221b438d4e800bc5490535c1418eec60106e5abd0d0109d3b61038d30a02fd2"
-    },
-    {
-      "bytes": 2564,
-      "path": "slice.json",
-      "sha256": "3b69eaa2dbd95b33f64e5bb018673f0e73e8f6257d62e966f3337b45b4f25aad"
     }
   ],
-  "format": "slime-set/1",
-  "previous": "sha256:b38fd5f1242ab12b0999318c509afcf928adb6b5bff0ddc7663385db21303cf5"
+  "format": "slime-set/1"
 }

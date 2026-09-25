@@ -1,0 +1,8 @@
+{
+  "algorithm": "Ed25519",
+  "digest": "sha256:9e804733b230afd30e8d111883aa0839c20a6b4964fd3806bbbddd6172a5732b",
+  "format": "slime-signature/1",
+  "purpose": "home",
+  "signature": "GpyESG-7yyqljhNkeoT5yZ4vGBAKY7OPYWM2-sK88F-9T3k82rkgHiN7LvYsTUoOZe0Q71f2EyD4_JOG8ABgDw",
+  "signer": "xey9uh3brn1wrth34jruunmy5t739xew56hacergjprd9nfoc9yo"
+}

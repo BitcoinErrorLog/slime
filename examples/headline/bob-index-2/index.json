@@ -1,16 +1,19 @@
 {
-  "as_of": "2026-09-25T09:00:00Z",
+  "as_of": "2026-09-25T11:00:00Z",
   "entries": [
     {
-      "kind": "shop",
+      "kind": "other",
+      "refs": [
+        "pubky://kq47ts1oghjief4acyjc7q8nuut5iodyw48atubb5d9h1gmoz1no/"
+      ],
       "seq": "1",
       "sha256": "d470c2bf78ebf40c4a58834e4282209f4d33eb1701cbfe4c482d7f6752b21c24",
       "uri": "pubky://kq47ts1oghjief4acyjc7q8nuut5iodyw48atubb5d9h1gmoz1no/pub/slime-example/shop.json"
     },
     {
-      "kind": "listing",
+      "kind": "other",
       "refs": [
-        "pubky://kq47ts1oghjief4acyjc7q8nuut5iodyw48atubb5d9h1gmoz1no/pub/slime-example/shop.json"
+        "pubky://kq47ts1oghjief4acyjc7q8nuut5iodyw48atubb5d9h1gmoz1no/"
       ],
       "seq": "2",
       "sha256": "99a2e249dcf6baf80b8deefe07a0851f54463b0bda5e13a0e09d5cb398d1e640",
@@ -33,22 +36,32 @@
       "uri": "pubky://kq47ts1oghjief4acyjc7q8nuut5iodyw48atubb5d9h1gmoz1no/pub/slime-example/blobs/dc0a6bcfa8b224dadda57c997ec68bf786c1d2a6d479c958b52c12b8c0b44135"
     },
     {
-      "kind": "listing",
+      "kind": "other",
       "refs": [
-        "pubky://kq47ts1oghjief4acyjc7q8nuut5iodyw48atubb5d9h1gmoz1no/pub/slime-example/blobs/dc0a6bcfa8b224dadda57c997ec68bf786c1d2a6d479c958b52c12b8c0b44135",
-        "pubky://kq47ts1oghjief4acyjc7q8nuut5iodyw48atubb5d9h1gmoz1no/pub/slime-example/shop.json"
+        "pubky://kq47ts1oghjief4acyjc7q8nuut5iodyw48atubb5d9h1gmoz1no/",
+        "pubky://kq47ts1oghjief4acyjc7q8nuut5iodyw48atubb5d9h1gmoz1no/pub/slime-example/blobs/dc0a6bcfa8b224dadda57c997ec68bf786c1d2a6d479c958b52c12b8c0b44135"
       ],
       "seq": "5",
       "sha256": "f83c6058dec437d083a59df31009937129fece0f9b735c909ed64419a372d5a9",
       "uri": "pubky://kq47ts1oghjief4acyjc7q8nuut5iodyw48atubb5d9h1gmoz1no/pub/slime-example/listings/print-2.json"
+    },
+    {
+      "kind": "tag",
+      "label": "great-print",
+      "refs": [
+        "pubky://kq47ts1oghjief4acyjc7q8nuut5iodyw48atubb5d9h1gmoz1no/pub/slime-example/listings/print-2.json"
+      ],
+      "seq": "6",
+      "sha256": "8221b438d4e800bc5490535c1418eec60106e5abd0d0109d3b61038d30a02fd2",
+      "uri": "pubky://by8p8hf7i95w89niyfpkauy6j37kg9ehru5wrm9dfp1pg3pr7c5o/pub/slime-example/tags/print-2.json"
     }
   ],
-  "format": "slime-slice/1",
-  "provider": "pczjo5k55rbz55ceohtso7mrmbc74senpsthsrs9i7js6socbbpy",
+  "format": "slime-index/1",
+  "provider": "xey9uh3brn1wrth34jruunmy5t739xew56hacergjprd9nfoc9yo",
   "scopes": [
     {
       "key": "kq47ts1oghjief4acyjc7q8nuut5iodyw48atubb5d9h1gmoz1no"
     }
   ],
-  "through": "5"
+  "through": "6"
 }

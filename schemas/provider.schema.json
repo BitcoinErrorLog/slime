@@ -12,6 +12,9 @@
     "operator": {
       "$ref": "urn:slime:schema:common#/$defs/key"
     },
+    "cert_id": {
+      "$ref": "urn:slime:schema:common#/$defs/cert_id"
+    },
     "sequence": {
       "type": "integer",
       "minimum": 1,
@@ -41,7 +44,7 @@
         "enum": [
           "records",
           "query",
-          "slices",
+          "indexes",
           "notices"
         ]
       }
@@ -55,7 +58,7 @@
         "$ref": "urn:slime:schema:common#/$defs/scope"
       }
     },
-    "slices": {
+    "indexes": {
       "type": "array",
       "maxItems": 64,
       "items": {
@@ -86,7 +89,7 @@
       "maxItems": 64,
       "uniqueItems": true,
       "items": {
-        "$ref": "urn:slime:schema:common#/$defs/key"
+        "$ref": "urn:slime:schema:common#/$defs/provider_ref"
       }
     },
     "limits": {
@@ -109,6 +112,8 @@
   "required": [
     "format",
     "provider",
+    "operator",
+    "cert_id",
     "sequence",
     "issued_at",
     "expires_at",

@@ -1,0 +1,24 @@
+{
+  "alice": {
+    "app_id": "slime",
+    "app_keys": [
+      {
+        "cert_id": "cce0bfba2168867b4679e73eadd80d77",
+        "expires_at": "2027-03-20T12:00:00Z",
+        "key": "3dh8ry34s13z8xfspam6pk7g9uejjm64uu943yenu697h7cfchao"
+      }
+    ],
+    "identity": "t6k4qwfko1a4h7yk78kgyhzzzx6pgdfk4sz69c96znto6agyupxo"
+  },
+  "bob": {
+    "app_id": "slime",
+    "app_keys": [
+      {
+        "cert_id": "5212690506a8ef6c20306492de6ae631",
+        "expires_at": "2027-09-25T00:00:00Z",
+        "key": "xey9uh3brn1wrth34jruunmy5t739xew56hacergjprd9nfoc9yo"
+      }
+    ],
+    "identity": "8okqtqjff3eqcd3jmkcjgc6acps8sfca4yw6y7389cwhctsb518y"
+  }
+}

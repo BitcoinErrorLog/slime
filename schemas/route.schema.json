@@ -27,27 +27,14 @@
       }
     },
     "failover": {
-      "type": "object",
-      "properties": {
-        "key": {
-          "$ref": "urn:slime:schema:common#/$defs/key"
-        },
-        "expires_at": {
-          "$ref": "urn:slime:schema:common#/$defs/time"
-        }
-      },
-      "required": [
-        "key",
-        "expires_at"
-      ],
-      "additionalProperties": false
+      "$ref": "urn:slime:schema:common#/$defs/key"
     },
     "notice": {
       "type": "array",
       "maxItems": 8,
       "uniqueItems": true,
       "items": {
-        "$ref": "urn:slime:schema:common#/$defs/key"
+        "$ref": "urn:slime:schema:common#/$defs/provider_ref"
       }
     },
     "mirrors": {
@@ -55,7 +42,7 @@
       "maxItems": 8,
       "uniqueItems": true,
       "items": {
-        "$ref": "urn:slime:schema:common#/$defs/key"
+        "$ref": "urn:slime:schema:common#/$defs/provider_ref"
       }
     },
     "providers": {

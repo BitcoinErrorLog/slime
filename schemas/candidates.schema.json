@@ -1,0 +1,143 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Slime query response v1",
+  "type": "object",
+  "properties": {
+    "format": {
+      "const": "slime-candidates/1"
+    },
+    "provider": {
+      "$ref": "urn:slime:schema:common#/$defs/key"
+    },
+    "query": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "op": {
+              "const": "author"
+            },
+            "key": {
+              "$ref": "urn:slime:schema:common#/$defs/key"
+            },
+            "kind": {
+              "$ref": "urn:slime:schema:common#/$defs/kind"
+            },
+            "after": {
+              "$ref": "urn:slime:schema:common#/$defs/seq"
+            }
+          },
+          "required": [
+            "op",
+            "key"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "op": {
+              "const": "label"
+            },
+            "label": {
+              "$ref": "urn:slime:schema:common#/$defs/label"
+            },
+            "after": {
+              "$ref": "urn:slime:schema:common#/$defs/seq"
+            }
+          },
+          "required": [
+            "op",
+            "label"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "op": {
+              "const": "refs"
+            },
+            "uri": {
+              "$ref": "urn:slime:schema:common#/$defs/target_uri"
+            },
+            "kind": {
+              "$ref": "urn:slime:schema:common#/$defs/kind"
+            },
+            "after": {
+              "$ref": "urn:slime:schema:common#/$defs/seq"
+            }
+          },
+          "required": [
+            "op",
+            "uri"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "op": {
+              "const": "domain"
+            },
+            "host": {
+              "$ref": "urn:slime:schema:common#/$defs/host"
+            },
+            "after": {
+              "$ref": "urn:slime:schema:common#/$defs/seq"
+            }
+          },
+          "required": [
+            "op",
+            "host"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "as_of": {
+      "$ref": "urn:slime:schema:common#/$defs/time"
+    },
+    "entries": {
+      "type": "array",
+      "maxItems": 1000,
+      "items": {
+        "$ref": "urn:slime:schema:common#/$defs/entry"
+      }
+    },
+    "complete": {
+      "type": "boolean"
+    },
+    "next": {
+      "$ref": "urn:slime:schema:common#/$defs/seq"
+    }
+  },
+  "required": [
+    "format",
+    "provider",
+    "query",
+    "as_of",
+    "entries",
+    "complete"
+  ],
+  "additionalProperties": false,
+  "if": {
+    "properties": {
+      "complete": {
+        "const": false
+      }
+    }
+  },
+  "then": {
+    "required": [
+      "next"
+    ]
+  },
+  "else": {
+    "not": {
+      "required": [
+        "next"
+      ]
+    }
+  }
+}

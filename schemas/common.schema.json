@@ -1,0 +1,210 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:slime:schema:common",
+  "title": "Slime shared definitions v1",
+  "$defs": {
+    "key": {
+      "type": "string",
+      "pattern": "^[ybndrfg8ejkmcpqxot1uwisza345h769]{52}$"
+    },
+    "time": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"
+    },
+    "seq": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]{0,18})$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "set_id": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "record_uri": {
+      "type": "string",
+      "maxLength": 8192,
+      "pattern": "^pubky://[ybndrfg8ejkmcpqxot1uwisza345h769]{52}/pub/[^?#\\s]+$"
+    },
+    "target_uri": {
+      "type": "string",
+      "maxLength": 8192,
+      "pattern": "^(pubky://[ybndrfg8ejkmcpqxot1uwisza345h769]{52}/(pub/[^?#\\s]+)?|https?://[^\\s]+)$"
+    },
+    "label": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100,
+      "pattern": "^[^\\s]+$"
+    },
+    "host": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 253,
+      "pattern": "^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)*$"
+    },
+    "kind": {
+      "enum": [
+        "profile",
+        "post",
+        "follow",
+        "mute",
+        "tag",
+        "bookmark",
+        "feed",
+        "shop",
+        "listing",
+        "review",
+        "file",
+        "blob",
+        "other"
+      ]
+    },
+    "scope": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "key": {
+              "$ref": "#/$defs/key"
+            }
+          },
+          "required": [
+            "key"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "label": {
+              "$ref": "#/$defs/label"
+            }
+          },
+          "required": [
+            "label"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "host": {
+              "$ref": "#/$defs/host"
+            }
+          },
+          "required": [
+            "host"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "entry": {
+      "type": "object",
+      "properties": {
+        "seq": {
+          "$ref": "#/$defs/seq"
+        },
+        "uri": {
+          "$ref": "#/$defs/record_uri"
+        },
+        "kind": {
+          "$ref": "#/$defs/kind"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "refs": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 64,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/target_uri"
+          }
+        },
+        "label": {
+          "$ref": "#/$defs/label"
+        },
+        "gone": {
+          "const": true
+        }
+      },
+      "required": [
+        "seq",
+        "uri",
+        "kind"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "tag"
+              }
+            }
+          },
+          "then": {
+            "anyOf": [
+              {
+                "required": [
+                  "label"
+                ]
+              },
+              {
+                "required": [
+                  "gone"
+                ]
+              }
+            ]
+          },
+          "else": {
+            "not": {
+              "required": [
+                "label"
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "required": [
+              "gone"
+            ]
+          },
+          "then": {
+            "not": {
+              "anyOf": [
+                {
+                  "required": [
+                    "sha256"
+                  ]
+                },
+                {
+                  "required": [
+                    "refs"
+                  ]
+                },
+                {
+                  "required": [
+                    "label"
+                  ]
+                }
+              ]
+            }
+          },
+          "else": {
+            "required": [
+              "sha256"
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

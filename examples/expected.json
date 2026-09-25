@@ -1,4 +1,30 @@
 {
+  "headline": {
+    "identities": {
+      "alice": "4pp1y4xkdpzquyp9wt7kxs395ihj93ioijt5nxq7xbr7khod4hcy",
+      "alice_failover": "y8s7w4d9d7fzih797b88ymx9qobggzczc9rc3ebdyhcfhsazko1y",
+      "bob": "dy5j1men6yxfoqb3ihte7s6p9wgjqayupro6ki81a8aairxikwxy",
+      "bob_provider": "pczjo5k55rbz55ceohtso7mrmbc74senpsthsrs9i7js6socbbpy",
+      "carol": "q6t3ip69n3t75uw349peoee36raxsqm49e1nep61a45pw3b8pp5o",
+      "dana": "kq47ts1oghjief4acyjc7q8nuut5iodyw48atubb5d9h1gmoz1no",
+      "homeserver_alternate": "q137yp465ytbgfj85k5gas64o99kaii5dwzgay8uogcfgt3bqiwo",
+      "homeserver_primary": "pfju6i9x3ybssnjs6ibsy71tsznpwga7uh9ee6wzy5rfsnsh18oy",
+      "other_provider": "7xqwmiwsk4fwnsuoowc1djnn4jxfqtaco7wib1qeuhby7trtsfxy"
+    },
+    "route": "sha256:e415b46117bc7eb0a45332838d5d6b6cbbe065bf53cb88e8fb86a7b3e1c74f39",
+    "slices": {
+      "bob-slice-1": "sha256:b38fd5f1242ab12b0999318c509afcf928adb6b5bff0ddc7663385db21303cf5",
+      "bob-slice-2": "sha256:aa36565adfb5c2f67171d11e036dba4314e240d3df2353d8942ff391abaf837d"
+    },
+    "uris": {
+      "blob": "pubky://kq47ts1oghjief4acyjc7q8nuut5iodyw48atubb5d9h1gmoz1no/pub/slime-example/blobs/dc0a6bcfa8b224dadda57c997ec68bf786c1d2a6d479c958b52c12b8c0b44135",
+      "carol_tag": "pubky://q6t3ip69n3t75uw349peoee36raxsqm49e1nep61a45pw3b8pp5o/pub/slime-example/tags/print-2.json",
+      "curator_tag": "pubky://8nwd7x787d4xxy6r349npowdz136ibmmnpmyk1m8oxw6faa6oigy/pub/slime-example/tags/shop-1.json",
+      "print": "pubky://kq47ts1oghjief4acyjc7q8nuut5iodyw48atubb5d9h1gmoz1no/pub/slime-example/listings/print-2.json",
+      "shirt": "pubky://kq47ts1oghjief4acyjc7q8nuut5iodyw48atubb5d9h1gmoz1no/pub/slime-example/listings/shirt-1.json",
+      "shop": "pubky://kq47ts1oghjief4acyjc7q8nuut5iodyw48atubb5d9h1gmoz1no/pub/slime-example/shop.json"
+    }
+  },
   "identities": {
     "author": "dbnm5egbtdsk7c5hhufrbpmdxge6h7of7c83qc7wygy1m7qhug6y",
     "curator": "8nwd7x787d4xxy6r349npowdz136ibmmnpmyk1m8oxw6faa6oigy",
@@ -15,6 +41,8 @@
     "github-inventoried": "sha256:5efa1520cff7506b4325ab9ba93ae375fed4bdd74012d0317d562a55a7ec8d00",
     "github-joined": "sha256:16bc3c52d9476757938e11a725a6eff13bf11d2e8eb33c08b77300fb7188d158",
     "github-signed": "sha256:0f1350920bfc42293d6f840cde0c115f9cebaeb738dacf34b94749d4c42b7a30",
+    "headline/bob-slice-1": "sha256:b38fd5f1242ab12b0999318c509afcf928adb6b5bff0ddc7663385db21303cf5",
+    "headline/bob-slice-2": "sha256:aa36565adfb5c2f67171d11e036dba4314e240d3df2353d8942ff391abaf837d",
     "shops-public": "sha256:ab9454f308f2ea05858dc7309ca6dd4788ce717c716a2dd0874354e008eab64d",
     "shops-withdrawn": "sha256:88ad50f6ecea2d96a031d27c133f4da8534d853ce7e129371f4071f9da0659e4"
   },

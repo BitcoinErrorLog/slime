@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Slime notice v1",
+  "type": "object",
+  "properties": {
+    "format": {
+      "const": "slime-notice/1"
+    },
+    "source": {
+      "$ref": "urn:slime:schema:common#/$defs/record_uri"
+    },
+    "target": {
+      "type": "string",
+      "maxLength": 8192,
+      "pattern": "^pubky://[ybndrfg8ejkmcpqxot1uwisza345h769]{52}/(pub/[^?#\\s]+)?$"
+    },
+    "sha256": {
+      "$ref": "urn:slime:schema:common#/$defs/sha256"
+    },
+    "created_at": {
+      "$ref": "urn:slime:schema:common#/$defs/time"
+    }
+  },
+  "required": [
+    "format",
+    "source",
+    "target",
+    "created_at"
+  ],
+  "additionalProperties": false
+}

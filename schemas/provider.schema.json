@@ -1,0 +1,119 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Slime provider advertisement v1",
+  "type": "object",
+  "properties": {
+    "format": {
+      "const": "slime-provider/1"
+    },
+    "provider": {
+      "$ref": "urn:slime:schema:common#/$defs/key"
+    },
+    "operator": {
+      "$ref": "urn:slime:schema:common#/$defs/key"
+    },
+    "sequence": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "issued_at": {
+      "$ref": "urn:slime:schema:common#/$defs/time"
+    },
+    "expires_at": {
+      "$ref": "urn:slime:schema:common#/$defs/time"
+    },
+    "endpoints": {
+      "type": "array",
+      "maxItems": 8,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "maxLength": 2048,
+        "pattern": "^https://[^\\s?#]+$"
+      }
+    },
+    "roles": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "records",
+          "query",
+          "slices",
+          "notices"
+        ]
+      }
+    },
+    "scopes": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 10000,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "urn:slime:schema:common#/$defs/scope"
+      }
+    },
+    "slices": {
+      "type": "array",
+      "maxItems": 64,
+      "items": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "maxLength": 2048,
+            "pattern": "^(pubky://[ybndrfg8ejkmcpqxot1uwisza345h769]{52}/pub/[^?#\\s]*/|https://[^\\s?#]+/)$"
+          },
+          "set": {
+            "$ref": "urn:slime:schema:common#/$defs/set_id"
+          },
+          "through": {
+            "$ref": "urn:slime:schema:common#/$defs/seq"
+          }
+        },
+        "required": [
+          "url",
+          "set",
+          "through"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "peers": {
+      "type": "array",
+      "maxItems": 64,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "urn:slime:schema:common#/$defs/key"
+      }
+    },
+    "limits": {
+      "type": "object",
+      "properties": {
+        "max_entries": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000
+        },
+        "requests_per_minute": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100000
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "format",
+    "provider",
+    "sequence",
+    "issued_at",
+    "expires_at",
+    "roles",
+    "scopes"
+  ],
+  "additionalProperties": false
+}

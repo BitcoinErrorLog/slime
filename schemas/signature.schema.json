@@ -9,7 +9,8 @@
     "purpose": {
       "enum": [
         "set",
-        "record"
+        "record",
+        "provider"
       ]
     },
     "algorithm": {

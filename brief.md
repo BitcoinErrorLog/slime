@@ -1,51 +1,82 @@
 # Slime
 
-Slime is the part of Pubky a person can keep. They retain the posts, tags, and offers they use, read that set without asking an indexer what exists, and give the same files to someone else as a folder.
+Slime (Social Latent Intelligence Mesh Exchange) has two jobs.
 
-Pubky already separates a key from the machine that stores bytes. A **homeserver** is the host that stores a key's records. **PKARR** publishes where that homeserver is, so a client can find it from the key alone. An indexer such as Nexus can still build a large view on top. If the indexer is the only way to see people, tags, and offers, the indexer decides what is visible. A cached feed page is not enough to rebuild those relationships.
+1. **P2P indexing.** People share what they already know: records, tags, follows, shops, listings, and slices of their own index. The network stays densely indexed without any single indexer, and anyone can discover it and crawl it.
+2. **Local fallback.** When an indexer or a homeserver is disrupted or censored, the app keeps working from local state and replaceable providers. Reading, search, browsing followed shops and listings, composing, and publishing all continue. The switch is automatic.
 
-Slime draws a line between three things. The **replica** is the original records and local work stored on the device. The **index** is a view computed from those records: a feed, a tag lookup, a catalog filter. **Exchange** is handing someone a folder of the records, not a login to your indexer. A provider can add coverage. Losing one provider loses freshness, not the working set.
+Synonym and every other provider is automatically replaceable. Synonym's Nexus and Synonym's homeserver are the convenient defaults. Neither is necessary for continuity, discovery, or participation.
 
-## What a person can do
+## The test
 
-- Keep the authors, tags, and public offers they selected, as the original bytes.
-- Open the app offline, search what they kept, and compose. The draft is still there after a restart.
-- Publish later, through an authorized homeserver. The indexer does not confirm publication.
-- Export a folder or a ZIP. The recipient imports it and searches it without calling the sender.
-- See who wrote a record, who supplied the copy, and what evidence came with it.
-- Keep the public records of familiar keys fresh by fetching them from those keys' homeservers and from other people who already hold them, and by serving the public copies they already hold when asked.
+Alice, Bob, and Carol use Pubky App. Dana sells prints from her own homeserver.
 
-Nexus stays useful for broad discovery. A read uses the local index first. Nexus fills gaps outside the familiar set. Its answers land in the replica as the authors' records, not as the indexer's ranking.
+Synonym's Nexus disappears completely. Alice follows Dana. Bob already retains Dana's shop, listings, and tags, and his Slime provider advertises that scope. Alice's app finds Bob's provider through her configured mesh, pulls Dana's shop, listings, and tags, builds them into her local index, and searches them offline.
 
-A **familiar key** is one you follow, one you mark trusted, or the seller of a shop or listing you follow. The trust mark stays on the device. Public tags by those keys, and public tags whose target you keep, are familiar records too. So are the public shop records and listings of sellers you follow, and listings you have publicly bookmarked. A private favorite fetches that public shop and its listings onto the device and indexes them there. It does not publish the favorite, and it does not add that seller to the keys you answer for. If someone already names that listing, the public bytes can be returned without saying it was a favorite.
+Carol publishes a new tag on one of Dana's listings. Alice sees it through Bob's index or a notice, with no Synonym service involved.
+
+Then Synonym's homeserver starts refusing Alice's writes. Alice publishes a new post. An alternate homeserver she enrolled earlier accepts it, her public location moves to that alternate, and Bob and Carol read the post. Alice's identity seed never leaves Pubky Ring.
+
+When that works, Slime works. The [development plan](development-plan.md) ends on this test.
+
+## Job 1: the network indexes itself
+
+Pubky already separates a key from the machine that stores its bytes. A **homeserver** stores a key's records. **[PKARR](https://github.com/pubky/pkarr)** publishes where that homeserver is, signed by the key itself. An indexer such as Nexus builds a large view on top. If that indexer is the only way to find people, tags, and shops, the indexer decides what is visible.
+
+Slime spreads that job across everyone who already holds the data:
+
+- **Entries.** Every retained record reduces to one line: its URI, kind, hash, and what it references. An entry is a candidate. The receiver checks it against the bytes and indexes it locally.
+- **Index slices.** A provider signs a folder of entries for a scope it chose, such as one seller's key, and publishes it on its own homeserver. Anyone can download it and search it privately. The provider never sees the search.
+- **Live queries.** A provider that runs an endpoint answers four questions: records by a key, tags with a label, records that reference a URI, and links to a domain. Answers are candidate lists, never rankings.
+- **Advertisements.** A provider signs a small statement: its endpoint, its roles, the scopes it retains, its current slices, and a few peers. PKARR can point at it. No registry is required.
+- **Notices.** When a stranger replies to you, tags your listing, or follows you, their client tells your chosen notice providers where the record is. The providers check it and index it. You fetch it and check it again.
+
+Your app shares the public records of the keys you follow, including the shops and listings you follow publicly, as a slice on your own homeserver. That default keeps offers, tags, and listings findable when an indexer is gone. Turn it off and your app only fetches.
+
+## Job 2: the app keeps working
+
+The app renders from a **replica** on the device: the original records, your local work, where each copy came from, and an index built from those records. Every network source synchronizes with the replica. None of them is required to open it.
+
+- Open the app offline. Read, search, and browse the shops and listings you follow, with their images when they were retained.
+- Compose offline. The draft and the outbox survive restarts and expired sessions.
+- Publish through your homeserver. If it refuses you, the app switches to an alternate you enrolled once through Ring. A scoped failover key moves your public location among those alternates. It cannot do anything else.
+- Configure providers once. When one fails, the next eligible one takes over for that role and scope. No endpoint editing during an outage.
+
+Reads go outward only as far as needed: your local index, then slices you already hold, then a live peer, then the author's homeservers, then a large indexer, then its alternates. Each step outward adds a witness, so the nearest answer wins.
+
+## What is covered
+
+The [coverage matrix](spec.md#1-coverage) has one row for each data type below. Each row says how the type is shared and crawled, how it is retained locally, what happens when a provider fails, and where its privacy boundary sits.
+
+- **Social:** profiles, posts, replies, follows, mutes, tags, bookmarks and favorites, custom feeds, notices and mentions.
+- **Commerce:** shops, listings, offers, reviews, followed shops and followed listings, locked content.
+- **What records depend on:** blobs, media, and other dependencies; proofs, signatures, and history.
+- **Slime's own documents:** index slices; provider advertisements and routes.
+- **Never shared:** the private workspace; transactions.
+
+Followed shops and followed listings get their own row because they carry both jobs. A public follow makes the seller part of what you retain and share. A private follow is a favorite: the app retains and indexes the shop, all its listings, the tags and reviews on them, and their images, and none of that preference leaves your device.
 
 ## How trust works
 
-A copied record is not a new endorsement. Serving a tag does not mean you agree with it. A curator's signature means that curator shipped this selection. It does not mean they wrote every file inside it. A tag remains a claim by one key about one target. Importing a key list does not follow those keys. Importing a ranking does not adopt it.
+A copied record is not a new endorsement. Serving a tag does not mean you agree with it. A provider's signature means that provider shipped this slice. It does not mean it wrote the records inside. A tag remains a claim by one key about one target. Importing a key list does not follow those keys. Importing a ranking does not adopt it, and Slime never ships one.
 
-By default the app fetches and serves public records for familiar keys. That default is how offers, tags, and listings stay available when an indexer is gone. Turn serving off and the device only fetches. Searches, drafts, orders, private favorites, and anything an indexer added on its own stay on the device.
+The reader chooses which sources count. Two people can hold the same files and weight them differently. Nothing in a README or an advertisement changes follows, trust, signing, or sharing.
 
-The reader chooses which sources count. Two people can hold the same files and weight them differently. Nothing in a README changes follows, trust, signing, or sharing.
-
-Search over retained records stays on the device. A public folder contains only what the sender selected. Orders, addresses, payment requests, and drafts stay out of it. Paying is a separate step, through Paykit, against the live seller. A Lock still gates access. The folder does not reserve stock or freeze a price.
+Searches, drafts, carts, orders, private favorites, private follows, and trust marks stay on the device. A public folder contains only what the sender selected. Paying is a separate step, through Paykit, against the live seller. A Lock still gates access. A retained catalog does not reserve stock or freeze a price.
 
 ## When something fails
 
 | What failed | What still works |
 |---|---|
-| The indexer | The local index still answers. Familiar keys still refresh from their homeservers and from peers who hold those public records. Anything never retained and not held by a peer is missing, and the app says so. |
-| The homeserver | Local work remains. Publication waits. A spare copy is not silently promoted to the publisher. |
-| The network | The installed app opens retained records and drafts across a restart. |
+| The indexer | The local index answers. Slices and live peers fill gaps. Familiar keys refresh from their homeservers. The app says what it could not reach. |
+| Another key's homeserver | That key's records come from the replica, its other enrolled homeservers, its mirrors, peers, and slices. |
+| Your homeserver refuses you | Publication moves to an enrolled alternate automatically. Slime readers follow. Other clients follow once Ring moves the main record, and the app says when that has not happened yet. |
+| A notice provider | The sender tries your other notice providers. Peers' answers carry the same references. |
+| The network | The installed app opens retained records, followed shops, and drafts across restarts. |
 | A supplier omits a known record | The retained copy stays. Omission is not a deletion by the author. |
-| A signed folder was altered | The import is held back. It is not treated as a trusted unsigned folder. |
+| A signed slice or folder was altered | The import is held back. It is not treated as a trusted unsigned folder. |
 | Two copies disagree | Both are kept. The reader's source rules pick one, or the conflict is shown. |
-
-Moving the public homeserver address in PKARR is an identity action. The app does not do it by itself, and it does not take the identity seed to try.
 
 ## Limits
 
-Slime cannot recover bytes nobody stored, learn about events while fully offline, or prove a search covered the whole network. A person who receives plaintext can copy it. An old catalog is not the current price or the current stock. A signature is not proof that a claim is true.
-
-## Done when
-
-Block the main indexer, restart offline, read and search the retained set, write a draft, restart again, and still have it. Two people who follow the same seller still have that seller's public tags, shop record, and listings when the indexer is down, because one of them already held the bytes. A second client imports a folder of GitHub tags and rebuilds the same attributed tags without contacting the exporter. A public catalog searches with the network blocked and contains no orders, addresses, or payment data. A private favorite never appears in what was served. A change to a signed file, the README, or an origin mapping is detected. Importing the same folder twice does not duplicate a tag. An older catalog does not bring a withdrawn listing back.
+Slime cannot recover bytes nobody stored, learn about events with no path to anyone, or prove a search covered the whole network. Advertisements do not stop a hostile set of providers from hiding a record. Cross-checking with the author's homeserver narrows that. Publishing failover needs one enrollment through Ring beforehand, and clients that do not implement Slime keep reading the old homeserver until Ring moves the main record. Edits to mutable records wait for a conditional write on the homeserver before they fail over. A person who receives plaintext can copy it. An old catalog is not the current price or the current stock. A signature is not proof that a claim is true.

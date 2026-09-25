@@ -1,11 +1,19 @@
 # Slime
 
-Slime (Social Latent Intelligence Mesh Exchange) lets a person keep the records they actually use, read them from their own index when an indexer is down, and pass public records of people, tags, and shops they follow to others who follow them too. Identity stays a Pubky key. Publishing stays on a homeserver. Slime is the copy you hold and the way you pass it on.
+Slime (Social Latent Intelligence Mesh Exchange) has two jobs on Pubky.
+
+1. **P2P indexing.** Peers share what they already know: records, tags, follows, shops, listings, and slices of their own index. The network stays densely indexed without any single indexer, and anyone can discover it and crawl it.
+2. **Local fallback.** When an indexer or a homeserver is disrupted or censored, the app keeps working from local state and replaceable providers: read, search, browse followed shops and listings, compose, and publish. The switch is automatic.
+
+Synonym and every other provider is automatically replaceable. Identity stays a Pubky key. Publishing stays on homeservers the user chose.
+
+**Done when:** Synonym's Nexus disappears completely. Alice follows Dana's shop, finds Bob's Slime provider through her mesh, pulls Dana's shop, listings, and tags from it, and searches them offline. Carol tags one of Dana's listings, and Alice sees it through Bob's index or a notice. Synonym's homeserver refuses Alice's writes, her pre-enrolled alternate accepts her next post, and Bob and Carol read it. Alice's identity seed never leaves Pubky Ring.
 
 Read in this order:
 
-1. [Brief](brief.md): what it is, what it is for, and what it does not promise.
-2. [Specification](spec.md): records, folders, signatures, import, familiar keys, and the commerce boundary.
-3. [Development plan](development-plan.md): the build sequence, the repos it touches, and the tests that close each step.
+1. [Brief](brief.md): the two jobs, the test, what a person gets, and the limits.
+2. [Specification](spec.md): the coverage matrix, the replica, slices, the query interface, advertisements, notices, routing, publishing failover, folders, and the commerce boundary.
+3. [Development plan](development-plan.md): phases toward the test, the repos each one touches, and the gate that closes it.
+4. [Examples](examples/README.md): reference fixtures, JSON schemas in [schemas/](schemas/), and a Python checker with its tests.
 
 License: [LICENSE](LICENSE)

@@ -1,0 +1,36 @@
+{
+  "endpoints": [
+    "https://slime.bob.example/1"
+  ],
+  "expires_at": "2026-10-25T11:00:00Z",
+  "format": "slime-provider/1",
+  "issued_at": "2026-09-25T11:00:00Z",
+  "limits": {
+    "max_entries": 500,
+    "requests_per_minute": 60
+  },
+  "operator": "dy5j1men6yxfoqb3ihte7s6p9wgjqayupro6ki81a8aairxikwxy",
+  "peers": [
+    "7xqwmiwsk4fwnsuoowc1djnn4jxfqtaco7wib1qeuhby7trtsfxy"
+  ],
+  "provider": "pczjo5k55rbz55ceohtso7mrmbc74senpsthsrs9i7js6socbbpy",
+  "roles": [
+    "notices",
+    "query",
+    "records",
+    "slices"
+  ],
+  "scopes": [
+    {
+      "key": "kq47ts1oghjief4acyjc7q8nuut5iodyw48atubb5d9h1gmoz1no"
+    }
+  ],
+  "sequence": 2,
+  "slices": [
+    {
+      "set": "sha256:aa36565adfb5c2f67171d11e036dba4314e240d3df2353d8942ff391abaf837d",
+      "through": "6",
+      "url": "pubky://dy5j1men6yxfoqb3ihte7s6p9wgjqayupro6ki81a8aairxikwxy/pub/slime/slices/2/"
+    }
+  ]
+}

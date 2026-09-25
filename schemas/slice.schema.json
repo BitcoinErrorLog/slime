@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Slime index slice v1",
+  "type": "object",
+  "properties": {
+    "format": {
+      "const": "slime-slice/1"
+    },
+    "provider": {
+      "$ref": "urn:slime:schema:common#/$defs/key"
+    },
+    "as_of": {
+      "$ref": "urn:slime:schema:common#/$defs/time"
+    },
+    "scopes": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 10000,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "urn:slime:schema:common#/$defs/scope"
+      }
+    },
+    "through": {
+      "$ref": "urn:slime:schema:common#/$defs/seq"
+    },
+    "entries": {
+      "type": "array",
+      "maxItems": 100000,
+      "items": {
+        "$ref": "urn:slime:schema:common#/$defs/entry"
+      }
+    }
+  },
+  "required": [
+    "format",
+    "provider",
+    "as_of",
+    "scopes",
+    "through",
+    "entries"
+  ],
+  "additionalProperties": false
+}

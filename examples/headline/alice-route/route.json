@@ -1,0 +1,18 @@
+{
+  "failover": {
+    "expires_at": "2027-03-20T12:00:00Z",
+    "key": "y8s7w4d9d7fzih797b88ymx9qobggzczc9rc3ebdyhcfhsazko1y"
+  },
+  "format": "slime-route/1",
+  "homeservers": [
+    "pfju6i9x3ybssnjs6ibsy71tsznpwga7uh9ee6wzy5rfsnsh18oy",
+    "q137yp465ytbgfj85k5gas64o99kaii5dwzgay8uogcfgt3bqiwo"
+  ],
+  "identity": "4pp1y4xkdpzquyp9wt7kxs395ihj93ioijt5nxq7xbr7khod4hcy",
+  "issued_at": "2026-09-20T12:00:00Z",
+  "notice": [
+    "pczjo5k55rbz55ceohtso7mrmbc74senpsthsrs9i7js6socbbpy",
+    "d7os3qkcpemhejh199u5nwi873mihoqjtxwy7b3k8m88sfb13m6y"
+  ],
+  "sequence": 1
+}

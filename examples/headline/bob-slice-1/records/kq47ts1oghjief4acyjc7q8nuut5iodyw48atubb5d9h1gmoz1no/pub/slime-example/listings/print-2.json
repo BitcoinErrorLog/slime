@@ -1,0 +1,19 @@
+{
+  "availability": "available",
+  "contact": "pubky://kq47ts1oghjief4acyjc7q8nuut5iodyw48atubb5d9h1gmoz1no",
+  "description": "Synthetic public listing; no customer data.",
+  "example_schema": "demo-listing/1",
+  "listing_id": "print-2",
+  "media": [
+    "pubky://kq47ts1oghjief4acyjc7q8nuut5iodyw48atubb5d9h1gmoz1no/pub/slime-example/blobs/dc0a6bcfa8b224dadda57c997ec68bf786c1d2a6d479c958b52c12b8c0b44135"
+  ],
+  "price": {
+    "amount": "30.00",
+    "kind": "indicative",
+    "unit": "USD"
+  },
+  "quantity": 1,
+  "seller": "kq47ts1oghjief4acyjc7q8nuut5iodyw48atubb5d9h1gmoz1no",
+  "title": "Harbor print, A3",
+  "variant": "a3"
+}

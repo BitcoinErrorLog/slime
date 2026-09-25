@@ -26,9 +26,9 @@ Pubky already separates a key from the machine that stores its bytes. A **homese
 Slime spreads that job across the people who already hold the data, and each of them decides what they share.
 
 - **Sharing controls.** You choose what to share and what not to share: particular people, everyone you follow, particular shops or listings, tag labels, link domains, and kinds of records such as posts, tags, or media. A don't-share choice beats a share choice. Only public records are ever offered. Private favorites, private follows, trust marks, searches, drafts, and orders never appear in the controls.
-- **Your shared index.** The app publishes the result of those choices on your own homeserver: a signed list of the records you chose, with or without the records themselves. That list is your shared index. Anyone can download it and search it privately. You never see their searches.
+- **Your slice.** The app publishes the result of those choices on your own homeserver: a signed list of the records you chose, with or without the records themselves. That list is your slice. Anyone can download it and search it privately. You never see their searches.
 - **Live queries.** A provider that runs an endpoint answers four questions: records by a key, tags with a label, records that reference a URI, and links to a domain. Answers are candidate lists, never rankings.
-- **Advertisements.** A provider signs a small statement: its endpoint, its roles, what its operator chose to share, its current shared index, and a few peers. The signing key is subordinate to the operator's identity key. No registry is required.
+- **Advertisements.** A provider signs a small statement: its endpoint, its roles, what its operator chose to share, its current slice, and a few peers. The signing key is subordinate to the operator's identity key. No registry is required.
 - **Notices.** When a stranger replies to you, tags your listing, or follows you, their client tells providers that serve you where the record is. The providers check it and index it. You fetch it and check it again.
 
 Every entry you receive is a candidate. Your app checks it against the original bytes and builds its own index.
@@ -42,7 +42,7 @@ The app renders from a **replica** on the device: the original records, your loc
 - Publish through your homeserver. If it refuses you, the app switches to an alternate you enrolled once through Ring. A failover key, subordinate to your identity key like Pubky's other delegated keys, signs a statement naming the new home. It can name only homeservers you enrolled, and it can do nothing else.
 - Configure providers once. When one fails, the next eligible one takes over for that role and scope. No endpoint editing during an outage.
 
-Reads go outward only as far as needed: your local index, then shared indexes you already hold, then a live peer, then the author's homeservers, then a large indexer, then its alternates. Each step outward adds a witness, so the nearest answer wins.
+Reads go outward only as far as needed: your local index, then slices you already hold, then a live peer, then the author's homeservers, then a large indexer, then its alternates. Each step outward adds a witness, so the nearest answer wins.
 
 ## What is covered
 
@@ -51,7 +51,7 @@ The [coverage matrix](spec.md#1-coverage) has one row for each data type below. 
 - **Social:** profiles, posts, replies, follows, mutes, tags, bookmarks and favorites, custom feeds, notices and mentions.
 - **Commerce:** shops, listings, offers, reviews, followed shops and followed listings, locked content.
 - **What records depend on:** blobs, media, and other dependencies; proofs, signatures, and history.
-- **Slime's own documents:** shared indexes; provider advertisements, routes, and home statements.
+- **Slime's own documents:** slices; provider advertisements, routes, and home statements.
 - **Never shared:** the private workspace; transactions.
 
 Slime needs no shop or listing schema. A shop is a seller's key and the records the seller publishes. A listing is one of those records. Following a shop is following the seller. Following a listing is bookmarking it. Tags label listings. Slime retains, shares, and indexes those records like any other, by author, URI, and the references inside them.
@@ -60,7 +60,7 @@ Followed shops and followed listings get their own row because they carry both j
 
 ## How trust works
 
-A copied record is not a new endorsement. Sharing a tag does not mean you agree with it. A provider's signature means that provider published this shared index. It does not mean it wrote the records inside. A tag remains a claim by one key about one target. Importing a key list does not follow those keys. Importing a ranking does not adopt it, and Slime never ships one.
+A copied record is not a new endorsement. Sharing a tag does not mean you agree with it. A provider's signature means that provider published this slice. It does not mean it wrote the records inside. A tag remains a claim by one key about one target. Importing a key list does not follow those keys. Importing a ranking does not adopt it, and Slime never ships one.
 
 The reader chooses which sources count. Two people can hold the same files and weight them differently. Nothing in a README or an advertisement changes follows, trust, signing, or sharing choices.
 
@@ -70,13 +70,13 @@ Paying is a separate step, through Paykit, against the live seller. A Lock still
 
 | What failed | What still works |
 |---|---|
-| The indexer | The local index answers. Shared indexes and live peers fill gaps. Familiar keys refresh from their homeservers. The app says what it could not reach. |
-| Another key's homeserver | That key's records come from the replica, its other enrolled homeservers, its mirrors, peers, and shared indexes. |
+| The indexer | The local index answers. Slices and live peers fill gaps. Familiar keys refresh from their homeservers. The app says what it could not reach. |
+| Another key's homeserver | That key's records come from the replica, its other enrolled homeservers, its mirrors, peers, and slices. |
 | Your homeserver refuses you | Publication moves to an enrolled alternate automatically. Slime readers follow the home statement. Other clients follow once Ring moves the main record, and the app says when that has not happened yet. |
 | A notice provider | The sender tries your other notice providers. Peers' answers carry the same references. |
 | The network | The installed app opens retained records, followed shops, and drafts across restarts. |
 | A supplier omits a known record | The retained copy stays. Omission is not a deletion by the author. |
-| A signed shared index or folder was altered | The import is held back. It is not treated as a trusted unsigned folder. |
+| A signed slice or folder was altered | The import is held back. It is not treated as a trusted unsigned folder. |
 | Two copies disagree | Both are kept. The reader's source rules pick one, or the conflict is shown. |
 
 ## Limits

@@ -29,12 +29,12 @@ test_wrong_exporter_pin (test_checks.Conformance.test_wrong_exporter_pin) ... ok
 test_delegation_needs_time (test_headline.Advertisements.test_delegation_needs_time) ... ok
 test_expired_advertisement (test_headline.Advertisements.test_expired_advertisement) ... ok
 test_identity_key_is_not_a_provider_key (test_headline.Advertisements.test_identity_key_is_not_a_provider_key) ... ok
-test_indexes_role_and_list_agree (test_headline.Advertisements.test_indexes_role_and_list_agree) ... ok
 test_live_role_needs_endpoint (test_headline.Advertisements.test_live_role_needs_endpoint) ... ok
 test_newest_sequence_wins_and_scope_filters (test_headline.Advertisements.test_newest_sequence_wins_and_scope_filters) ... ok
 test_provider_signature_is_not_a_set_signature (test_headline.Advertisements.test_provider_signature_is_not_a_set_signature) ... ok
 test_self_peer (test_headline.Advertisements.test_self_peer) ... ok
 test_set_signature_is_not_an_advertisement (test_headline.Advertisements.test_set_signature_is_not_an_advertisement) ... ok
+test_slices_role_and_list_agree (test_headline.Advertisements.test_slices_role_and_list_agree) ... ok
 test_tampered_advertisement (test_headline.Advertisements.test_tampered_advertisement) ... ok
 test_undelegated_provider_key (test_headline.Advertisements.test_undelegated_provider_key) ... ok
 test_unknown_role_rejected (test_headline.Advertisements.test_unknown_role_rejected) ... ok
@@ -58,7 +58,7 @@ test_signer_must_be_routes_failover_key (test_headline.Failover.test_signer_must
 test_stale_statement (test_headline.Failover.test_stale_statement) ... ok
 test_statement_bound_to_route (test_headline.Failover.test_statement_bound_to_route) ... ok
 test_valid_statement (test_headline.Failover.test_valid_statement) ... ok
-test_author_answer_matches_index (test_headline.Headline.test_author_answer_matches_index) ... ok
+test_author_answer_matches_slice (test_headline.Headline.test_author_answer_matches_slice) ... ok
 test_fixtures_carry_no_private_or_ranking_fields (test_headline.Headline.test_fixtures_carry_no_private_or_ranking_fields) ... ok
 test_headline_data_path (test_headline.Headline.test_headline_data_path) ... ok
 test_route_names_bob_for_notices (test_headline.Headline.test_route_names_bob_for_notices) ... ok
@@ -68,21 +68,6 @@ test_lying_candidate_rejected (test_headline.Index.test_lying_candidate_rejected
 test_missing_dependency_reported (test_headline.Index.test_missing_dependency_reported) ... ok
 test_unknown_types_are_indexed_by_their_references (test_headline.Index.test_unknown_types_are_indexed_by_their_references) ... ok
 test_wrong_bytes_rejected (test_headline.Index.test_wrong_bytes_rejected) ... ok
-test_body_without_entry (test_headline.Indexes.test_body_without_entry) ... ok
-test_entries_only_index_is_allowed (test_headline.Indexes.test_entries_only_index_is_allowed) ... ok
-test_entry_kind_must_match_bytes (test_headline.Indexes.test_entry_kind_must_match_bytes) ... ok
-test_entry_must_match_bytes (test_headline.Indexes.test_entry_must_match_bytes) ... ok
-test_entry_outside_scope (test_headline.Indexes.test_entry_outside_scope) ... ok
-test_entry_refs_must_match_bytes (test_headline.Indexes.test_entry_refs_must_match_bytes) ... ok
-test_index_must_be_signed_by_its_provider (test_headline.Indexes.test_index_must_be_signed_by_its_provider) ... ok
-test_label_only_on_tags (test_headline.Indexes.test_label_only_on_tags) ... ok
-test_listing_kinds_are_not_slime_kinds (test_headline.Indexes.test_listing_kinds_are_not_slime_kinds) ... ok
-test_other_provider_pin (test_headline.Indexes.test_other_provider_pin) ... ok
-test_score_field_rejected (test_headline.Indexes.test_score_field_rejected) ... ok
-test_seq_order (test_headline.Indexes.test_seq_order) ... ok
-test_tag_needs_label (test_headline.Indexes.test_tag_needs_label) ... ok
-test_tampered_index (test_headline.Indexes.test_tampered_index) ... ok
-test_through_below_last (test_headline.Indexes.test_through_below_last) ... ok
 test_bare_key_target (test_headline.Notices.test_bare_key_target) ... ok
 test_listed_provider_accepts (test_headline.Notices.test_listed_provider_accepts) ... ok
 test_notice_carries_no_body (test_headline.Notices.test_notice_carries_no_body) ... ok
@@ -90,13 +75,28 @@ test_scope_provider_accepts_only_for_its_scope (test_headline.Notices.test_scope
 test_source_hash (test_headline.Notices.test_source_hash) ... ok
 test_target_must_be_referenced (test_headline.Notices.test_target_must_be_referenced) ... ok
 test_wrong_source (test_headline.Notices.test_wrong_source) ... ok
-test_index_must_match_choices (test_headline.Sharing.test_index_must_match_choices) ... ok
 test_share_a_key (test_headline.Sharing.test_share_a_key) ... ok
 test_share_a_key_without_tags (test_headline.Sharing.test_share_a_key_without_tags) ... ok
 test_share_a_label (test_headline.Sharing.test_share_a_label) ... ok
 test_share_one_listing (test_headline.Sharing.test_share_one_listing) ... ok
+test_slice_must_match_choices (test_headline.Sharing.test_slice_must_match_choices) ... ok
+test_body_without_entry (test_headline.Slices.test_body_without_entry) ... ok
+test_entries_only_slice_is_allowed (test_headline.Slices.test_entries_only_slice_is_allowed) ... ok
+test_entry_kind_must_match_bytes (test_headline.Slices.test_entry_kind_must_match_bytes) ... ok
+test_entry_must_match_bytes (test_headline.Slices.test_entry_must_match_bytes) ... ok
+test_entry_outside_scope (test_headline.Slices.test_entry_outside_scope) ... ok
+test_entry_refs_must_match_bytes (test_headline.Slices.test_entry_refs_must_match_bytes) ... ok
+test_label_only_on_tags (test_headline.Slices.test_label_only_on_tags) ... ok
+test_listing_kinds_are_not_slime_kinds (test_headline.Slices.test_listing_kinds_are_not_slime_kinds) ... ok
+test_other_provider_pin (test_headline.Slices.test_other_provider_pin) ... ok
+test_score_field_rejected (test_headline.Slices.test_score_field_rejected) ... ok
+test_seq_order (test_headline.Slices.test_seq_order) ... ok
+test_slice_must_be_signed_by_its_provider (test_headline.Slices.test_slice_must_be_signed_by_its_provider) ... ok
+test_tag_needs_label (test_headline.Slices.test_tag_needs_label) ... ok
+test_tampered_slice (test_headline.Slices.test_tampered_slice) ... ok
+test_through_below_last (test_headline.Slices.test_through_below_last) ... ok
 
 ----------------------------------------------------------------------
-Ran 97 tests in 0.277s
+Ran 97 tests in 0.329s
 
 OK

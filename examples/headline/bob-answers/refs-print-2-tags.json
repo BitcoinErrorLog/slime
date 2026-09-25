@@ -10,11 +10,11 @@
       ],
       "seq": "6",
       "sha256": "8221b438d4e800bc5490535c1418eec60106e5abd0d0109d3b61038d30a02fd2",
-      "uri": "pubky://by8p8hf7i95w89niyfpkauy6j37kg9ehru5wrm9dfp1pg3pr7c5o/pub/slime-example/tags/print-2.json"
+      "uri": "pubky://kr7c1ztn861wwgkg4ww3i815dyn38twdjrga6sgy9xru1pqepyuo/pub/slime-example/tags/print-2.json"
     }
   ],
   "format": "slime-candidates/1",
-  "provider": "xey9uh3brn1wrth34jruunmy5t739xew56hacergjprd9nfoc9yo",
+  "provider": "xow6mmo7j5her6boj1er4mdskyhsrzewr81iqqpk3bogyuq9o1io",
   "query": {
     "after": "5",
     "kind": "tag",

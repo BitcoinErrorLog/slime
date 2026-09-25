@@ -2,14 +2,9 @@
   "created_at": "2026-09-25T11:00:00Z",
   "files": [
     {
-      "bytes": 211,
+      "bytes": 204,
       "path": "README.md",
-      "sha256": "edc5dbfb07a1f4deeef85a9f64136cede130614bfd60bcab46185c8e16c67a3d"
-    },
-    {
-      "bytes": 2604,
-      "path": "index.json",
-      "sha256": "fd12f1be589758e5d93f683138072454f569b73ffaddb1f5c40bc344f94fe7d1"
+      "sha256": "ffb1fc6df80d9542d1b35b2350ab13a0ab1b827a909b938f48ff9c670b08fd3d"
     },
     {
       "bytes": 316,
@@ -48,12 +43,6 @@
       "sha256": "ea1461ba8b814b6c74c88a71de988c4a68aee4f35e66f0a3d73a3e9d915aebb9"
     },
     {
-      "bytes": 176,
-      "origin": "pubky://by8p8hf7i95w89niyfpkauy6j37kg9ehru5wrm9dfp1pg3pr7c5o/pub/slime-example/tags/print-2.json",
-      "path": "records/by8p8hf7i95w89niyfpkauy6j37kg9ehru5wrm9dfp1pg3pr7c5o/pub/slime-example/tags/print-2.json",
-      "sha256": "8221b438d4e800bc5490535c1418eec60106e5abd0d0109d3b61038d30a02fd2"
-    },
-    {
       "bytes": 108,
       "origin": "pubky://kq47ts1oghjief4acyjc7q8nuut5iodyw48atubb5d9h1gmoz1no/pub/slime-example/blobs/dc0a6bcfa8b224dadda57c997ec68bf786c1d2a6d479c958b52c12b8c0b44135",
       "path": "records/kq47ts1oghjief4acyjc7q8nuut5iodyw48atubb5d9h1gmoz1no/pub/slime-example/blobs/dc0a6bcfa8b224dadda57c997ec68bf786c1d2a6d479c958b52c12b8c0b44135",
@@ -76,8 +65,19 @@
       "origin": "pubky://kq47ts1oghjief4acyjc7q8nuut5iodyw48atubb5d9h1gmoz1no/pub/slime-example/shop.json",
       "path": "records/kq47ts1oghjief4acyjc7q8nuut5iodyw48atubb5d9h1gmoz1no/pub/slime-example/shop.json",
       "sha256": "d470c2bf78ebf40c4a58834e4282209f4d33eb1701cbfe4c482d7f6752b21c24"
+    },
+    {
+      "bytes": 176,
+      "origin": "pubky://kr7c1ztn861wwgkg4ww3i815dyn38twdjrga6sgy9xru1pqepyuo/pub/slime-example/tags/print-2.json",
+      "path": "records/kr7c1ztn861wwgkg4ww3i815dyn38twdjrga6sgy9xru1pqepyuo/pub/slime-example/tags/print-2.json",
+      "sha256": "8221b438d4e800bc5490535c1418eec60106e5abd0d0109d3b61038d30a02fd2"
+    },
+    {
+      "bytes": 2604,
+      "path": "slice.json",
+      "sha256": "5acc952702619fc7e3bd80e7130c74d7da20770edb6eb5cc0b65ced915ebb4bf"
     }
   ],
   "format": "slime-set/1",
-  "previous": "sha256:499b2299c5ab09c5af41a4eed12cd09a8bef1415f01c8e81772c6c2ccb2b26b0"
+  "previous": "sha256:d14194fa8509f381e2a3301c0d039b55da57f422918d7e541286b57f3b3f2c9c"
 }

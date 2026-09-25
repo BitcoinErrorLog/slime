@@ -44,7 +44,7 @@
         "enum": [
           "records",
           "query",
-          "indexes",
+          "slices",
           "notices"
         ]
       }
@@ -58,7 +58,7 @@
         "$ref": "urn:slime:schema:common#/$defs/scope"
       }
     },
-    "indexes": {
+    "slices": {
       "type": "array",
       "maxItems": 64,
       "items": {

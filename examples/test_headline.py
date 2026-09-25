@@ -1,6 +1,6 @@
 """The headline acceptance test's data path, run offline against the fixtures.
 
-Covers what files can show: discovery from a signed advertisement, shared-index import into
+Covers what files can show: discovery from a signed advertisement, slice import into
 a local index, query responses, notices, dependency tracking, and publishing failover through
 a route and a home statement. It does not show that an App boots offline, that Ring issues a
 delegation, or that a homeserver accepts a write.
@@ -8,10 +8,10 @@ delegation, or that a homeserver accepts a write.
 from pathlib import Path
 from datetime import datetime, timezone
 import copy,json,shutil,socket,tempfile,unittest
-from check_sets import (InvalidSet,LocalIndex,accepts_notice,check_delegation,check_entries,check_index,
+from check_sets import (InvalidSet,LocalIndex,accepts_notice,check_delegation,check_entries,check_slice,
                         check_provider,derive,entry_in_scope,parse,providers_for,resolve_home,sha,
                         verify_candidates,verify_home,verify_notice,verify_provider,verify_route,
-                        verify_set,verify_signature,verify_index)
+                        verify_set,verify_signature,verify_slice)
 
 E=Path(__file__).resolve().parent
 H=E/'headline'
@@ -49,10 +49,10 @@ class Headline(NoNetwork):
     def test_headline_data_path(self):
         # Alice follows Dana. Her mesh holds Bob's advertisement: Bob chose to share Dana's key.
         ad=advertisement()
-        chosen=providers_for([ad],ID['dana'],'indexes',NOW)
+        chosen=providers_for([ad],ID['dana'],'slices',NOW)
         self.assertEqual([a['provider'] for a in chosen],[ID['bob_provider']])
-        # She imports Bob's first shared index and builds her own index from the bytes.
-        first=verify_index(E/'headline/bob-index-1',expected_provider=ad['provider'])
+        # She imports Bob's first slice and builds her own index from the bytes.
+        first=verify_slice(E/'headline/bob-slice-1',expected_provider=ad['provider'])
         index=LocalIndex()
         self.assertEqual(index.admit_set(first),5)
         self.assertEqual(index.query('author',key=ID['dana']),sorted([URI['shop'],URI['shirt'],URI['print'],URI['blob']]))
@@ -62,17 +62,17 @@ class Headline(NoNetwork):
         # Carol tags print-2 and notifies a provider that serves Dana's key. Bob accepts and checks it.
         notice=verify_notice(read('carol-notice','notice.json'),URI['carol_tag'],carol_tag())
         self.assertTrue(accepts_notice(notice,ID['bob_provider'],None,ad))
-        # Alice asks Bob's endpoint for tags on print-2 after the index's last seq.
+        # Alice asks Bob's endpoint for tags on print-2 after the slice's last seq.
         answer=verify_candidates(read('bob-answers','refs-print-2-tags.json'),ad)
-        self.assertEqual(answer['query']['after'],first['index']['through'])
+        self.assertEqual(answer['query']['after'],first['slice']['through'])
         [candidate]=answer['entries']
         self.assertTrue(index.admit(candidate['uri'],carol_tag(),candidate['sha256'],candidate))
         self.assertEqual(index.query('refs',uri=URI['print'],kind='tag'),[URI['carol_tag']])
         self.assertEqual(index.query('label',label='great-print'),[URI['carol_tag']])
         # Bob's next snapshot carries the same tag; importing it adds nothing twice.
-        second=verify_index(E/'headline/bob-index-2',expected_provider=ad['provider'])
+        second=verify_slice(E/'headline/bob-slice-2',expected_provider=ad['provider'])
         self.assertEqual(second['previous'],first['id'])
-        self.assertEqual(second['id'],ad['indexes'][0]['set'])
+        self.assertEqual(second['id'],ad['slices'][0]['set'])
         self.assertEqual(index.admit_set(second),0)
         self.assertEqual(len(index),6)
         # Alice's primary refuses her writes; her failover key's statement names the alternate.
@@ -83,10 +83,10 @@ class Headline(NoNetwork):
         self.assertEqual(resolved,{'home':ID['homeserver_alternate'],'via':'failover','sequence':1})
         self.assertEqual(resolve_home(ID['alice'],[route],rejected,DELEGATIONS['alice'],NOW)['home'],ID['homeserver_primary'])
 
-    def test_author_answer_matches_index(self):
+    def test_author_answer_matches_slice(self):
         answer=verify_candidates(read('bob-answers','author-dana.json'),advertisement())
-        first=verify_index(E/'headline/bob-index-1')
-        dana={(e['uri'],e['sha256']) for e in first['index']['entries'] if e['uri'].startswith('pubky://'+ID['dana']+'/')}
+        first=verify_slice(E/'headline/bob-slice-1')
+        dana={(e['uri'],e['sha256']) for e in first['slice']['entries'] if e['uri'].startswith('pubky://'+ID['dana']+'/')}
         self.assertEqual({(e['uri'],e['sha256']) for e in answer['entries']},dana)
 
     def test_route_names_bob_for_notices(self):
@@ -109,7 +109,7 @@ class Headline(NoNetwork):
 class Sharing(NoNetwork):
     """Scopes are the published form of a user's share and don't-share choices."""
     def entries(self):
-        return verify_index(E/'headline/bob-index-2')['index']['entries']
+        return verify_slice(E/'headline/bob-slice-2')['slice']['entries']
     def covered(self,scopes):
         return {e['uri'] for e in self.entries() if entry_in_scope(e,scopes)}
     def test_share_a_key(self):
@@ -120,10 +120,10 @@ class Sharing(NoNetwork):
         self.assertEqual(self.covered([{'uri':URI['print']}]),{URI['print'],URI['carol_tag']})
     def test_share_a_label(self):
         self.assertEqual(self.covered([{'label':'great-print'}]),{URI['carol_tag']})
-    def test_index_must_match_choices(self):
-        result=verify_index(E/'headline/bob-index-2')
-        doc=copy.deepcopy(result['index']);doc['scopes']=[{'uri':URI['print']}]
-        with self.assertRaises(InvalidSet):check_index(doc,result['versions'])
+    def test_slice_must_match_choices(self):
+        result=verify_slice(E/'headline/bob-slice-2')
+        doc=copy.deepcopy(result['slice']);doc['scopes']=[{'uri':URI['print']}]
+        with self.assertRaises(InvalidSet):check_slice(doc,result['versions'])
 
 class Advertisements(NoNetwork):
     def test_tampered_advertisement(self):
@@ -132,7 +132,7 @@ class Advertisements(NoNetwork):
     def test_provider_signature_is_not_a_set_signature(self):
         with self.assertRaises(InvalidSet):verify_signature(*signed('bob-provider','provider.json'),'set')
     def test_set_signature_is_not_an_advertisement(self):
-        d=E/'headline/bob-index-1'
+        d=E/'headline/bob-slice-1'
         with self.assertRaises(InvalidSet):verify_provider((d/'set.json').read_bytes(),(d/'set.sig.json').read_bytes())
     def test_expired_advertisement(self):
         with self.assertRaises(InvalidSet):
@@ -146,8 +146,8 @@ class Advertisements(NoNetwork):
     def test_live_role_needs_endpoint(self):
         ad=copy.deepcopy(advertisement());del ad['endpoints']
         with self.assertRaises(InvalidSet):check_provider(ad)
-    def test_indexes_role_and_list_agree(self):
-        ad=copy.deepcopy(advertisement());ad['roles'].remove('indexes')
+    def test_slices_role_and_list_agree(self):
+        ad=copy.deepcopy(advertisement());ad['roles'].remove('slices')
         with self.assertRaises(InvalidSet):check_provider(ad)
     def test_self_peer(self):
         ad=copy.deepcopy(advertisement());ad['peers'].append({'operator':ad['operator'],'provider':ad['provider']})
@@ -163,70 +163,70 @@ class Advertisements(NoNetwork):
         raw=json.loads(read('bob-provider','provider.json'));raw['roles'].append('rank')
         with self.assertRaises(InvalidSet):parse(json.dumps(raw).encode(),'provider')
 
-class Indexes(NoNetwork):
-    def index_doc(self):
-        result=verify_index(E/'headline/bob-index-2')
-        return copy.deepcopy(result['index']),result['versions']
+class Slices(NoNetwork):
+    def slice_doc(self):
+        result=verify_slice(E/'headline/bob-slice-2')
+        return copy.deepcopy(result['slice']),result['versions']
     def test_entry_must_match_bytes(self):
-        doc,versions=self.index_doc()
+        doc,versions=self.slice_doc()
         doc['entries'][2]['label']='forged'
-        with self.assertRaises(InvalidSet):check_index(doc,versions)
+        with self.assertRaises(InvalidSet):check_slice(doc,versions)
     def test_entry_refs_must_match_bytes(self):
-        doc,versions=self.index_doc()
+        doc,versions=self.slice_doc()
         doc['entries'][4]['refs']=[URI['shop']]
-        with self.assertRaises(InvalidSet):check_index(doc,versions)
+        with self.assertRaises(InvalidSet):check_slice(doc,versions)
     def test_entry_kind_must_match_bytes(self):
-        doc,versions=self.index_doc()
+        doc,versions=self.slice_doc()
         doc['entries'][1]['kind']='post'
-        with self.assertRaises(InvalidSet):check_index(doc,versions)
+        with self.assertRaises(InvalidSet):check_slice(doc,versions)
     def test_entry_outside_scope(self):
-        doc,versions=self.index_doc()
+        doc,versions=self.slice_doc()
         doc['scopes']=[{'key':ID['carol']}]
-        with self.assertRaises(InvalidSet):check_index(doc,versions)
+        with self.assertRaises(InvalidSet):check_slice(doc,versions)
     def test_body_without_entry(self):
-        doc,versions=self.index_doc()
+        doc,versions=self.slice_doc()
         doc['entries'].pop()
         doc['through']='5'
-        with self.assertRaises(InvalidSet):check_index(doc,versions)
+        with self.assertRaises(InvalidSet):check_slice(doc,versions)
     def test_seq_order(self):
-        doc,_=self.index_doc()
+        doc,_=self.slice_doc()
         doc['entries'][0],doc['entries'][1]=doc['entries'][1],doc['entries'][0]
         with self.assertRaises(InvalidSet):check_entries(doc['entries'])
     def test_through_below_last(self):
-        doc,versions=self.index_doc()
+        doc,versions=self.slice_doc()
         doc['through']='3'
-        with self.assertRaises(InvalidSet):check_index(doc,versions)
-    def test_entries_only_index_is_allowed(self):
-        doc,_=self.index_doc()
-        self.assertEqual(check_index(doc,{}),6)
-    def test_index_must_be_signed_by_its_provider(self):
+        with self.assertRaises(InvalidSet):check_slice(doc,versions)
+    def test_entries_only_slice_is_allowed(self):
+        doc,_=self.slice_doc()
+        self.assertEqual(check_slice(doc,{}),6)
+    def test_slice_must_be_signed_by_its_provider(self):
         with tempfile.TemporaryDirectory() as d:
-            dest=Path(d)/'s';shutil.copytree(E/'headline/bob-index-1',dest)
+            dest=Path(d)/'s';shutil.copytree(E/'headline/bob-slice-1',dest)
             (dest/'set.sig.json').unlink()
-            with self.assertRaises(InvalidSet):verify_index(dest)
+            with self.assertRaises(InvalidSet):verify_slice(dest)
     def test_other_provider_pin(self):
-        with self.assertRaises(InvalidSet):verify_index(E/'headline/bob-index-1',expected_provider=ID['carol'])
-    def test_tampered_index(self):
+        with self.assertRaises(InvalidSet):verify_slice(E/'headline/bob-slice-1',expected_provider=ID['carol'])
+    def test_tampered_slice(self):
         with tempfile.TemporaryDirectory() as d:
-            dest=Path(d)/'s';shutil.copytree(E/'headline/bob-index-1',dest)
-            p=dest/'index.json';p.write_bytes(p.read_bytes().replace(b'local-print',b'local-prinz'))
-            with self.assertRaises(InvalidSet):verify_index(dest)
+            dest=Path(d)/'s';shutil.copytree(E/'headline/bob-slice-1',dest)
+            p=dest/'slice.json';p.write_bytes(p.read_bytes().replace(b'local-print',b'local-prinz'))
+            with self.assertRaises(InvalidSet):verify_slice(dest)
     def test_score_field_rejected(self):
-        doc,_=self.index_doc()
+        doc,_=self.slice_doc()
         doc['entries'][0]['score']=9
-        with self.assertRaises(InvalidSet):parse(json.dumps(doc).encode(),'index')
+        with self.assertRaises(InvalidSet):parse(json.dumps(doc).encode(),'slice')
     def test_label_only_on_tags(self):
-        doc,_=self.index_doc()
+        doc,_=self.slice_doc()
         doc['entries'][0]['label']='x'
-        with self.assertRaises(InvalidSet):parse(json.dumps(doc).encode(),'index')
+        with self.assertRaises(InvalidSet):parse(json.dumps(doc).encode(),'slice')
     def test_tag_needs_label(self):
-        doc,_=self.index_doc()
+        doc,_=self.slice_doc()
         del doc['entries'][2]['label']
-        with self.assertRaises(InvalidSet):parse(json.dumps(doc).encode(),'index')
+        with self.assertRaises(InvalidSet):parse(json.dumps(doc).encode(),'slice')
     def test_listing_kinds_are_not_slime_kinds(self):
-        doc,_=self.index_doc()
+        doc,_=self.slice_doc()
         doc['entries'][1]['kind']='listing'
-        with self.assertRaises(InvalidSet):parse(json.dumps(doc).encode(),'index')
+        with self.assertRaises(InvalidSet):parse(json.dumps(doc).encode(),'slice')
 
 class Answers(NoNetwork):
     def answer(self,name='refs-print-2-tags.json'):
@@ -344,7 +344,7 @@ class Index(NoNetwork):
         with self.assertRaises(InvalidSet):LocalIndex().admit(entry['uri'],carol_tag(),entry['sha256'],entry)
     def test_missing_dependency_reported(self):
         index=LocalIndex()
-        first=verify_index(E/'headline/bob-index-1')
+        first=verify_slice(E/'headline/bob-slice-1')
         for (origin,digest),raw in first['versions'].items():
             if origin!=URI['blob']:index.admit(origin,raw,digest)
         self.assertEqual(index.dependencies(URI['print']),[(URI['blob'],'missing')])
@@ -359,7 +359,7 @@ class Index(NoNetwork):
         self.assertEqual(derive(dana+'/pub/some.app/items/3',b'{}'),{'kind':'other'})
     def test_import_order_independent(self):
         a,b=LocalIndex(),LocalIndex()
-        first,second=verify_index(E/'headline/bob-index-1'),verify_index(E/'headline/bob-index-2')
+        first,second=verify_slice(E/'headline/bob-slice-1'),verify_slice(E/'headline/bob-slice-2')
         a.admit_set(first);a.admit_set(second);b.admit_set(second);b.admit_set(first)
         for op,args in [('author',{'key':ID['dana']}),('label',{'label':'great-print'}),('refs',{'uri':URI['print']})]:
             self.assertEqual(a.query(op,**args),b.query(op,**args))

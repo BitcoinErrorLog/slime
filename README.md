@@ -12,7 +12,7 @@ Synonym and every other provider is automatically replaceable. Identity stays a 
 Read in this order:
 
 1. [Brief](brief.md): the two jobs, the test, sharing controls, what a person gets, and the limits.
-2. [Specification](spec.md): the coverage matrix, the replica, sharing controls and shared indexes, the query interface, advertisements, notices, routing, keys and publishing failover, folders, and the commerce boundary.
+2. [Specification](spec.md): the coverage matrix, the replica, sharing controls and slices, the query interface, advertisements, notices, routing, keys and publishing failover, folders, and the commerce boundary.
 3. [Development plan](development-plan.md): phases toward the test, the repos each one touches, and the gate that closes it.
 4. [Examples](examples/README.md): reference fixtures, JSON schemas in [schemas/](schemas/), and a Python checker with its tests.
 

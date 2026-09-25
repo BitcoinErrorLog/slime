@@ -1,25 +1,25 @@
 {
   "headline": {
     "identities": {
-      "alice": "t6k4qwfko1a4h7yk78kgyhzzzx6pgdfk4sz69c96znto6agyupxo",
-      "alice_failover": "3dh8ry34s13z8xfspam6pk7g9uejjm64uu943yenu697h7cfchao",
-      "bob": "8okqtqjff3eqcd3jmkcjgc6acps8sfca4yw6y7389cwhctsb518y",
-      "bob_provider": "xey9uh3brn1wrth34jruunmy5t739xew56hacergjprd9nfoc9yo",
-      "carol": "by8p8hf7i95w89niyfpkauy6j37kg9ehru5wrm9dfp1pg3pr7c5o",
+      "alice": "zefk98sfbnhn8gtkwgid6sw4qkph3hf8omghoe3yp9g7jpm84t1y",
+      "alice_failover": "wakh6f8m5fty5jgw3koycda7tqdikdck8bxcg6gfkqdwte4kpqpo",
+      "bob": "ffifzgqfx1wcra161pa53pimmaeeu1cu1j6pa8cr15bpkx4cdugo",
+      "bob_provider": "xow6mmo7j5her6boj1er4mdskyhsrzewr81iqqpk3bogyuq9o1io",
+      "carol": "kr7c1ztn861wwgkg4ww3i815dyn38twdjrga6sgy9xru1pqepyuo",
       "dana": "kq47ts1oghjief4acyjc7q8nuut5iodyw48atubb5d9h1gmoz1no",
-      "homeserver_alternate": "an1677yn1o5xw5uewooihkm6ar74jr1qwbfxqh7nag8mi31e9yyy",
-      "homeserver_primary": "nrjsadykf1wbhyfwotdci9s1nopnbiseqe7xcbwf8nufq6bbejyo",
-      "homeserver_unenrolled": "irzs3nobj19h5wbzbt44sna933tpex95rm6px78r4qpadba7xqno",
-      "other_provider": "wmkaym869mypphfw4nsfhocpfp999ykr9js6o369gggpcxa53rxo"
+      "homeserver_alternate": "p86g5f5mywsn3ccsrcxynhr89g1xd8n3jthafehuucf4rr1qgd8y",
+      "homeserver_primary": "kh3znzd47hhhg4njygjrhb1ppduyepdq39qons4a59cxqa5jny5o",
+      "homeserver_unenrolled": "hbbg4fqir6arnhr6rwhs4n5hb939wa78oi5hhcuhp7jmt8d86nxy",
+      "other_provider": "3w8r44dhogm5wpifquxnkonmrr8d5m3yoqmxjafah8eaq7rkr1fy"
     },
-    "indexes": {
-      "bob-index-1": "sha256:499b2299c5ab09c5af41a4eed12cd09a8bef1415f01c8e81772c6c2ccb2b26b0",
-      "bob-index-2": "sha256:bbb7212e57db593c449b8a70dccecf76b8d23da8af90c868940872faf28de84d"
+    "route": "sha256:9edc6b7ef7e9906b0fd06082bb1a14ff5bc3c5a19a2ea753cfa3154eb30e40a9",
+    "slices": {
+      "bob-slice-1": "sha256:d14194fa8509f381e2a3301c0d039b55da57f422918d7e541286b57f3b3f2c9c",
+      "bob-slice-2": "sha256:8843b7f49579c1414e7316df55ca48b0a2ef5a91b3a2d2cdd269d621eedefe86"
     },
-    "route": "sha256:9d6d839d8417d7bf9d52b3e7104156bda7a4572c38d7ee2d86860e54e1d492bc",
     "uris": {
       "blob": "pubky://kq47ts1oghjief4acyjc7q8nuut5iodyw48atubb5d9h1gmoz1no/pub/slime-example/blobs/dc0a6bcfa8b224dadda57c997ec68bf786c1d2a6d479c958b52c12b8c0b44135",
-      "carol_tag": "pubky://by8p8hf7i95w89niyfpkauy6j37kg9ehru5wrm9dfp1pg3pr7c5o/pub/slime-example/tags/print-2.json",
+      "carol_tag": "pubky://kr7c1ztn861wwgkg4ww3i815dyn38twdjrga6sgy9xru1pqepyuo/pub/slime-example/tags/print-2.json",
       "curator_tag": "pubky://8nwd7x787d4xxy6r349npowdz136ibmmnpmyk1m8oxw6faa6oigy/pub/slime-example/tags/shop-1.json",
       "print": "pubky://kq47ts1oghjief4acyjc7q8nuut5iodyw48atubb5d9h1gmoz1no/pub/slime-example/listings/print-2.json",
       "shirt": "pubky://kq47ts1oghjief4acyjc7q8nuut5iodyw48atubb5d9h1gmoz1no/pub/slime-example/listings/shirt-1.json",
@@ -42,8 +42,8 @@
     "github-inventoried": "sha256:5efa1520cff7506b4325ab9ba93ae375fed4bdd74012d0317d562a55a7ec8d00",
     "github-joined": "sha256:16bc3c52d9476757938e11a725a6eff13bf11d2e8eb33c08b77300fb7188d158",
     "github-signed": "sha256:0f1350920bfc42293d6f840cde0c115f9cebaeb738dacf34b94749d4c42b7a30",
-    "headline/bob-index-1": "sha256:499b2299c5ab09c5af41a4eed12cd09a8bef1415f01c8e81772c6c2ccb2b26b0",
-    "headline/bob-index-2": "sha256:bbb7212e57db593c449b8a70dccecf76b8d23da8af90c868940872faf28de84d",
+    "headline/bob-slice-1": "sha256:d14194fa8509f381e2a3301c0d039b55da57f422918d7e541286b57f3b3f2c9c",
+    "headline/bob-slice-2": "sha256:8843b7f49579c1414e7316df55ca48b0a2ef5a91b3a2d2cdd269d621eedefe86",
     "shops-public": "sha256:ab9454f308f2ea05858dc7309ca6dd4788ce717c716a2dd0874354e008eab64d",
     "shops-withdrawn": "sha256:88ad50f6ecea2d96a031d27c133f4da8534d853ce7e129371f4071f9da0659e4"
   },

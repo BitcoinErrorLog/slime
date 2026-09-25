@@ -1,40 +1,40 @@
 {
-  "cert_id": "5212690506a8ef6c20306492de6ae631",
+  "cert_id": "5ef311a24c4949da6d680f72284d37a9",
   "endpoints": [
     "https://slime.bob.example/1"
   ],
   "expires_at": "2026-10-25T11:00:00Z",
   "format": "slime-provider/1",
-  "indexes": [
-    {
-      "set": "sha256:bbb7212e57db593c449b8a70dccecf76b8d23da8af90c868940872faf28de84d",
-      "through": "6",
-      "url": "pubky://8okqtqjff3eqcd3jmkcjgc6acps8sfca4yw6y7389cwhctsb518y/pub/slime/indexes/2/"
-    }
-  ],
   "issued_at": "2026-09-25T11:00:00Z",
   "limits": {
     "max_entries": 500,
     "requests_per_minute": 60
   },
-  "operator": "8okqtqjff3eqcd3jmkcjgc6acps8sfca4yw6y7389cwhctsb518y",
+  "operator": "ffifzgqfx1wcra161pa53pimmaeeu1cu1j6pa8cr15bpkx4cdugo",
   "peers": [
     {
-      "operator": "eoqbaonparwpj7wu4j3u3dq6iktydqqeaf9nxqpsy6ddbc9uc6uy",
-      "provider": "wmkaym869mypphfw4nsfhocpfp999ykr9js6o369gggpcxa53rxo"
+      "operator": "7145u6nsw4zmoek1zj6uea16rd9h9kz6c9fe4kgajsad8e4q7awy",
+      "provider": "3w8r44dhogm5wpifquxnkonmrr8d5m3yoqmxjafah8eaq7rkr1fy"
     }
   ],
-  "provider": "xey9uh3brn1wrth34jruunmy5t739xew56hacergjprd9nfoc9yo",
+  "provider": "xow6mmo7j5her6boj1er4mdskyhsrzewr81iqqpk3bogyuq9o1io",
   "roles": [
-    "indexes",
     "notices",
     "query",
-    "records"
+    "records",
+    "slices"
   ],
   "scopes": [
     {
       "key": "kq47ts1oghjief4acyjc7q8nuut5iodyw48atubb5d9h1gmoz1no"
     }
   ],
-  "sequence": 2
+  "sequence": 2,
+  "slices": [
+    {
+      "set": "sha256:8843b7f49579c1414e7316df55ca48b0a2ef5a91b3a2d2cdd269d621eedefe86",
+      "through": "6",
+      "url": "pubky://ffifzgqfx1wcra161pa53pimmaeeu1cu1j6pa8cr15bpkx4cdugo/pub/slime/slices/2/"
+    }
+  ]
 }

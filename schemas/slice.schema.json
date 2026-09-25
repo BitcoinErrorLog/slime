@@ -1,10 +1,10 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Slime shared index v1",
+  "title": "Slime slice v1",
   "type": "object",
   "properties": {
     "format": {
-      "const": "slime-index/1"
+      "const": "slime-slice/1"
     },
     "provider": {
       "$ref": "urn:slime:schema:common#/$defs/key"

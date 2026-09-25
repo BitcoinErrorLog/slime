@@ -22,7 +22,7 @@ Requirements use MUST, SHOULD, and MAY.
 - **Replica.** The device's copy of original bytes, local work, provenance, and a derived index. The app renders from it.
 - **Entry.** One line of an index: a record URI, its kind, its hash, and what it references. An entry is a candidate, not a verdict.
 - **Sharing choices.** The user's share and don't-share settings for keys, tags, shops, listings, domains, and record kinds.
-- **Shared index.** The published result of a user's sharing choices: a signed list of entries for exactly the records those choices select, with or without the records themselves.
+- **Slice.** The published result of a user's sharing choices: a signed list of entries for exactly the records those choices select, with or without the records themselves.
 - **Provider.** A process that serves Slime roles: a user's app, a companion, a community host, a large indexer. It signs with a provider key, an AppKey of its operator.
 - **Route.** An identity's enrolled homeservers, failover key, notice providers, and mirrors, signed by the identity key.
 - **Failover key.** An AppKey that may name which enrolled homeserver is active, and nothing else.
@@ -32,9 +32,9 @@ Requirements use MUST, SHOULD, and MAY.
 
 Three conformance levels:
 
-- **Exchange.** Import and export folders and shared indexes. Verify inventories and signatures. Preserve provenance. Follow the merge and disclosure rules.
-- **Replica.** Exchange, plus a durable workspace, a local index built from originals, the replica interface, familiar-scope collection with dependencies, sharing controls, provider routing with automatic replacement, shared-index and live-query use, notices sent and drained, and publishing failover once enrolled. This is the Pubky App target.
-- **Provider.** Serve a signed advertisement and one or more roles: `records`, `query`, `indexes`, `notices`.
+- **Exchange.** Import and export folders and slices. Verify inventories and signatures. Preserve provenance. Follow the merge and disclosure rules.
+- **Replica.** Exchange, plus a durable workspace, a local index built from originals, the replica interface, familiar-scope collection with dependencies, sharing controls, provider routing with automatic replacement, slice and live-query use, notices sent and drained, and publishing failover once enrolled. This is the Pubky App target.
+- **Provider.** Serve a signed advertisement and one or more roles: `records`, `query`, `slices`, `notices`.
 
 A client MUST say which levels it implements.
 
@@ -44,29 +44,29 @@ This matrix is the scope of Slime. Each row says how a data type serves job 1 (s
 
 | Data type | Shared and crawled (job 1) | Retained locally (job 2) | When a provider fails (job 2) | Privacy boundary |
 |---|---|---|---|---|
-| Profiles | Entry kind `profile`. In shared indexes and `author` answers for every key a sharer includes. | Own profile, familiar keys, and the author of every retained record, as a dependency. | Renders from the replica. Refreshes from the key's enrolled homeservers, mirrors, and peers. | Public record only. |
-| Posts | Kind `post`. In shared indexes and `author` answers. Links in posts answer `domain`. | Own posts, familiar keys' posts, and posts the user opened. | The following feed is built locally from retained authors. New posts arrive from homeservers and peers. Composing goes to the outbox. | An opened post is kept. It is shared only if the user's choices include it. |
+| Profiles | Entry kind `profile`. In slices and `author` answers for every key a sharer includes. | Own profile, familiar keys, and the author of every retained record, as a dependency. | Renders from the replica. Refreshes from the key's enrolled homeservers, mirrors, and peers. | Public record only. |
+| Posts | Kind `post`. In slices and `author` answers. Links in posts answer `domain`. | Own posts, familiar keys' posts, and posts the user opened. | The following feed is built locally from retained authors. New posts arrive from homeservers and peers. Composing goes to the outbox. | An opened post is kept. It is shared only if the user's choices include it. |
 | Replies | Kind `post` with the parent in `refs`. In `refs(parent, kind=post)` answers. The replier sends a notice to the parent's author. | Replies to own posts, replies in retained threads, and each reply's parent as a dependency. | Replies from unknown keys arrive by notice or a peer's `refs` answer. A thread shows how much of it was consulted. | Public records only. |
 | Follows | Kind `follow`, with the followed key in `refs`. `author(K, kind=follow)` lists a key's follows. `refs(pubky://K/, kind=follow)` lists its known followers. | Own follows, which define the familiar keys. Familiar keys' follows, for trust paths. | The graph is local. New followers arrive by notice. | Public follows can be shared. A local trust mark is never offered for sharing. |
 | Mutes | Kind `mute`, with the muted key in `refs`. | Own mutes, and familiar keys' mutes as filter input. | Filters run locally. | Public mute records only. A local hide list stays local. |
-| Tags | Kind `tag`, with `label` and the target in `refs`. In `label` and `refs(target, kind=tag)` answers. The tagger sends a notice to the target's author. | Own tags, tags by familiar keys, and tags whose target is retained. | Tag lookups run locally. New tags arrive from peers, shared indexes, and notices. | A tag stays a claim by its author. Sharing it is not agreeing with it. |
+| Tags | Kind `tag`, with `label` and the target in `refs`. In `label` and `refs(target, kind=tag)` answers. The tagger sends a notice to the target's author. | Own tags, tags by familiar keys, and tags whose target is retained. | Tag lookups run locally. New tags arrive from peers, slices, and notices. | A tag stays a claim by its author. Sharing it is not agreeing with it. |
 | Bookmarks and favorites | A public bookmark is kind `bookmark`, with the target in `refs`. A private favorite is never an entry. | Both. Either one pins the target and its dependencies. | Bookmarked and favorited items open offline. | A private favorite is never offered for sharing, exported, advertised, or answered for. Someone who names the target URI may receive its public bytes, with no favorite flag. |
 | Custom feeds | Kind `feed` for a published feed definition. | Own feed definitions. Feeds are evaluated locally over the replica. | A feed runs offline and shows what it consulted. | Public definitions only. Searches stay local. |
 | Shops | A shop is a seller's key and the public records the seller publishes under it. Slime needs no shop schema. Those records answer `author(seller)`. Shared when a sharer's choices include the seller's key. | Every public record of a followed seller, and of the seller behind a followed or favorited listing, with the seller profile and media within budget. | The shop renders from the replica. It refreshes from the seller's enrolled homeservers, mirrors, and peers. | Public records only. |
 | Listings | Ordinary records under the seller's key. Tags and bookmarks point at a listing by URI, so `refs(listing)` finds them. References inside a listing, such as media, come from its bytes. Shared by the seller's key or by the listing's own URI. | Every public record of a followed shop, and every followed or favorited listing, with images within budget. | Search over retained listings runs offline. A newer version from the seller beats an older copy. Retained listings show when they were retrieved. | Public records only. A copy reserves nothing. |
 | Offers | Public offer terms are fields in the seller's own records and travel with them. Buyer offers, bids, and counter-offers are never shared. | Terms, with the seller's records. The user's own offers stay in the workspace or with the transaction service. | Terms show when they were retrieved. Making an offer needs the live seller through Paykit. It queues and is not shown as sent until the seller's side accepts it. | Buyer offers are transaction data. |
 | Reviews | Public records by other keys that reference a listing or seller: tags, replies, or a dedicated type. `refs(listing)` finds them. The reviewer sends a notice to the seller. | Reviews on retained shops and listings. | Read locally. New reviews arrive from peers and notices. | A review is its author's claim. An attestation is checked under its own rules. |
-| Followed shops and followed listings | Public form: a follow of the seller's key, or a public bookmark of the listing. The follow or bookmark record itself can be shared like any other. Private form: nothing leaves the device. | Both forms pin every public record of the seller, the seller profile, tags and reviews on them, and media within budget. They refresh from the seller's homeservers, mirrors, peers, and shared indexes. | Browsing and search work offline. While the seller's homeserver is down, updates come from peers and mirrors that share the seller's records. | A private follow follows the favorite rules. Following a shop does not by itself share it. |
-| Blobs, media, and other dependencies | Kinds `blob` and `file`. Served by any holder. A shared index that carries records carries their public dependencies. | Tracked per record as retained, missing, fetchable, or withheld (section 2.4). Text first, media within budget. | A missing image shows as missing. Network-quiet mode does not fetch it. Any holder can supply it, and the hash decides. | Locked bytes are withheld. Private uploads stay private. |
+| Followed shops and followed listings | Public form: a follow of the seller's key, or a public bookmark of the listing. The follow or bookmark record itself can be shared like any other. Private form: nothing leaves the device. | Both forms pin every public record of the seller, the seller profile, tags and reviews on them, and media within budget. They refresh from the seller's homeservers, mirrors, peers, and slices. | Browsing and search work offline. While the seller's homeserver is down, updates come from peers and mirrors that share the seller's records. | A private follow follows the favorite rules. Following a shop does not by itself share it. |
+| Blobs, media, and other dependencies | Kinds `blob` and `file`. Served by any holder. A slice that carries records carries their public dependencies. | Tracked per record as retained, missing, fetchable, or withheld (section 2.4). Text first, media within budget. | A missing image shows as missing. Network-quiet mode does not fetch it. Any holder can supply it, and the hash decides. | Locked bytes are withheld. Private uploads stay private. |
 | Notices and mentions | A notice points a provider at a public record that references a key. The provider checks it and indexes it, so it answers `refs`. A mention is a post with the mentioned key in `refs`. | Drained into the replica after the source is checked. Notifications and their read state are derived locally. | Several providers can take notices for one key. Peers' `refs` answers carry the same references. | Pointers to public records only. No bodies. Unknown senders are filtered locally. |
-| Shared indexes | The published result of a user's sharing choices, signed by that user's provider key. Entries only, or entries with records. Published on the operator's homeserver or endpoint and mirrored by anyone. | Imported shared indexes merge into the replica, with the provider recorded as supplier. | A retained shared index answers locally with no witness. Live `after` queries top it up. | Exactly what the choices select, and public entries only. |
+| Slices | The published result of a user's sharing choices, signed by that user's provider key. Entries only, or entries with records. Published on the operator's homeserver or endpoint and mirrored by anyone. | Imported slices merge into the replica, with the provider recorded as supplier. | A retained slice answers locally with no witness. Live `after` queries top it up. | Exactly what the choices select, and public entries only. |
 | Provider advertisements, routes, and home statements | Signed. Advertisements live under their operator's namespace and at endpoints. Routes and home statements live on every enrolled homeserver. All three travel in folders and are crawlable. | The provider table, with health per role and scope, and each followed identity's current route and home. | Cached copies keep routing working while a homeserver is down. | Public by design. They state scopes and locations, never queries. |
-| Proofs, signatures, and history | Author proofs, set signatures, and earlier versions travel unchanged with records in folders and in shared indexes that carry records. | Kept in the record store with each retained version. | Verification runs offline. A missing proof stays a gap, never a pass. | The signer's key is visible. An identity key signs only through Ring. |
-| Private workspace | Never offered for sharing. | Drafts, outbox, read state (including the App's last-read marker), searches, carts, notes, and trust marks. Survives session failure. | Compose and queue offline. | Never in folders, shared indexes, answers, or notices. An encrypted backup goes only to a destination the user chose. |
+| Proofs, signatures, and history | Author proofs, set signatures, and earlier versions travel unchanged with records in folders and in slices that carry records. | Kept in the record store with each retained version. | Verification runs offline. A missing proof stays a gap, never a pass. | The signer's key is visible. An identity key signs only through Ring. |
+| Private workspace | Never offered for sharing. | Drafts, outbox, read state (including the App's last-read marker), searches, carts, notes, and trust marks. Survives session failure. | Compose and queue offline. | Never in folders, slices, answers, or notices. An encrypted backup goes only to a destination the user chose. |
 | Transactions | Never offered for sharing. | Held by Paykit, the transaction service, or an encrypted backup the user chose. | Queued until the live counterparty answers. | Inquiries, buyer offers and bids, orders, addresses, invoices, payment requests, receipts, and messages never enter a public set. |
 | Locked content | Only the public preview fields the seller publishes. | Unlocked bytes stay in the workspace under the Lock's terms. | Unlocking needs the live Lock. | Locked bytes are never offered for sharing, served, or exported. |
 
-Entry kinds follow the record types in `pubky-app-specs`: `profile`, `post`, `follow`, `mute`, `tag`, `bookmark`, `feed`, `file`, and `blob`. Every other record, including whatever records a seller uses for a shop, listing, or review, is kind `other`. Slime retains, shares, and indexes an `other` record by its URI, its author, and the references in its bytes, with no schema. Replies and mentions are posts. Offers are fields in a seller's records. Notices, shared indexes, advertisements, routes, and home statements are Slime documents. Proofs and signatures are evidence attached to versions.
+Entry kinds follow the record types in `pubky-app-specs`: `profile`, `post`, `follow`, `mute`, `tag`, `bookmark`, `feed`, `file`, and `blob`. Every other record, including whatever records a seller uses for a shop, listing, or review, is kind `other`. Slime retains, shares, and indexes an `other` record by its URI, its author, and the references in its bytes, with no schema. Replies and mentions are posts. Offers are fields in a seller's records. Notices, slices, advertisements, routes, and home statements are Slime documents. Proofs and signatures are evidence attached to versions.
 
 ## 2. The replica
 
@@ -100,7 +100,7 @@ Replica
   query(op, args, cursor)    the primitives of section 4.3, over retained entries
 ```
 
-`putLocal` and `deleteLocal` record intent. They MUST NOT report that a homeserver accepted anything. A record under another key MAY be retained. It MUST NOT be edited or deleted locally as if the reader authored it. `query` uses the same four primitives and the same ordering as a live provider, so a shared index, a live answer, and the local index are interchangeable inputs.
+`putLocal` and `deleteLocal` record intent. They MUST NOT report that a homeserver accepted anything. A record under another key MAY be retained. It MUST NOT be edited or deleted locally as if the reader authored it. `query` uses the same four primitives and the same ordering as a live provider, so a slice, a live answer, and the local index are interchangeable inputs.
 
 Four absences stay distinct: the source is unavailable, the client has not looked, the source reports the record gone, and an authenticated deletion. An indexer's omission is never an author deletion. Dropping a record from a personal scope is a retention choice, not an author deletion.
 
@@ -115,7 +115,7 @@ Four absences stay distinct: the source is unavailable, the client has not looke
         +-----------------------------------+-----------------------------------+
         |                                   |                                   |
   Homeserver sync                       Mesh sync                         Indexer sync
-  publish own records,             shared indexes in and              broad coverage from
+  publish own records,             slices in and              broad coverage from
   replicate to enrolled            out, live peer queries,            any large indexer,
   homeservers, collect             notices, serving                   as one provider
   familiar keys' events            through a provider                 among several
@@ -140,7 +140,7 @@ A retained listing without its images is not a working shop. Each record's depen
 
 Text dependencies of a retained record are fetched with it. Media follows the media budget. A pinned item (an own record, a followed shop, a followed listing, a favorite) pins its dependencies within that budget. A record with a missing dependency renders with the gap shown. It MUST NOT present a missing image as a removal by the seller.
 
-Any holder MAY serve a public dependency. The receiver MUST check the bytes against the hash the referencing record or path names before use. A provider that serves a record SHOULD serve the public dependencies it holds. A shared index that carries records SHOULD carry them.
+Any holder MAY serve a public dependency. The receiver MUST check the bytes against the hash the referencing record or path names before use. A provider that serves a record SHOULD serve the public dependencies it holds. A slice that carries records SHOULD carry them.
 
 ## 3. What the device keeps, and what the user shares
 
@@ -179,11 +179,11 @@ The app gives the user share and don't-share choices. Each choice names one of t
 
 A don't-share choice removes what it names from every share choice it overlaps. The choices offer public records the device retains, and nothing else. Private favorites, private follows, trust marks, searches, the workspace, transactions, and locked bytes are never offered.
 
-The **shared index** is the published result of those choices (section 4.2). It lists exactly the records the choices select. When the user changes a choice, the next shared index reflects it. A record the user opened is shared only if a choice selects it. Serving happens only through a provider (section 4.4), and only for what the choices select.
+The **slice** is the published result of those choices (section 4.2). It lists exactly the records the choices select. When the user changes a choice, the next slice reflects it. A record the user opened is shared only if a choice selects it. Serving happens only through a provider (section 4.4), and only for what the choices select.
 
 ## 4. Sharing and crawling (job 1)
 
-A Slime peer shares what it chose to share, in a form others can index without trusting it. Four pieces do that: entries, shared indexes, a small query interface, and signed advertisements that say who serves what.
+A Slime peer shares what it chose to share, in a form others can index without trusting it. Four pieces do that: entries, slices, a small query interface, and signed advertisements that say who serves what.
 
 ### 4.1 Entries
 
@@ -201,9 +201,9 @@ An entry describes one retained version:
 
 `kind`, `refs`, and `label` are derived from the original bytes. A record type from `pubky-app-specs` uses its adapter. Any other record is kind `other`, and its `refs` are every `pubky://` record URI, bare key URI (`pubky://<key>`, normalized to `pubky://<key>/`), and http or https URL found in its JSON body, sorted, first 64. A body that is not JSON has no refs. A receiver that holds the bytes MUST derive the fields again and reject an entry that disagrees. An entry MUST NOT carry a score, rank, count, reputation, or any field not listed. The schema is `schemas/common.schema.json#/$defs/entry`.
 
-### 4.2 Shared indexes
+### 4.2 Slices
 
-A shared index is a folder (section 8) whose `set.json` is signed by the provider key, with an `index.json` in format `slime-index/1`:
+A slice is a folder (section 8) whose `set.json` is signed by the provider key, with an `slice.json` in format `slime-slice/1`:
 
 | Field | Meaning |
 |---|---|
@@ -215,11 +215,11 @@ A shared index is a folder (section 8) whose `set.json` is signed by the provide
 
 A scope is one of `{"key": K}`, `{"label": L}`, `{"host": H}`, or `{"uri": U}`, each with optional `"kinds": [...]`. A key scope covers the key's records and public records that reference the key or its records. A URI scope covers that record and public records that reference it. A label scope covers tags with that label. A host scope covers records that link to that host. `kinds` narrows a scope. Scopes bound the entries. Don't-share choices remove entries inside them.
 
-An entries-only shared index lists entries. A shared index with records also carries the records under `records/<author>/<path>`, their proofs, and their public dependencies. Every record body in it MUST have an entry with the same URI and hash. The next shared index from the same provider names the previous one in `set.json` `previous`.
+An entries-only slice lists entries. A slice with records also carries the records under `records/<author>/<path>`, their proofs, and their public dependencies. Every record body in it MUST have an entry with the same URI and hash. The next slice from the same provider names the previous one in `set.json` `previous`.
 
-Shared indexes live at the operator's namespace (`pubky://<operator>/pub/slime/indexes/<n>/`), at a provider endpoint, and at any mirror. Anyone MAY mirror one, because the signature and the hashes travel with it. A torrent MAY carry a snapshot. Nothing requires one.
+Slices live at the operator's namespace (`pubky://<operator>/pub/slime/slices/<n>/`), at a provider endpoint, and at any mirror. Anyone MAY mirror one, because the signature and the hashes travel with it. A torrent MAY carry a snapshot. Nothing requires one.
 
-A receiver verifies the set, checks that the signer is the index's provider and that the provider key is delegated (section 7.2), checks order and scope, checks each carried body against its entry, and imports the bodies with the provider recorded as supplier. Entries without bodies become fetch candidates. The provider never learns what the receiver searches afterward. That is why the read order (section 6.3) puts retained shared indexes before any live lookup. Publishing one needs only the user's own homeserver, with no server process on the device.
+A receiver verifies the set, checks that the signer is the slice's provider and that the provider key is delegated (section 7.2), checks order and scope, checks each carried body against its entry, and imports the bodies with the provider recorded as supplier. Entries without bodies become fetch candidates. The provider never learns what the receiver searches afterward. That is why the read order (section 6.3) puts retained slices before any live lookup. Publishing one needs only the user's own homeserver, with no server process on the device.
 
 ### 4.3 Live query interface
 
@@ -232,7 +232,7 @@ A provider with the `query` role answers four deterministic primitives. Each ret
 | `refs` | `uri`, optional `kind` | `refs` contain that URI: tags on a target, replies, followers, mentions, reviews, bookmarks |
 | `domain` | `host` | `refs` contain an http or https link to that host |
 
-Every operation takes an optional `after`: only entries with a greater `seq`. That turns every query into a change feed. "The seller's records updated since my last copy of Bob's index" is `author(seller, after=through)`.
+Every operation takes an optional `after`: only entries with a greater `seq`. That turns every query into a change feed. "The seller's records updated since Bob's last slice" is `author(seller, after=through)`.
 
 HTTP binding, relative to an advertised endpoint:
 
@@ -259,9 +259,9 @@ A provider publishes `slime-provider/1`, signed with signature purpose `provider
 | `sequence` | Increases with every change. The highest valid sequence replaces the others. |
 | `issued_at`, `expires_at` | Validity window. An expired advertisement is ignored. |
 | `endpoints` | HTTPS base URLs. Required when the roles include `records`, `query`, or `notices`. |
-| `roles` | Any of `records`, `query`, `indexes`, `notices`. |
+| `roles` | Any of `records`, `query`, `slices`, `notices`. |
 | `scopes` | The operator's sharing choices, as scopes (section 4.2). |
-| `indexes` | Current shared indexes: location, set id, and `through`. Present exactly when the role list has `indexes`. |
+| `slices` | Current slices: location, set id, and `through`. Present exactly when the role list has `slices`. |
 | `peers` | Other providers a crawler can visit next, as operator and provider key. At most 64. |
 | `limits` | `max_entries` per response and `requests_per_minute`. |
 
@@ -285,7 +285,7 @@ A reference to a provider is a lead, not trust. Bytes are checked against hashes
 
 ### 4.6 Crawling
 
-Anyone can crawl the mesh. Start from any key or provider. Follow routes to providers, mirrors, and notice providers. Follow advertisements to their `peers` and shared indexes. Follow entries to more keys. Follow homeserver event streams for broad coverage. A new large indexer can bootstrap this way with no Synonym service.
+Anyone can crawl the mesh. Start from any key or provider. Follow routes to providers, mirrors, and notice providers. Follow advertisements to their `peers` and slices. Follow entries to more keys. Follow homeserver event streams for broad coverage. A new large indexer can bootstrap this way with no Synonym service.
 
 Crawlers respect advertised limits and index public records only. Following a reference is one hop at a time, under the crawler's own budget. Nothing floods the mesh.
 
@@ -293,8 +293,8 @@ Crawlers respect advertised limits and index public records only. Following a re
 
 Each step outward adds a witness to what the user is looking for. So the rules are:
 
-- Local answers come first: the local index, then retained shared indexes.
-- A live query names only the key, URI, label, or host the user asked about. Label and domain lookups SHOULD use retained shared indexes before live providers.
+- Local answers come first: the local index, then retained slices.
+- A live query names only the key, URI, label, or host the user asked about. Label and domain lookups SHOULD use retained slices before live providers.
 - A client MUST NOT broadcast a search. A provider MUST NOT forward a request to another provider or to an indexer.
 - A query marked private MUST NOT reach a public provider, even when its private provider fails.
 - Serving a record does not endorse it, follow its author, or adopt its tag. An indexer's score, rank, cursor, or query log is not a record and MUST NOT be served.
@@ -323,9 +323,9 @@ The second case needs no permission from X. The provider already shares records 
 
 **Sender.** After publishing a record that references key X, the sender's client posts a notice to each notice provider in X's route, and MAY post to up to 2 providers whose scopes cover X or the target. It retries failed providers with backoff for 7 days.
 
-**Provider.** A provider rate-limits notices per source author and per target key. Starting values: 100 per source author per hour, and 1,000 per target key per hour. Before serving anything, it fetches the source from the author's homeserver (or a copy whose hash matches `sha256`), checks that the source references the target, and indexes it as an entry. It then answers `refs` for the target and appears in the provider's shared index. An unchecked notice MUST NOT be served.
+**Provider.** A provider rate-limits notices per source author and per target key. Starting values: 100 per source author per hour, and 1,000 per target key per hour. Before serving anything, it fetches the source from the author's homeserver (or a copy whose hash matches `sha256`), checks that the source references the target, and indexes it as an entry. It then answers `refs` for the target and appears in the provider's slice. An unchecked notice MUST NOT be served.
 
-**Recipient.** The recipient's client asks its notice providers, and providers that cover its key, `refs(pubky://X/)` and `refs(<its records>)` with `after`, or reads their shared indexes. It admits each source under the normal evidence rules and derives the notification locally. Notices from keys outside the recipient's trust paths go to a separate requests view. A notice MUST NOT follow, trust, or auto-accept anyone.
+**Recipient.** The recipient's client asks its notice providers, and providers that cover its key, `refs(pubky://X/)` and `refs(<its records>)` with `after`, or reads their slices. It admits each source under the normal evidence rules and derives the notification locally. Notices from keys outside the recipient's trust paths go to a separate requests view. A notice MUST NOT follow, trust, or auto-accept anyone.
 
 A notice provider learns that one public record references another. The record already says so in public. Private messages stay on their own channels.
 
@@ -340,7 +340,7 @@ Each role is granted on its own, per provider:
 | `publish` | Accepts the user's own writes. A homeserver. |
 | `replicate` | Holds a copy of the user's authored public records. An enrolled homeserver. |
 | `read` | Serves another key's records. That key's homeservers. |
-| `records`, `query`, `indexes`, `notices` | Slime provider roles (section 4). |
+| `records`, `query`, `slices`, `notices` | Slime provider roles (section 4). |
 | `index` | Broad search and feeds. A large indexer such as Nexus. |
 | `resolve` | Resolves PKARR. A relay or the DHT. |
 | `backup` | Holds an encrypted private backup. |
@@ -356,7 +356,7 @@ The client keeps a local provider table: each provider's key or URL, operator, g
 For a record or a query, the client tries, in order:
 
 1. The local index.
-2. Entries from retained shared indexes. Bodies come from the named provider or the origin.
+2. Entries from retained slices. Bodies come from the named provider or the origin.
 3. A live query to selected peer providers.
 4. The author's homeservers: the active one (section 7.4), then the rest of the route in order.
 5. The preferred large indexer.
@@ -386,11 +386,11 @@ A failed provider cools down for 1 minute, doubling to 30 minutes, with jitter. 
 
 | Role | Default today | Replaced by | Switch |
 |---|---|---|---|
-| Broad search and feeds | Synonym's Nexus | The local index, retained shared indexes, any provider with `query`, another indexer | Automatic, by read order and health |
-| Reading another key's records | That key's homeserver | Its other enrolled homeservers, its mirrors, peers that share it, shared indexes | Automatic |
+| Broad search and feeds | Synonym's Nexus | The local index, retained slices, any provider with `query`, another indexer | Automatic, by read order and health |
+| Reading another key's records | That key's homeserver | Its other enrolled homeservers, its mirrors, peers that share it, slices | Automatic |
 | Publishing the user's records | The primary homeserver, often Synonym's | An enrolled alternate, named in a home statement from the failover key | Automatic within the enrolled set. Enrollment uses Ring once. |
 | Notices to the user | The notice providers in the route | The other listed notice providers, and providers that cover the user's key | Automatic, on the sender's side |
-| Finding providers | The shipped defaults | Routes of familiar keys, advertisements, `peers`, shared indexes | Automatic within budget |
+| Finding providers | The shipped defaults | Routes of familiar keys, advertisements, `peers`, slices | Automatic within budget |
 | Identity resolution | A PKARR relay | Other relays, or the DHT directly | Automatic, in the SDK |
 | Media | The author's homeserver | Any holder. The hash decides. | Automatic |
 | App code | The web origin that served the app | The installed app runs offline. A new install from another origin needs a workspace import. | Manual for a new install |
@@ -416,7 +416,7 @@ Slime uses Pubky's key hierarchy and adds no new delegation mechanism. The ident
 
 | AppKey | Held by | Signs |
 |---|---|---|
-| Provider key | The provider process: the user's app, a companion, or a host | Its advertisement and its shared indexes |
+| Provider key | The provider process: the user's app, a companion, or a host | Its advertisement and its slices |
 | Failover key | The designated publisher: the device or companion that publishes for the account | Home statements |
 
 UKD scopes are hints. Slime binds each key to its role itself: an advertisement names its own provider key, and the route names the failover key. A provider key cannot sign a home statement, and a failover key cannot sign an advertisement the route does not expect.
@@ -507,12 +507,12 @@ A set is a directory. ZIP, HTTP, and removable media carry the same directory.
     history/
     proofs/
     providers/
-    index.json
+    slice.json
     set.json
     set.sig.json
 ```
 
-`README.md` SHOULD be present. `keys.txt`, when present, has one canonical z-base-32 public key per line. `links.txt`, when present, has one URI per line. A line whose first non-whitespace character is `#` is a comment. Importers MAY trim ASCII whitespace on list lines. They MUST NOT rewrite a file whose digest is being checked. `providers/` holds advertisements and their signatures. `index.json` makes the set a shared index (section 4.2).
+`README.md` SHOULD be present. `keys.txt`, when present, has one canonical z-base-32 public key per line. `links.txt`, when present, has one URI per line. A line whose first non-whitespace character is `#` is a comment. Importers MAY trim ASCII whitespace on list lines. They MUST NOT rewrite a file whose digest is being checked. `providers/` holds advertisements and their signatures. `slice.json` makes the set a slice (section 4.2).
 
 Under `records/<author>/`, the path is the claimed origin. That claim is the exporter's until the reader accepts the source or an author proof checks out. If the path is ambiguous, the importer MUST NOT guess from the file contents. When a source path is unsafe as a filename, the exporter MUST use a generated safe name and an `origin` field in `set.json`. It MUST NOT change the logical URI quietly.
 
@@ -528,7 +528,7 @@ Signatures use `slime-signature/1` with algorithm `Ed25519` and a purpose: `set`
 
 | Purpose | Signer |
 |---|---|
-| `set` | The exporter. A shared index is signed by its provider key. |
+| `set` | The exporter. A slice is signed by its provider key. |
 | `record` | The record's author. |
 | `provider` | The provider key. |
 | `route` | The identity key, through Ring. |
@@ -540,7 +540,7 @@ A bad advertised signature MUST quarantine the import. It MUST NOT be accepted a
 
 Version-1 names use ASCII letters, digits, `_`, `-`, `.`, and `/`. Each segment is 1 to 128 bytes. The full relative path is at most 512 bytes. Reject absolute paths, empty segments, `.` and `..`, backslashes, control characters, drive prefixes, percent-decoding, segments that end in a dot, Windows device names, and names that collide if case is ignored. Reject archive links, device entries, and duplicate names. Stage the archive before activating it. Never extract into the live account directory.
 
-Parsing ceilings: `set.json` and `index.json` 16 MiB and 100,000 entries, a query response 4 MiB and 1,000 entries, an advertisement or route 64 KiB, a notice, home statement, or signature file 8 KiB. A client MAY set a lower budget and MUST fail in the open when it does.
+Parsing ceilings: `set.json` and `slice.json` 16 MiB and 100,000 entries, a query response 4 MiB and 1,000 entries, an advertisement or route 64 KiB, a notice, home statement, or signature file 8 KiB. A client MAY set a lower budget and MUST fail in the open when it does.
 
 ### 8.2 Import
 
@@ -580,7 +580,7 @@ A contact link or a payment link is a hint. Starting Paykit, or opening a Lock, 
 
 ## 11. What the interface shows
 
-The user MUST be able to inspect, for any record, its origin, supplier, proof status, dependency state, and the scope that was consulted. The user MUST be able to see and change every sharing choice, and see exactly what the current shared index contains. For the account, the interface shows local retention, acceptance per homeserver, and indexer visibility as separate facts. There is no single synced flag. When a role is degraded, it shows which role, which provider took over, and whether other clients can still find the user's public address.
+The user MUST be able to inspect, for any record, its origin, supplier, proof status, dependency state, and the scope that was consulted. The user MUST be able to see and change every sharing choice, and see exactly what the current slice contains. For the account, the interface shows local retention, acceptance per homeserver, and indexer visibility as separate facts. There is no single synced flag. When a role is degraded, it shows which role, which provider took over, and whether other clients can still find the user's public address.
 
 An empty result means no match in the scope that was consulted. A signature MUST NOT be labeled as completeness, clock accuracy, current stock, or truth. An unknown global count MUST NOT be shown as zero.
 
@@ -602,8 +602,8 @@ An empty result means no match in the scope that was consulted. A signature MUST
 
 ## 13. Acceptance
 
-**Exchange** is met by the folder, signature, shared-index, merge, commerce-disclosure, and hostile-archive checks in [examples/](examples/README.md), ported into the App.
+**Exchange** is met by the folder, signature, slice, merge, commerce-disclosure, and hostile-archive checks in [examples/](examples/README.md), ported into the App.
 
 **Provider** is met when an independent implementation serves a signed advertisement from a delegated provider key, answers the four primitives deterministically within its scopes, returns original bytes by hash, and accepts, checks, and indexes notices under the acceptance rule.
 
-**Replica** is met by the headline test above, run with real clients and independently operated services, after the phase gates in the [development plan](development-plan.md): offline boot, outbox survival, a local index that answers before any network call, familiar-scope collection with dependencies, sharing controls whose shared index matches the choices exactly, automatic replacement of every read role, discovery through shared indexes and live queries, notices from unknown keys, and publishing failover within the enrolled set.
+**Replica** is met by the headline test above, run with real clients and independently operated services, after the phase gates in the [development plan](development-plan.md): offline boot, outbox survival, a local index that answers before any network call, familiar-scope collection with dependencies, sharing controls whose slice matches the choices exactly, automatic replacement of every read role, discovery through slices and live queries, notices from unknown keys, and publishing failover within the enrolled set.

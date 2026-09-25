@@ -15,7 +15,7 @@ Each phase closes one piece of that test. The rules are in the [specification](s
 
 Use the existing SDK, homeserver event streams, PKARR, the record types in `pubky-app-specs`, Unified Key Delegation (UKD) for subordinate keys, Paykit, Locks, and `pubky-backup`. Do not open a new protocol repository until a second implementation needs a shared crate. Read the current `pubky/pubky-app` sources for posts, session restore, and homeserver signup before editing.
 
-Reference fixtures and a Python checker live in [examples/](examples/README.md). They cover folders, signatures, shared indexes, advertisements, query responses, notices, routes, home statements, and the headline test's data path. Port those vectors. They do not show that the App survives a restart, that Ring issues a delegation, or that a homeserver accepts a write. Those gates need real clients.
+Reference fixtures and a Python checker live in [examples/](examples/README.md). They cover folders, signatures, slices, advertisements, query responses, notices, routes, home statements, and the headline test's data path. Port those vectors. They do not show that the App survives a restart, that Ring issues a delegation, or that a homeserver accepts a write. Those gates need real clients.
 
 ## Phase 0. Durable workspace
 
@@ -63,7 +63,7 @@ Time fixtures of 50, 250, and 2,500 familiar keys on a phone. If the phone canno
 
 **Job:** local fallback. **Repos:** `pubky-app`, the SDK in `pubky-core`
 
-Build the provider table: roles, scopes, privacy class, order, credentials, cursors, and health per role and scope. Implement the read order: local index, retained shared indexes, live peers, the author's homeservers, the preferred large indexer, alternate large indexers. Nexus becomes one `index` provider among several. A local hit never contacts it.
+Build the provider table: roles, scopes, privacy class, order, credentials, cursors, and health per role and scope. Implement the read order: local index, retained slices, live peers, the author's homeservers, the preferred large indexer, alternate large indexers. Nexus becomes one `index` provider among several. A local hit never contacts it.
 
 Implement the failure classes and cooldowns from the specification. Show local retention, acceptance per homeserver, and indexer visibility as separate fields, and show which role is degraded and who took over.
 
@@ -71,19 +71,19 @@ Add the read side of routes and home statements: fetch a followed identity's rou
 
 **Gate:** kill Nexus in the middle of a session. Local answers appear immediately, the next eligible provider takes the `index` role, and no endpoint is edited by hand. A homeserver that refuses one scope stays healthy for another. A private query never reaches a public provider when its private provider fails. A provider's omission never produces a tombstone. The home-statement vectors pass, including the unenrolled home, wrong signer, revoked delegation, expired delegation, and stale sequence cases.
 
-## Phase 4. Sharing controls and shared indexes
+## Phase 4. Sharing controls and slices
 
 **Job:** P2P indexing. **Repos:** `pubky-app`, Pubky Ring
 
-Build the sharing controls: share and don't-share choices for keys, all followed keys, shops, single listings or records, tag labels, link domains, and record kinds. A don't-share choice overrides any share choice it overlaps. The controls list public records only. Private favorites, private follows, trust marks, searches, the workspace, transactions, and locked bytes never appear. The user can see exactly what the current shared index contains.
+Build the sharing controls: share and don't-share choices for keys, all followed keys, shops, single listings or records, tag labels, link domains, and record kinds. A don't-share choice overrides any share choice it overlaps. The controls list public records only. Private favorites, private follows, trust marks, searches, the workspace, transactions, and locked bytes never appear. The user can see exactly what the current slice contains.
 
-The shared index is the result of those choices. Ring delegates a provider key to the app through UKD: an AppCert, and an entry in the identity's `slime` KeyBinding. The app signs the shared index with that key and publishes it to `pubky://<user>/pub/slime/indexes/<n>/`, naming the previous one in `set.json`, whenever the result changes. It publishes an `indexes`-only advertisement at `pubky://<user>/pub/slime/providers/<provider-key>.json`. It imports other users' shared indexes into the replica with the provider recorded as supplier.
+The slice is the result of those choices. Ring delegates a provider key to the app through UKD: an AppCert, and an entry in the identity's `slime` KeyBinding. The app signs the slice with that key and publishes it to `pubky://<user>/pub/slime/slices/<n>/`, naming the previous one in `set.json`, whenever the result changes. It publishes a `slices`-only advertisement at `pubky://<user>/pub/slime/providers/<provider-key>.json`. It imports other users' slices into the replica with the provider recorded as supplier.
 
 Add folder export and import. Export a README, optional key and link lists, and `records/<author>/...` holding original bytes, for public record types only. Import by staging, enforcing filename and size rules, previewing, then committing once. Keeping records, following keys, refreshing, and changing sharing choices are separate options at import.
 
-Port the inventory, signature, shared-index, and scope checks from the Python checker. Signing a set with the identity key itself waits for a Ring typed transcript for `slime/set/1`. Provider-key signing does not.
+Port the inventory, signature, slice, and scope checks from the Python checker. Signing a set with the identity key itself waits for a Ring typed transcript for `slime/set/1`. Provider-key signing does not.
 
-**Gate:** the shared index lists exactly the records the choices select, before and after a choice changes, and a don't-share choice removes what it names. No shared index or export contains orders, favorites, private follows, trust marks, or searches. Reimport is idempotent. Two paths with the same bytes and different origins stay two origins. A tampered signed file fails. A hostile ZIP (path traversal, link, duplicate names) never escapes staging. A second client downloads the first client's shared index from its homeserver and builds the same answers to `author`, `label`, and `refs`. Revoking the provider key through a new KeyBinding makes other clients reject its next shared index. A second implementation, starting with the Python checker and then a Rust vector, accepts an unchanged shared index after recompression and rejects any change.
+**Gate:** the slice lists exactly the records the choices select, before and after a choice changes, and a don't-share choice removes what it names. No slice or export contains orders, favorites, private follows, trust marks, or searches. Reimport is idempotent. Two paths with the same bytes and different origins stay two origins. A tampered signed file fails. A hostile ZIP (path traversal, link, duplicate names) never escapes staging. A second client downloads the first client's slice from its homeserver and builds the same answers to `author`, `label`, and `refs`. Revoking the provider key through a new KeyBinding makes other clients reject its next slice. A second implementation, starting with the Python checker and then a Rust vector, accepts an unchanged slice after recompression and rejects any change.
 
 ## Phase 5. Providers, advertisements, and discovery
 
@@ -91,11 +91,11 @@ Port the inventory, signature, shared-index, and scope checks from the Python ch
 
 A browser cannot accept connections, so live providers run where a process can listen: a companion built on the `pubky-backup` core, a community host, or a large indexer. Pin the backup core to a release before starting.
 
-Ring delegates a provider key to the companion through UKD. The companion signs `slime-provider/1` with it, serves `provider.json`, `query`, `record`, and the operator's shared index, and enforces its advertised limits. Its scopes are the operator's sharing choices. The operator's app copies the advertisement to `pubky://<operator>/pub/slime/providers/<provider-key>.json`. Exposing the same four primitives on Nexus, under a Synonym provider key, makes Nexus a replaceable provider like the others.
+Ring delegates a provider key to the companion through UKD. The companion signs `slime-provider/1` with it, serves `provider.json`, `query`, `record`, and the operator's slice, and enforces its advertised limits. Its scopes are the operator's sharing choices. The operator's app copies the advertisement to `pubky://<operator>/pub/slime/providers/<provider-key>.json`. Exposing the same four primitives on Nexus, under a Synonym provider key, makes Nexus a replaceable provider like the others.
 
 The client builds its configured mesh from user-added providers, shipped defaults, providers run by familiar keys, mirrors and notice providers in familiar keys' routes, and advertised `peers` within a crawl budget. For each need it asks at most 2 providers whose scope covers it.
 
-**Gate, first part of the headline test:** three clients, with Nexus and every Synonym-operated indexer blocked. Alice follows Dana and Bob. Bob has chosen to share Dana's records, and his companion advertises that choice. Alice's app finds Bob's provider with no manual endpoint, verifies its delegation, imports his shared index, tops it up with a live `after` query, and searches Dana's shop and listings with the network blocked. Bob's provider log shows only the keys and URIs Alice's app named, never a search term. The same query against the same provider state returns the same response. A client that follows nobody receives nothing pushed to it.
+**Gate, first part of the headline test:** three clients, with Nexus and every Synonym-operated indexer blocked. Alice follows Dana and Bob. Bob has chosen to share Dana's records, and his companion advertises that choice. Alice's app finds Bob's provider with no manual endpoint, verifies its delegation, imports his slice, tops it up with a live `after` query, and searches Dana's shop and listings with the network blocked. Bob's provider log shows only the keys and URIs Alice's app named, never a search term. The same query against the same provider state returns the same response. A client that follows nobody receives nothing pushed to it.
 
 ## Phase 6. Notices
 
@@ -105,7 +105,7 @@ After publishing a record that references another key, the client posts `slime-n
 
 The recipient drains its notice providers, and providers that cover its key, with `refs` and `after`. It admits each source under the normal rules and derives notifications locally. Sources from keys outside the recipient's trust paths go to a requests view. Nothing auto-follows or auto-accepts.
 
-**Gate, second part of the headline test:** Carol, whom neither Alice nor Dana follows, tags one of Dana's listings. With Nexus still blocked, Alice sees the tag within one refresh, through Bob's `refs` answer or his next shared index. A provider neither listed by the target nor covering it refuses the notice. A notice whose source does not reference its target is never served. A flood of notices from one key is rate-limited without delaying notices from others. A stranger's reply to Alice lands in her requests view.
+**Gate, second part of the headline test:** Carol, whom neither Alice nor Dana follows, tags one of Dana's listings. With Nexus still blocked, Alice sees the tag within one refresh, through Bob's `refs` answer or his next slice. A provider neither listed by the target nor covering it refuses the notice. A notice whose source does not reference its target is never served. A flood of notices from one key is rate-limited without delaying notices from others. A stranger's reply to Alice lands in her requests view.
 
 ## Phase 7. Publishing failover
 
@@ -135,7 +135,7 @@ Run the headline test end to end with real clients and independently operated se
 1. Alice follows Dana. Her app finds Bob's provider through her configured mesh, pulls Dana's shop records, listings (including the new one), tags, and images, and searches them with the network blocked.
 2. Carol tags one of Dana's listings. Alice sees the tag through Bob's index or a notice.
 3. Synonym's homeserver refuses Alice's writes. Alice publishes a post. Her enrolled alternate accepts it, her home statement names that alternate, and Bob and Carol read the post.
-4. Alice's identity seed stays in Ring throughout, and none of Alice's searches, favorites, private follows, trust marks, or unshared records appear in any request, shared index, or advertisement.
+4. Alice's identity seed stays in Ring throughout, and none of Alice's searches, favorites, private follows, trust marks, or unshared records appear in any request, slice, or advertisement.
 
 Repeat the run with the failures in a different order, and once with all of them at the same time. Independence means separate operators and machines, not two hostnames on one backend.
 
@@ -147,7 +147,7 @@ Repeat the run with the failures in a different order, and once with all of them
 | 1 | The app answers from its own index, built from original records of any type. |
 | 2 | Followed keys, shops, and listings stay current without Nexus and browse offline with their dependencies. |
 | 3 | Every read role is replaceable automatically. Nexus is one provider among several. |
-| 4 | Users choose what they share, and publish exactly that as a shared index anyone can search privately. |
+| 4 | Users choose what they share, and publish exactly that as a slice anyone can search privately. |
 | 5 | Peers discover each other's providers and fill each other's indexes without a central indexer. |
 | 6 | Replies, tags, follows, and mentions from unknown keys arrive without a central indexer. |
 | 7 | Publishing fails over automatically within the enrolled set, without the identity seed leaving Ring. |
@@ -157,11 +157,11 @@ Repeat the run with the failures in a different order, and once with all of them
 
 | Work | Reason |
 |---|---|
-| New PKARR records, or a global index of tags or keys in the DHT | Shared indexes and providers carry the index. The identity's PKARR packet keeps only `_pubky`. |
+| New PKARR records, or a global index of tags or keys in the DHT | Slices and providers carry the index. The identity's PKARR packet keeps only `_pubky`. |
 | A new key delegation mechanism | Slime keys are UKD AppKeys. |
 | Shared rankings, consensus on index contents, universal reputation | Providers return candidates. Each reader ranks locally. |
 | Flooding gossip or broadcast search | References are followed one hop at a time. Queries name only what the user asked. |
-| A torrent client in the app | Folders, ZIP, HTTP, and homeservers carry shared indexes. A torrent MAY carry a snapshot. |
+| A torrent client in the app | Folders, ZIP, HTTP, and homeservers carry slices. A torrent MAY carry a snapshot. |
 | A homeserver process in the browser | The replica is in-process storage. Live providers run on companions and hosts. |
 | The app changing the identity's PKARR packet | Ring owns the identity seed. The failover key names the active home within the enrolled set. |
 | A message protocol | Notices are pointers to public records. |
@@ -172,4 +172,4 @@ Repeat the run with the failures in a different order, and once with all of them
 
 Each phase lists the behavior that closes it. An import mock does not close offline boot. The Python checker does not close Ring issuance, companion serving, or homeserver acceptance. Those need real clients and real services.
 
-The checker suite covers what files can show: folders, signatures, merge, shared indexes and their scopes, advertisements, query responses, notices and the acceptance rule, routes, home statements, and the headline test's data path offline (`examples/test_headline.py`). UKD verification belongs to the UKD library. The checker takes its verified output as input. Every phase that ports a format ports its vectors, and the App's copy runs in CI.
+The checker suite covers what files can show: folders, signatures, merge, slices and their scopes, advertisements, query responses, notices and the acceptance rule, routes, home statements, and the headline test's data path offline (`examples/test_headline.py`). UKD verification belongs to the UKD library. The checker takes its verified output as input. Every phase that ports a format ports its vectors, and the App's copy runs in CI.

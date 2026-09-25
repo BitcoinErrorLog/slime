@@ -1,16 +1,16 @@
 {
-  "failover": "3dh8ry34s13z8xfspam6pk7g9uejjm64uu943yenu697h7cfchao",
+  "failover": "wakh6f8m5fty5jgw3koycda7tqdikdck8bxcg6gfkqdwte4kpqpo",
   "format": "slime-route/1",
   "homeservers": [
-    "nrjsadykf1wbhyfwotdci9s1nopnbiseqe7xcbwf8nufq6bbejyo",
-    "an1677yn1o5xw5uewooihkm6ar74jr1qwbfxqh7nag8mi31e9yyy"
+    "kh3znzd47hhhg4njygjrhb1ppduyepdq39qons4a59cxqa5jny5o",
+    "p86g5f5mywsn3ccsrcxynhr89g1xd8n3jthafehuucf4rr1qgd8y"
   ],
-  "identity": "t6k4qwfko1a4h7yk78kgyhzzzx6pgdfk4sz69c96znto6agyupxo",
+  "identity": "zefk98sfbnhn8gtkwgid6sw4qkph3hf8omghoe3yp9g7jpm84t1y",
   "issued_at": "2026-09-20T12:00:00Z",
   "notice": [
     {
-      "operator": "8okqtqjff3eqcd3jmkcjgc6acps8sfca4yw6y7389cwhctsb518y",
-      "provider": "xey9uh3brn1wrth34jruunmy5t739xew56hacergjprd9nfoc9yo"
+      "operator": "ffifzgqfx1wcra161pa53pimmaeeu1cu1j6pa8cr15bpkx4cdugo",
+      "provider": "xow6mmo7j5her6boj1er4mdskyhsrzewr81iqqpk3bogyuq9o1io"
     }
   ],
   "sequence": 1

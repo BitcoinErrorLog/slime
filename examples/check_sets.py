@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Read-only checker for the Slime fixture formats.
 
-Checks staged folders and shared indexes, provider advertisements, query responses,
+Checks staged folders and slices, provider advertisements, query responses,
 notices, routes, and home statements. No network, extraction, signing, or credential
 access. This is not a production importer or a complete Pubky client.
 
@@ -28,7 +28,7 @@ ROOT = Path(__file__).resolve().parents[1]
 ALPHABET = 'ybndrfg8ejkmcpqxot1uwisza345h769'
 CONTROL = {'set.json', 'set.sig.json'}
 LIMITS = {'set': 16*1024*1024, 'signature': 8192, 'record': 65536, 'observation': 65536,
-          'provider': 65536, 'index': 16*1024*1024, 'candidates': 4*1024*1024,
+          'provider': 65536, 'slice': 16*1024*1024, 'candidates': 4*1024*1024,
           'notice': 8192, 'route': 65536, 'home': 8192}
 EXAMPLE = '/pub/slime-example/'
 LIVE_ROLES = {'records', 'query', 'notices'}
@@ -391,8 +391,8 @@ def check_provider(ad: dict, now: datetime|None=None) -> None:
     roles=set(ad['roles'])
     if roles&LIVE_ROLES and not ad.get('endpoints'):
         raise InvalidSet('A provider with records, query, or notices roles needs an endpoint')
-    if ('indexes' in roles)!=bool(ad.get('indexes')):
-        raise InvalidSet('Listed indexes and the indexes role must agree')
+    if ('slices' in roles)!=bool(ad.get('slices')):
+        raise InvalidSet('Listed slices and the slices role must agree')
     issued,expires=timestamp(ad['issued_at']),timestamp(ad['expires_at'])
     if expires<=issued:
         raise InvalidSet('Advertisement expires before it is issued')
@@ -427,10 +427,10 @@ def providers_for(advertisements: list, key: str, role: str, now: datetime) -> l
                 best[ad['provider']]=ad
     return [best[k] for k in sorted(best)]
 
-def check_index(entries_doc: dict, versions: dict) -> int:
+def check_slice(entries_doc: dict, versions: dict) -> int:
     last=check_entries(entries_doc['entries'])
     if int(entries_doc['through'])<last:
-        raise InvalidSet('Index through is below its highest entry')
+        raise InvalidSet('Slice through is below its highest entry')
     listed=set()
     for entry in entries_doc['entries']:
         if not entry.get('gone') and not entry_in_scope(entry,entries_doc['scopes']):
@@ -442,20 +442,20 @@ def check_index(entries_doc: dict, versions: dict) -> int:
                 same_claims(entry,derive(entry['uri'],raw))
     for version in versions:
         if version not in listed:
-            raise InvalidSet('Record body without an index entry: '+version[0])
+            raise InvalidSet('Record body without a slice entry: '+version[0])
     return last
 
-def verify_index(directory: Path, expected_provider: str|None=None):
+def verify_slice(directory: Path, expected_provider: str|None=None):
     result=verify_set(directory)
-    if 'index.json' not in result['payload']:
-        raise InvalidSet('A shared index needs index.json')
-    entries_doc=parse(result['payload']['index.json'],'index')
+    if 'slice.json' not in result['payload']:
+        raise InvalidSet('A slice needs slice.json')
+    entries_doc=parse(result['payload']['slice.json'],'slice')
     if result['signer'] is None or result['signer']!=entries_doc['provider']:
-        raise InvalidSet('A shared index must be signed by its provider key')
+        raise InvalidSet('A slice must be signed by its provider key')
     if expected_provider is not None and entries_doc['provider']!=expected_provider:
-        raise InvalidSet('Unexpected index provider')
-    check_index(entries_doc,result['versions'])
-    result['index']=entries_doc
+        raise InvalidSet('Unexpected slice provider')
+    check_slice(entries_doc,result['versions'])
+    result['slice']=entries_doc
     return result
 
 def verify_candidates(data: bytes, advertisement: dict|None=None) -> dict:
@@ -586,7 +586,7 @@ class LocalIndex:
         return added
 
     def admit_set(self, result: dict) -> int:
-        entries={(e['uri'],e['sha256']):e for e in result.get('index',{}).get('entries',[]) if 'sha256' in e}
+        entries={(e['uri'],e['sha256']):e for e in result.get('slice',{}).get('entries',[]) if 'sha256' in e}
         return sum(self.admit(o,raw,d,entries.get((o,d))) for (o,d),raw in sorted(result['versions'].items()))
 
     def query(self, op: str, **args) -> list[str]:
@@ -612,10 +612,10 @@ def main() -> int:
             print(json.dumps({'provider':ad['provider'],'operator':ad['operator'],'sequence':ad['sequence'],
                               'roles':ad['roles'],'scopes':len(ad['scopes'])},indent=2))
             return 0
-        if (args.directory/'index.json').is_file():
-            result=verify_index(args.directory,args.expected_signer)
+        if (args.directory/'slice.json').is_file():
+            result=verify_slice(args.directory,args.expected_signer)
             print(json.dumps({'id':result['id'],'provider':result['signer'],'files':result['files'],
-                              'entries':len(result['index']['entries']),'through':result['index']['through']},indent=2))
+                              'entries':len(result['slice']['entries']),'through':result['slice']['through']},indent=2))
             return 0
         result=verify_set(args.directory,args.expected_signer)
         print(json.dumps({k:v for k,v in result.items() if k in {'id','signer','files'}},indent=2))

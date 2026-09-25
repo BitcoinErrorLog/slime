@@ -1,8 +1,8 @@
 {
   "algorithm": "Ed25519",
-  "digest": "sha256:9d6d839d8417d7bf9d52b3e7104156bda7a4572c38d7ee2d86860e54e1d492bc",
+  "digest": "sha256:9edc6b7ef7e9906b0fd06082bb1a14ff5bc3c5a19a2ea753cfa3154eb30e40a9",
   "format": "slime-signature/1",
   "purpose": "route",
-  "signature": "GK31IsUzrKuKwwOI9lJDlExKHcDIMvdT-w0g1jHgYo2RG7mGriHMqDMpT8N4mfHGa8p8UkoPT8Wmk6xiLEuRCQ",
-  "signer": "t6k4qwfko1a4h7yk78kgyhzzzx6pgdfk4sz69c96znto6agyupxo"
+  "signature": "JS2Qt6eIPoDp5CV0KaBYwD1-ULZhPpUP7oWpQBcwfoZnOAwI8-aI9qa_QUyAcjTrdTG1SlsOAQGyYJ3DI1rLBQ",
+  "signer": "zefk98sfbnhn8gtkwgid6sw4qkph3hf8omghoe3yp9g7jpm84t1y"
 }

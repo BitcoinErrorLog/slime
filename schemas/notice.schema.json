@@ -14,11 +14,15 @@
       "maxLength": 8192,
       "pattern": "^pubky://[ybndrfg8ejkmcpqxot1uwisza345h769]{52}/(pub/[^?#\\s]+)?$"
     },
-    "sha256": {
-      "$ref": "urn:slime:schema:common#/$defs/sha256"
+    "blake3": {
+      "$ref": "urn:slime:schema:common#/$defs/hash"
     },
     "created_at": {
       "$ref": "urn:slime:schema:common#/$defs/time"
+    },
+    "pow": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{32}$"
     }
   },
   "required": [

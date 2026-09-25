@@ -12,8 +12,8 @@
     "operator": {
       "$ref": "urn:slime:schema:common#/$defs/key"
     },
-    "cert_id": {
-      "$ref": "urn:slime:schema:common#/$defs/cert_id"
+    "grant": {
+      "$ref": "urn:slime:schema:common#/$defs/grant"
     },
     "sequence": {
       "type": "integer",
@@ -104,6 +104,26 @@
           "type": "integer",
           "minimum": 1,
           "maximum": 100000
+        },
+        "notice_cold_cap": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100000000
+        },
+        "notice_warm_cap": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100000000
+        },
+        "notice_global_cap": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100000000
+        },
+        "pow_floor_bits": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 32
         }
       },
       "additionalProperties": false
@@ -113,7 +133,7 @@
     "format",
     "provider",
     "operator",
-    "cert_id",
+    "grant",
     "sequence",
     "issued_at",
     "expires_at",

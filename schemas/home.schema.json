@@ -12,12 +12,6 @@
     "home": {
       "$ref": "urn:slime:schema:common#/$defs/key"
     },
-    "route": {
-      "$ref": "urn:slime:schema:common#/$defs/set_id"
-    },
-    "cert_id": {
-      "$ref": "urn:slime:schema:common#/$defs/cert_id"
-    },
     "sequence": {
       "type": "integer",
       "minimum": 1,
@@ -25,16 +19,18 @@
     },
     "issued_at": {
       "$ref": "urn:slime:schema:common#/$defs/time"
+    },
+    "grant": {
+      "$ref": "urn:slime:schema:common#/$defs/grant"
     }
   },
   "required": [
     "format",
     "identity",
     "home",
-    "route",
-    "cert_id",
     "sequence",
-    "issued_at"
+    "issued_at",
+    "grant"
   ],
   "additionalProperties": false
 }

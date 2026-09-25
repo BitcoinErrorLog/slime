@@ -2,35 +2,31 @@
   "created_at": "2026-09-23T13:00:00Z",
   "files": [
     {
-      "bytes": 264,
-      "path": "README.md",
-      "sha256": "45e59c25b2fb8da339b4b53f1e914947149aec05dea554c54f09fa26a2c80484"
+      "blake3": "D4fdNlGgtBEEigHGEDLpywDtqIsK4spU2Bc/E4xFoSM=",
+      "bytes": 204,
+      "path": "README.md"
     },
     {
+      "blake3": "CGl0oJwS9FtxGkMhvtojfj97tQMpklrOiEcaL/dsq7M=",
       "bytes": 53,
-      "path": "keys.txt",
-      "sha256": "770de8f4885f93d4530b8d43b5c1242a98c7375b5789bf759d7049fdf82a50e1"
+      "path": "keys.txt"
     },
     {
-      "bytes": 36,
-      "path": "links.txt",
-      "sha256": "11c48c0809e2cf0bbe56cab03cc4b5bb73ca7efad2b9654835c4c26078312b97"
+      "blake3": "NnnC25vQn34viyDzIcWcnM3FY9lV6JWE/reLk4/8vyU=",
+      "bytes": 42,
+      "path": "links.txt"
     },
     {
-      "bytes": 313,
-      "path": "proofs/a8b944d1895667d8d840b940cf7a3dd27c9445768f0d832dc4c231668309cf51.json",
-      "sha256": "a8b944d1895667d8d840b940cf7a3dd27c9445768f0d832dc4c231668309cf51"
+      "blake3": "Cf3aHf7VuVnYd9DbxPfIPg38dRf5cvEatWsPS8gwgQc=",
+      "bytes": 145,
+      "origin": "pubky://tke7gs7j44k35jgmnk4euezqedx85gh6b4bn6wkbs7gc4mgow5yy/pub/pubky.app/profile.json",
+      "path": "records/tke7gs7j44k35jgmnk4euezqedx85gh6b4bn6wkbs7gc4mgow5yy/pub/pubky.app/profile.json"
     },
     {
-      "bytes": 345,
-      "path": "proofs/a8b944d1895667d8d840b940cf7a3dd27c9445768f0d832dc4c231668309cf51.sig.json",
-      "sha256": "e137dd7c4f84ba7240d51d65ef8cf82f7947aae1d5a9e195040d2baed0a2c239"
-    },
-    {
-      "bytes": 104,
-      "origin": "pubky://dbnm5egbtdsk7c5hhufrbpmdxge6h7of7c83qc7wygy1m7qhug6y/pub/slime-example/tags/github-1.json",
-      "path": "records/dbnm5egbtdsk7c5hhufrbpmdxge6h7of7c83qc7wygy1m7qhug6y/pub/slime-example/tags/github-1.json",
-      "sha256": "4c559178fd99eb9ba50a779ea1fc35630611df103b0ad8e32d20a3085192d7a2"
+      "blake3": "3izzXT9D9svUlGDFrDS+JfJ3njiCNfS8Gb8UVo2Othk=",
+      "bytes": 96,
+      "origin": "pubky://tke7gs7j44k35jgmnk4euezqedx85gh6b4bn6wkbs7gc4mgow5yy/pub/pubky.app/tags/AHF3FGYT714TDAYH5101WPGTV8",
+      "path": "records/tke7gs7j44k35jgmnk4euezqedx85gh6b4bn6wkbs7gc4mgow5yy/pub/pubky.app/tags/AHF3FGYT714TDAYH5101WPGTV8"
     }
   ],
   "format": "slime-set/1"

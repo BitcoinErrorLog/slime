@@ -1,7 +1,8 @@
 {
+  "blake3": "0Wzbbbkcd6tMm2XFgdoAwThkNLEIPCI3Fyf5Ah7/Aps=",
   "created_at": "2026-09-25T10:00:05Z",
   "format": "slime-notice/1",
-  "sha256": "8221b438d4e800bc5490535c1418eec60106e5abd0d0109d3b61038d30a02fd2",
-  "source": "pubky://kr7c1ztn861wwgkg4ww3i815dyn38twdjrga6sgy9xru1pqepyuo/pub/slime-example/tags/print-2.json",
-  "target": "pubky://kq47ts1oghjief4acyjc7q8nuut5iodyw48atubb5d9h1gmoz1no/pub/slime-example/listings/print-2.json"
+  "pow": "0442a9f3819f0668284083f06c7bb8b9",
+  "source": "pubky://qe6hdrmq1i9te5bggtkkjq93fxy39jgg1dkgjw5jkhhk6ryzirdy/pub/pubky.app/tags/08BDG67JTNQAMC7YSBN2KKNHNM",
+  "target": "pubky://pz6c7qywejnprcr9ixrscfpm88mxjxjx8kgpurk5qsx657i81mco/pub/pubky.app/posts/0035R99S3KA80"
 }

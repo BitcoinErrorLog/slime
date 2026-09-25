@@ -3,44 +3,50 @@
   "complete": true,
   "entries": [
     {
-      "kind": "other",
+      "blake3": "vHHFGXYJXEoRBvRf9XFK390/Dz5c1ZZkPuirW5KXjq8=",
+      "kind": "profile",
       "refs": [
-        "pubky://kq47ts1oghjief4acyjc7q8nuut5iodyw48atubb5d9h1gmoz1no/"
+        "https://dana-prints.example"
       ],
       "seq": "1",
-      "sha256": "d470c2bf78ebf40c4a58834e4282209f4d33eb1701cbfe4c482d7f6752b21c24",
-      "uri": "pubky://kq47ts1oghjief4acyjc7q8nuut5iodyw48atubb5d9h1gmoz1no/pub/slime-example/shop.json"
+      "uri": "pubky://pz6c7qywejnprcr9ixrscfpm88mxjxjx8kgpurk5qsx657i81mco/pub/pubky.app/profile.json"
     },
     {
-      "kind": "other",
-      "refs": [
-        "pubky://kq47ts1oghjief4acyjc7q8nuut5iodyw48atubb5d9h1gmoz1no/"
-      ],
-      "seq": "2",
-      "sha256": "99a2e249dcf6baf80b8deefe07a0851f54463b0bda5e13a0e09d5cb398d1e640",
-      "uri": "pubky://kq47ts1oghjief4acyjc7q8nuut5iodyw48atubb5d9h1gmoz1no/pub/slime-example/listings/shirt-1.json"
-    },
-    {
+      "blake3": "L2s2nUkyXMTAohW9csEr1eOyYMT2sr7b/VIQshNwPX8=",
       "kind": "blob",
-      "seq": "4",
-      "sha256": "dc0a6bcfa8b224dadda57c997ec68bf786c1d2a6d479c958b52c12b8c0b44135",
-      "uri": "pubky://kq47ts1oghjief4acyjc7q8nuut5iodyw48atubb5d9h1gmoz1no/pub/slime-example/blobs/dc0a6bcfa8b224dadda57c997ec68bf786c1d2a6d479c958b52c12b8c0b44135"
+      "seq": "2",
+      "uri": "pubky://pz6c7qywejnprcr9ixrscfpm88mxjxjx8kgpurk5qsx657i81mco/pub/pubky.app/blobs/5XNKD7A969EC9G522PYQ5G9BTM"
     },
     {
-      "kind": "other",
+      "blake3": "4Tq8MKbrZn0KnUWCFYvjJjHoLczbKJLq/Pto46Tzcfk=",
+      "kind": "file",
       "refs": [
-        "pubky://kq47ts1oghjief4acyjc7q8nuut5iodyw48atubb5d9h1gmoz1no/",
-        "pubky://kq47ts1oghjief4acyjc7q8nuut5iodyw48atubb5d9h1gmoz1no/pub/slime-example/blobs/dc0a6bcfa8b224dadda57c997ec68bf786c1d2a6d479c958b52c12b8c0b44135"
+        "pubky://pz6c7qywejnprcr9ixrscfpm88mxjxjx8kgpurk5qsx657i81mco/pub/pubky.app/blobs/5XNKD7A969EC9G522PYQ5G9BTM"
       ],
+      "seq": "3",
+      "uri": "pubky://pz6c7qywejnprcr9ixrscfpm88mxjxjx8kgpurk5qsx657i81mco/pub/pubky.app/files/0035R99S1P940"
+    },
+    {
+      "blake3": "B/fXQk+jXRhOX4w0aTgipJhn7mQdMU6WV/Le/c+lUIQ=",
+      "kind": "post",
+      "refs": [
+        "https://dana-prints.example/harbor",
+        "pubky://pz6c7qywejnprcr9ixrscfpm88mxjxjx8kgpurk5qsx657i81mco/pub/pubky.app/files/0035R99S1P940"
+      ],
+      "seq": "4",
+      "uri": "pubky://pz6c7qywejnprcr9ixrscfpm88mxjxjx8kgpurk5qsx657i81mco/pub/pubky.app/posts/0035R99S3KA80"
+    },
+    {
+      "blake3": "drPQhK7MrotitRs4i8DD7Y/OEjB1Bu0SYJJqX0+ek5E=",
+      "kind": "post",
       "seq": "5",
-      "sha256": "f83c6058dec437d083a59df31009937129fece0f9b735c909ed64419a372d5a9",
-      "uri": "pubky://kq47ts1oghjief4acyjc7q8nuut5iodyw48atubb5d9h1gmoz1no/pub/slime-example/listings/print-2.json"
+      "uri": "pubky://pz6c7qywejnprcr9ixrscfpm88mxjxjx8kgpurk5qsx657i81mco/pub/pubky.app/posts/0035R99S5GBC0"
     }
   ],
   "format": "slime-candidates/1",
-  "provider": "xow6mmo7j5her6boj1er4mdskyhsrzewr81iqqpk3bogyuq9o1io",
+  "provider": "7d6cn61a6xa6kfaq19bepdgb8w3zi9cudu7sm9xfcps9mb887nby",
   "query": {
-    "key": "kq47ts1oghjief4acyjc7q8nuut5iodyw48atubb5d9h1gmoz1no",
+    "key": "pz6c7qywejnprcr9ixrscfpm88mxjxjx8kgpurk5qsx657i81mco",
     "op": "author"
   }
 }

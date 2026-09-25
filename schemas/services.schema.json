@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Slime services v1",
+  "type": "object",
+  "properties": {
+    "format": {
+      "const": "slime-services/1"
+    },
+    "identity": {
+      "$ref": "urn:slime:schema:common#/$defs/key"
+    },
+    "sequence": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "issued_at": {
+      "$ref": "urn:slime:schema:common#/$defs/time"
+    },
+    "notice": {
+      "type": "array",
+      "maxItems": 8,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "urn:slime:schema:common#/$defs/provider_ref"
+      }
+    },
+    "mirrors": {
+      "type": "array",
+      "maxItems": 8,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "urn:slime:schema:common#/$defs/provider_ref"
+      }
+    }
+  },
+  "required": [
+    "format",
+    "identity",
+    "sequence",
+    "issued_at"
+  ],
+  "additionalProperties": false
+}

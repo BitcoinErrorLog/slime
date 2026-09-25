@@ -1,3 +1,3 @@
-# Shared public catalog
+# Dana's shop
 
-Synthetic example namespace, not an implemented Marketplace schema. Includes a seller profile, a listing, and a distinct curator tag. The curator signs the selection; seller record proofs travel unchanged. No order, buyer identity, address, invoice, or payment destination is included. A copy is not a reservation.
+Synthetic public catalog as ordinary pubky.app records: Dana's profile, two posts used as listings, the image post's file record and its blob, and a curator's tag. The curator signs the selection. No order, buyer, address, invoice, or payment destination is included. A copy reserves nothing.

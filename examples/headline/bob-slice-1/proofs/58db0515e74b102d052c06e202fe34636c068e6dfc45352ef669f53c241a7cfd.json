@@ -1,8 +1,0 @@
-{
-  "claimed_at": "2026-09-23T12:00:00Z",
-  "content_sha256": "d470c2bf78ebf40c4a58834e4282209f4d33eb1701cbfe4c482d7f6752b21c24",
-  "format": "slime-record/1",
-  "operation": "put",
-  "origin": "pubky://kq47ts1oghjief4acyjc7q8nuut5iodyw48atubb5d9h1gmoz1no/pub/slime-example/shop.json",
-  "parents": []
-}

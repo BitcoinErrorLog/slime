@@ -21,15 +21,15 @@ When that works, Slime works. The [development plan](development-plan.md) ends o
 
 ## Job 1: the network indexes itself
 
-Pubky already separates a key from the machine that stores its bytes. A **homeserver** stores a key's records. **[PKARR](https://github.com/pubky/pkarr)** publishes where that homeserver is, signed by the key itself. An indexer such as Nexus builds a large view on top. If that indexer is the only way to find people, tags, and shops, the indexer decides what is visible.
+Pubky already separates a key from the machine that stores its bytes. A **homeserver** stores a key's records. **[PKARR](https://github.com/pubky/pkarr)** publishes where that homeserver is, signed by the key itself, and can list several homeservers in priority order. An indexer such as Nexus builds a large view on top. If that indexer is the only way to find people, tags, and shops, the indexer decides what is visible.
 
 Slime spreads that job across the people who already hold the data, and each of them decides what they share.
 
 - **Sharing controls.** You choose what to share and what not to share: particular people, everyone you follow, particular shops or listings, tag labels, link domains, and kinds of records such as posts, tags, or media. A don't-share choice beats a share choice. Only public records are ever offered. Private favorites, private follows, trust marks, searches, drafts, and orders never appear in the controls.
 - **Your slice.** The app publishes the result of those choices on your own homeserver: a signed list of the records you chose, with or without the records themselves. That list is your slice. Anyone can download it and search it privately. You never see their searches.
 - **Live queries.** A provider that runs an endpoint answers four questions: records by a key, tags with a label, records that reference a URI, and links to a domain. Answers are candidate lists, never rankings.
-- **Advertisements.** A provider signs a small statement: its endpoint, its roles, what its operator chose to share, its current slice, and a few peers. The signing key is subordinate to the operator's identity key. No registry is required.
-- **Notices.** When a stranger replies to you, tags your listing, or follows you, their client tells providers that serve you where the record is. The providers check it and index it. You fetch it and check it again.
+- **Advertisements.** A provider signs a small statement: its endpoint, its roles, what its operator chose to share, its current slice, and a few peers. The signing key is the client key of a Pubky grant from the operator, the same kind of grant Ring gives any app. No registry is required.
+- **Notices.** When a stranger replies to you, tags your listing, or follows you, their client tells providers that serve you where the record is. The providers check it and index it. You fetch it and check it again. Queues and your requests list are bounded, so a flood of throwaway keys cannot bury real notices.
 
 Every entry you receive is a candidate. Your app checks it against the original bytes and builds its own index.
 
@@ -39,7 +39,7 @@ The app renders from a **replica** on the device: the original records, your loc
 
 - Open the app offline. Read, search, and browse the shops and listings you follow, with their images when they were retained.
 - Compose offline. The draft and the outbox survive restarts and expired sessions.
-- Publish through your homeserver. If it refuses you, the app switches to an alternate you enrolled once through Ring. A failover key, subordinate to your identity key like Pubky's other delegated keys, signs a statement naming the new home. It can name only homeservers you enrolled, and it can do nothing else.
+- Publish through your homeserver. If it refuses you, the app switches to an alternate you enrolled once through Ring. Your PKARR record lists every enrolled homeserver, so readers already know where else to look, and new posts reach them from the alternate. For edits, the app's failover key (the client key of a Pubky grant Ring gave it) signs a statement naming which homeserver decides. Readers accept only homeservers your own PKARR record lists.
 - Configure providers once. When one fails, the next eligible one takes over for that role and scope. No endpoint editing during an outage.
 
 Reads go outward only as far as needed: your local index, then slices you already hold, then a live peer, then the author's homeservers, then a large indexer, then its alternates. Each step outward adds a witness, so the nearest answer wins.
@@ -50,9 +50,9 @@ The [coverage matrix](spec.md#1-coverage) has one row for each data type below. 
 
 - **Social:** profiles, posts, replies, follows, mutes, tags, bookmarks and favorites, custom feeds, notices and mentions.
 - **Commerce:** shops, listings, offers, reviews, followed shops and followed listings, locked content.
-- **What records depend on:** blobs, media, and other dependencies; proofs, signatures, and history.
-- **Slime's own documents:** slices; provider advertisements, routes, and home statements.
-- **Never shared:** the private workspace; transactions.
+- **What records depend on:** blobs, media, and other dependencies; signatures and history.
+- **Slime's own documents:** slices; provider advertisements, services documents, and home statements.
+- **Never shared:** the last-read marker; the private workspace; transactions.
 
 Slime needs no shop or listing schema. A shop is a seller's key and the records the seller publishes. A listing is one of those records. Following a shop is following the seller. Following a listing is bookmarking it. Tags label listings. Slime retains, shares, and indexes those records like any other, by author, URI, and the references inside them.
 
@@ -72,7 +72,7 @@ Paying is a separate step, through Paykit, against the live seller. A Lock still
 |---|---|
 | The indexer | The local index answers. Slices and live peers fill gaps. Familiar keys refresh from their homeservers. The app says what it could not reach. |
 | Another key's homeserver | That key's records come from the replica, its other enrolled homeservers, its mirrors, peers, and slices. |
-| Your homeserver refuses you | Publication moves to an enrolled alternate automatically. Slime readers follow the home statement. Other clients follow once Ring moves the main record, and the app says when that has not happened yet. |
+| Your homeserver refuses you | Publication moves to an enrolled alternate automatically. Readers find it through your PKARR record, and Slime readers follow the home statement for edits. The designated publisher and your mirrors keep your PKARR record alive even if the primary stops republishing it. Other clients reach the alternate when the primary is unreachable, and read it first once Ring reorders the record. The app says when that has not happened yet. |
 | A notice provider | The sender tries your other notice providers. Peers' answers carry the same references. |
 | The network | The installed app opens retained records, followed shops, and drafts across restarts. |
 | A supplier omits a known record | The retained copy stays. Omission is not a deletion by the author. |
@@ -81,4 +81,4 @@ Paying is a separate step, through Paykit, against the live seller. A Lock still
 
 ## Limits
 
-Slime cannot recover bytes nobody stored, learn about events with no path to anyone, or prove a search covered the whole network. Advertisements do not stop a hostile set of providers from hiding a record. Cross-checking with the author's homeserver narrows that. Publishing failover needs one enrollment through Ring beforehand, and clients that do not implement Slime keep reading the old homeserver until Ring moves the main record. Edits to mutable records wait for a conditional write on the homeserver before they fail over. A person who receives plaintext can copy it. An old catalog is not the current price or the current stock. A signature is not proof that a claim is true.
+Slime cannot recover bytes nobody stored, learn about events with no path to anyone, or prove a search covered the whole network. Advertisements do not stop a hostile set of providers from hiding a record. Cross-checking with the author's homeserver narrows that. Publishing failover needs one enrollment through Ring beforehand, and PKARR records that list several homeservers need small changes in the Pubky SDK and homeserver. Clients that do not implement Slime may keep reading a stale primary first until Ring reorders the record. Edits to mutable records go through a homeserver lock and a hash compare, and conflict rather than overwrite. Readers cannot see a grant's revocation, so a revoked key's earlier signatures still verify until its grant expires. A person who receives plaintext can copy it. An old catalog is not the current price or the current stock. A signature is not proof that a claim is true.

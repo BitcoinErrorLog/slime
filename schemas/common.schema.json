@@ -16,13 +16,8 @@
       "type": "string",
       "pattern": "^(0|[1-9][0-9]{0,18})$"
     },
-    "sha256": {
-      "type": "string",
-      "pattern": "^[0-9a-f]{64}$"
-    },
     "set_id": {
-      "type": "string",
-      "pattern": "^sha256:[0-9a-f]{64}$"
+      "$ref": "#/$defs/hash"
     },
     "record_uri": {
       "type": "string",
@@ -37,8 +32,8 @@
     "label": {
       "type": "string",
       "minLength": 1,
-      "maxLength": 100,
-      "pattern": "^[^\\s]+$"
+      "maxLength": 20,
+      "pattern": "^[^,:\\s]+$"
     },
     "host": {
       "type": "string",
@@ -156,8 +151,8 @@
         "kind": {
           "$ref": "#/$defs/kind"
         },
-        "sha256": {
-          "$ref": "#/$defs/sha256"
+        "blake3": {
+          "$ref": "#/$defs/hash"
         },
         "refs": {
           "type": "array",
@@ -223,7 +218,7 @@
               "anyOf": [
                 {
                   "required": [
-                    "sha256"
+                    "blake3"
                   ]
                 },
                 {
@@ -241,15 +236,11 @@
           },
           "else": {
             "required": [
-              "sha256"
+              "blake3"
             ]
           }
         }
       ]
-    },
-    "cert_id": {
-      "type": "string",
-      "pattern": "^[0-9a-f]{32}$"
     },
     "provider_ref": {
       "type": "object",
@@ -266,6 +257,16 @@
         "provider"
       ],
       "additionalProperties": false
+    },
+    "grant": {
+      "type": "string",
+      "maxLength": 4096,
+      "pattern": "^[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+$"
+    },
+    "hash": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9+/]{43}=$",
+      "description": "BLAKE3 of the exact bytes, standard base64, as in the homeserver ETag and event content_hash"
     }
   }
 }

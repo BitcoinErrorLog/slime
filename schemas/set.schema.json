@@ -23,9 +23,8 @@
             "minimum": 0,
             "maximum": 9007199254740991
           },
-          "sha256": {
-            "type": "string",
-            "pattern": "^[0-9a-f]{64}$"
+          "blake3": {
+            "$ref": "urn:slime:schema:common#/$defs/hash"
           },
           "origin": {
             "type": "string",
@@ -36,7 +35,7 @@
         "required": [
           "path",
           "bytes",
-          "sha256"
+          "blake3"
         ],
         "additionalProperties": false
       }
@@ -47,8 +46,7 @@
       "pattern": "Z$"
     },
     "previous": {
-      "type": "string",
-      "pattern": "^sha256:[0-9a-f]{64}$"
+      "$ref": "urn:slime:schema:common#/$defs/hash"
     }
   },
   "required": [

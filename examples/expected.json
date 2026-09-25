@@ -1,58 +1,39 @@
 {
-  "headline": {
-    "identities": {
-      "alice": "zefk98sfbnhn8gtkwgid6sw4qkph3hf8omghoe3yp9g7jpm84t1y",
-      "alice_failover": "wakh6f8m5fty5jgw3koycda7tqdikdck8bxcg6gfkqdwte4kpqpo",
-      "bob": "ffifzgqfx1wcra161pa53pimmaeeu1cu1j6pa8cr15bpkx4cdugo",
-      "bob_provider": "xow6mmo7j5her6boj1er4mdskyhsrzewr81iqqpk3bogyuq9o1io",
-      "carol": "kr7c1ztn861wwgkg4ww3i815dyn38twdjrga6sgy9xru1pqepyuo",
-      "dana": "kq47ts1oghjief4acyjc7q8nuut5iodyw48atubb5d9h1gmoz1no",
-      "homeserver_alternate": "p86g5f5mywsn3ccsrcxynhr89g1xd8n3jthafehuucf4rr1qgd8y",
-      "homeserver_primary": "kh3znzd47hhhg4njygjrhb1ppduyepdq39qons4a59cxqa5jny5o",
-      "homeserver_unenrolled": "hbbg4fqir6arnhr6rwhs4n5hb939wa78oi5hhcuhp7jmt8d86nxy",
-      "other_provider": "3w8r44dhogm5wpifquxnkonmrr8d5m3yoqmxjafah8eaq7rkr1fy"
-    },
-    "route": "sha256:9edc6b7ef7e9906b0fd06082bb1a14ff5bc3c5a19a2ea753cfa3154eb30e40a9",
-    "slices": {
-      "bob-slice-1": "sha256:d14194fa8509f381e2a3301c0d039b55da57f422918d7e541286b57f3b3f2c9c",
-      "bob-slice-2": "sha256:8843b7f49579c1414e7316df55ca48b0a2ef5a91b3a2d2cdd269d621eedefe86"
-    },
-    "uris": {
-      "blob": "pubky://kq47ts1oghjief4acyjc7q8nuut5iodyw48atubb5d9h1gmoz1no/pub/slime-example/blobs/dc0a6bcfa8b224dadda57c997ec68bf786c1d2a6d479c958b52c12b8c0b44135",
-      "carol_tag": "pubky://kr7c1ztn861wwgkg4ww3i815dyn38twdjrga6sgy9xru1pqepyuo/pub/slime-example/tags/print-2.json",
-      "curator_tag": "pubky://8nwd7x787d4xxy6r349npowdz136ibmmnpmyk1m8oxw6faa6oigy/pub/slime-example/tags/shop-1.json",
-      "print": "pubky://kq47ts1oghjief4acyjc7q8nuut5iodyw48atubb5d9h1gmoz1no/pub/slime-example/listings/print-2.json",
-      "shirt": "pubky://kq47ts1oghjief4acyjc7q8nuut5iodyw48atubb5d9h1gmoz1no/pub/slime-example/listings/shirt-1.json",
-      "shop": "pubky://kq47ts1oghjief4acyjc7q8nuut5iodyw48atubb5d9h1gmoz1no/pub/slime-example/shop.json"
-    }
+  "hashes": {
+    "listing": "B/fXQk+jXRhOX4w0aTgipJhn7mQdMU6WV/Le/c+lUIQ=",
+    "listing_withdrawn": "MDWBO5SpCjg1GEQv0x044veJFNtwAoghgf0CJh9ajqY=",
+    "shirt": "drPQhK7MrotitRs4i8DD7Y/OEjB1Bu0SYJJqX0+ek5E="
   },
   "identities": {
-    "author": "dbnm5egbtdsk7c5hhufrbpmdxge6h7of7c83qc7wygy1m7qhug6y",
-    "curator": "8nwd7x787d4xxy6r349npowdz136ibmmnpmyk1m8oxw6faa6oigy",
-    "seller": "kq47ts1oghjief4acyjc7q8nuut5iodyw48atubb5d9h1gmoz1no"
-  },
-  "listing_origin": "pubky://kq47ts1oghjief4acyjc7q8nuut5iodyw48atubb5d9h1gmoz1no/pub/slime-example/listings/shirt-1.json",
-  "listing_statements": {
-    "initial": "sha256:3b7db4cb049f0d74c7220245e936e5db4b5c5cf0e76a4618488fdb5cf72e05a3",
-    "withdrawn": "sha256:5cd9754791a8c5518d39444d20695bec1c17b6168689e10440e6402fbd757aca"
+    "alice": "erq43o3ogwsoa9g7jdgppewxhauk9rba6rkptsocdzus65ysouqo",
+    "alice_publisher": "t6qmc8ni3y3eangwa3zzewut7ntqaewqx3b14pq8iqparwqk78py",
+    "author": "tke7gs7j44k35jgmnk4euezqedx85gh6b4bn6wkbs7gc4mgow5yy",
+    "bob": "yba5zhgperqp4eyz7t6c7i3gb5ddy9ffc59bfypwc53g8ygphyry",
+    "bob_provider": "7d6cn61a6xa6kfaq19bepdgb8w3zi9cudu7sm9xfcps9mb887nby",
+    "carol": "qe6hdrmq1i9te5bggtkkjq93fxy39jgg1dkgjw5jkhhk6ryzirdy",
+    "curator": "9so6zb3afee49bzwxi3af1p8c538etobanxyatziw1hjbho8ryao",
+    "dana": "pz6c7qywejnprcr9ixrscfpm88mxjxjx8kgpurk5qsx657i81mco",
+    "homeserver_alternate": "68zirzf5ehoxg1bbkxt31x3nmdx76ows713hewumwm6kce4hwp1o",
+    "homeserver_primary": "whuzjiat7b561ocd3akkd36scbzdoc5y9m8oieyjjpjx6sz1hpno",
+    "homeserver_unenrolled": "orc4xyk71e1kf4ejbmni5jt68d31e7cem1rbyrntcts9ud99aipy",
+    "other_provider": "wdm6w9kzn8mto8z53obao55bhtuoxq784w54nyk1f3c34yr6tk9o"
   },
   "sets": {
-    "github-fork": "sha256:8e011c62b38bf9a2380ba19a6845a18d89af0f334036fd5e248d4abf51064be4",
-    "github-history": "sha256:cfbf031f03347fa82d0428181c6216cf81bbdfa22c9247ecc6b9ae78e5e893a0",
-    "github-inventoried": "sha256:5efa1520cff7506b4325ab9ba93ae375fed4bdd74012d0317d562a55a7ec8d00",
-    "github-joined": "sha256:16bc3c52d9476757938e11a725a6eff13bf11d2e8eb33c08b77300fb7188d158",
-    "github-signed": "sha256:0f1350920bfc42293d6f840cde0c115f9cebaeb738dacf34b94749d4c42b7a30",
-    "headline/bob-slice-1": "sha256:d14194fa8509f381e2a3301c0d039b55da57f422918d7e541286b57f3b3f2c9c",
-    "headline/bob-slice-2": "sha256:8843b7f49579c1414e7316df55ca48b0a2ef5a91b3a2d2cdd269d621eedefe86",
-    "shops-public": "sha256:ab9454f308f2ea05858dc7309ca6dd4788ce717c716a2dd0874354e008eab64d",
-    "shops-withdrawn": "sha256:88ad50f6ecea2d96a031d27c133f4da8534d853ce7e129371f4071f9da0659e4"
+    "github-inventoried": "S5k/JQCd44hlxVl5MCMbRdJbTTKKjYZJHbIXmIMSfpM=",
+    "github-signed": "S5k/JQCd44hlxVl5MCMbRdJbTTKKjYZJHbIXmIMSfpM=",
+    "headline/bob-slice-1": "YzADTFdia4rIFNcNGa7hrmrtUUHTTXlTbuITCRPgny8=",
+    "headline/bob-slice-2": "RbQvTmgEtffaBFx8qTxFPhgU4E188/Jx+Od2YKc/i2s=",
+    "shops-public": "3sWyuMu8hKkF7dxM2wqJr4iFPRErdhOePr7xDAloz0A="
   },
-  "tag_origin": "pubky://dbnm5egbtdsk7c5hhufrbpmdxge6h7of7c83qc7wygy1m7qhug6y/pub/slime-example/tags/github-1.json",
-  "tag_statements": {
-    "delete": "sha256:36d2fac2b4d0c67da293f23bd0498fc9f0393c99b495d64752d03e07934004bd",
-    "edit": "sha256:f9151b27f4c45a3ff208285676034610803ff584f21de6193c914d0f876ca2f5",
-    "fork": "sha256:3a8f65d146ae26ec2aa72833bfe04b57936f8b3ff04d0d25083ff94dbaff9c26",
-    "initial": "sha256:a8b944d1895667d8d840b940cf7a3dd27c9445768f0d832dc4c231668309cf51",
-    "joined": "sha256:cf690f5036996e313139d55e3181ad1d9805f7b50c98f2864e7b772d4b9bec21"
+  "uris": {
+    "author_profile": "pubky://tke7gs7j44k35jgmnk4euezqedx85gh6b4bn6wkbs7gc4mgow5yy/pub/pubky.app/profile.json",
+    "author_tag": "pubky://tke7gs7j44k35jgmnk4euezqedx85gh6b4bn6wkbs7gc4mgow5yy/pub/pubky.app/tags/AHF3FGYT714TDAYH5101WPGTV8",
+    "blob": "pubky://pz6c7qywejnprcr9ixrscfpm88mxjxjx8kgpurk5qsx657i81mco/pub/pubky.app/blobs/5XNKD7A969EC9G522PYQ5G9BTM",
+    "carol_tag": "pubky://qe6hdrmq1i9te5bggtkkjq93fxy39jgg1dkgjw5jkhhk6ryzirdy/pub/pubky.app/tags/08BDG67JTNQAMC7YSBN2KKNHNM",
+    "curator_tag": "pubky://9so6zb3afee49bzwxi3af1p8c538etobanxyatziw1hjbho8ryao/pub/pubky.app/tags/AHWJRTGCKTHDXFRT90RV922AQM",
+    "dana_profile": "pubky://pz6c7qywejnprcr9ixrscfpm88mxjxjx8kgpurk5qsx657i81mco/pub/pubky.app/profile.json",
+    "file": "pubky://pz6c7qywejnprcr9ixrscfpm88mxjxjx8kgpurk5qsx657i81mco/pub/pubky.app/files/0035R99S1P940",
+    "listing": "pubky://pz6c7qywejnprcr9ixrscfpm88mxjxjx8kgpurk5qsx657i81mco/pub/pubky.app/posts/0035R99S3KA80",
+    "shirt": "pubky://pz6c7qywejnprcr9ixrscfpm88mxjxjx8kgpurk5qsx657i81mco/pub/pubky.app/posts/0035R99S5GBC0"
   }
 }

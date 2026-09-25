@@ -1,3 +1,3 @@
 # Bob's slice of Dana's shop, first snapshot
 
-Bob chose to share Dana's key. This is the published result of that choice, signed by Bob's provider key: Dana's shop record, two listings, one listing image, and a curator's tag on a listing. Entries are candidates. Record bodies and the authors' proofs travel unchanged, so a receiver checks every entry against the bytes before indexing it.
+Bob chose to share Dana's key. This is the published result, signed by Bob's provider key, whose Pubky grant travels in `slice.json`. It carries Dana's profile, both listing posts, the image post's file and blob, and a curator's tag. A receiver checks every entry against the bytes before indexing it.

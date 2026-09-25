@@ -1,0 +1,12 @@
+{
+  "format": "slime-services/1",
+  "identity": "erq43o3ogwsoa9g7jdgppewxhauk9rba6rkptsocdzus65ysouqo",
+  "issued_at": "2026-09-20T12:00:00Z",
+  "notice": [
+    {
+      "operator": "yba5zhgperqp4eyz7t6c7i3gb5ddy9ffc59bfypwc53g8ygphyry",
+      "provider": "7d6cn61a6xa6kfaq19bepdgb8w3zi9cudu7sm9xfcps9mb887nby"
+    }
+  ],
+  "sequence": 1
+}

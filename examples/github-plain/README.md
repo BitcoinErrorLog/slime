@@ -1,3 +1,3 @@
-# GitHub references
+# GitHub reference
 
-Synthetic fixture: tag-shaped JSON uses an example namespace, not a deployed native tag ID. The real Pubky tag adapter must preserve its existing hash-derived ID and namespace. This folder is a selected reference set, not a repository backup.
+Synthetic folder: one pubky.app tag on a GitHub repository and its author's profile. The tag id is the pubky-app-specs HashId of `uri:label`. This folder is a selection, not a backup.

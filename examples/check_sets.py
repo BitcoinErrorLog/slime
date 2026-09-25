@@ -1,40 +1,50 @@
 #!/usr/bin/env python3
 """Read-only checker for the Slime fixture formats.
 
-Checks staged folders and slices, provider advertisements, query responses,
-notices, routes, and home statements. No network, extraction, signing, or credential
-access. This is not a production importer or a complete Pubky client.
+Checks staged folders and slices, provider advertisements, query responses, notices,
+services documents, home statements, and merges over homeserver event streams. No network,
+extraction, signing, or credential access. This is not a production importer or a complete
+Pubky client.
 
-Key delegation follows Pubky Unified Key Delegation (UKD): an identity's RootKey, held
-in Ring, signs a KeyBinding and AppCerts that delegate AppKeys. Verifying the KeyBinding
-and AppCerts is the UKD library's job. Functions here take the verified app_keys entries
-it returns and check Slime's rules on top of them.
+Hashes are BLAKE3 in standard base64, the encoding the homeserver uses for its ETag and for
+content_hash in its event stream. Signatures are detached JWS (RFC 7515 Appendix F) with EdDSA.
+Provider keys and failover keys are the client keys of Pubky grants: a `pubky-grant` JWS the
+identity key signs through Ring, binding a client key (`cnf`) to capabilities and an expiry.
+The checker verifies those grants offline, as a homeserver does.
 """
 from __future__ import annotations
 import argparse
 import base64
-import hashlib
 import json
 import re
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import urlsplit
+from blake3 import blake3
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
 from jsonschema import Draft202012Validator, FormatChecker
 from referencing import Registry, Resource
 
 ROOT = Path(__file__).resolve().parents[1]
 ALPHABET = 'ybndrfg8ejkmcpqxot1uwisza345h769'
-CONTROL = {'set.json', 'set.sig.json'}
-LIMITS = {'set': 16*1024*1024, 'signature': 8192, 'record': 65536, 'observation': 65536,
-          'provider': 65536, 'slice': 16*1024*1024, 'candidates': 4*1024*1024,
-          'notice': 8192, 'route': 65536, 'home': 8192}
-EXAMPLE = '/pub/slime-example/'
+CROCKFORD = '0123456789ABCDEFGHJKMNPQRSTVWXYZ'
+CONTROL = {'set.json', 'set.jws'}
+LIMITS = {'set': 16*1024*1024, 'jws': 8192, 'provider': 65536, 'slice': 16*1024*1024,
+          'candidates': 4*1024*1024, 'notice': 8192, 'services': 65536, 'home': 16384}
+APP = '/pub/pubky.app/'
+SLIME_PATH = '/pub/slime.pubky.app/'
 LIVE_ROLES = {'records', 'query', 'notices'}
 MAX_REFS = 64
+TAG_LABEL_MAX = 20
+TAG_INVALID = set(',: \t\n\r')
+OCT_2024_MICROS = 1727740800000000
 PUBKY_REF = re.compile(r'pubky://([ybndrfg8ejkmcpqxot1uwisza345h769]{52})(/pub/[^\s?#]+|/)?')
 WEB_REF = re.compile(r'https?://[^\s]+')
+TEXT_URL = re.compile(r'https?://[^\s<>"\'()\[\]{}]+')
+TEXT_PUBKY = re.compile(r'pubky://[ybndrfg8ejkmcpqxot1uwisza345h769]{52}(?:/pub/[^\s<>"\'()\[\]{}?#]+)?')
+GRANT_TYP = 'pubky-grant'
+POW_DOMAIN = b'slime-notice-pow/1'
 
 class InvalidSet(ValueError):
     """Invalid, unsupported, incomplete, or over-budget fixture."""
@@ -49,8 +59,17 @@ def _registry() -> Registry:
 
 REGISTRY = _registry()
 
-def sha(data: bytes) -> str:
-    return hashlib.sha256(data).hexdigest()
+def b3(data: bytes) -> str:
+    """BLAKE3 in standard base64, as the homeserver's ETag and event content_hash."""
+    return base64.b64encode(blake3(data).digest()).decode()
+
+def b64url(data: bytes) -> str:
+    return base64.urlsafe_b64encode(data).decode().rstrip('=')
+
+def b64url_decode(segment: str) -> bytes:
+    if not re.fullmatch(r'[A-Za-z0-9_-]*',segment):
+        raise InvalidSet('Invalid base64url segment')
+    return base64.urlsafe_b64decode(segment+'='*(-len(segment)%4))
 
 def pairs(items):
     result = {}
@@ -74,17 +93,15 @@ def load_json(data: bytes):
         raise InvalidSet(f'Invalid JSON: {exc}') from exc
 
 def parse(data: bytes, kind: str):
-    if len(data) > LIMITS[kind] or data.startswith(b'\xef\xbb\xbf'):
-        raise InvalidSet('Control-file size limit or UTF-8 BOM')
+    if len(data) > LIMITS[kind]:
+        raise InvalidSet('Control-file size limit')
+    result = load_json(data)
     try:
-        result = json.loads(data.decode('utf-8'), object_pairs_hook=pairs, parse_constant=reject_constant)
         schema = json.loads((ROOT/'schemas'/f'{kind}.schema.json').read_text())
         Draft202012Validator(schema, registry=REGISTRY, format_checker=FormatChecker()).validate(result)
-        return result
-    except InvalidSet:
-        raise
     except Exception as exc:
         raise InvalidSet(f'Invalid {kind} JSON: {exc}') from exc
+    return result
 
 def key_encode(raw: bytes) -> str:
     n = int.from_bytes(raw, 'big') << 4
@@ -102,6 +119,30 @@ def key_decode(text: str) -> bytes:
     if key_encode(raw)!=text:
         raise InvalidSet('Noncanonical key')
     return raw
+
+def crockford(data: bytes) -> str:
+    """Crockford base32 without padding, as the `base32` crate used by pubky-app-specs."""
+    bits=''.join(f'{b:08b}' for b in data)
+    bits+='0'*(-len(bits)%5)
+    return ''.join(CROCKFORD[int(bits[i:i+5],2)] for i in range(0,len(bits),5))
+
+def hash_id(data: bytes) -> str:
+    """pubky-app-specs HashId: first 16 bytes of BLAKE3, Crockford base32."""
+    return crockford(blake3(data).digest()[:16])
+
+def timestamp_id_micros(text: str) -> int:
+    """Decode a pubky-app-specs TimestampId: 13 Crockford characters over 8 big-endian bytes."""
+    if len(text)!=13 or any(c not in CROCKFORD for c in text):
+        raise InvalidSet('Invalid timestamp id: '+text)
+    n=0
+    for c in text:
+        n=(n<<5)|CROCKFORD.index(c)
+    if n & 1:
+        raise InvalidSet('Noncanonical timestamp id')
+    micros=n>>1
+    if micros<OCT_2024_MICROS:
+        raise InvalidSet('Timestamp id before October 2024')
+    return micros
 
 def safe_path(name: str) -> None:
     if len(name)>512 or not re.fullmatch(r'[A-Za-z0-9_./-]+',name):
@@ -134,22 +175,28 @@ def host_of(uri: str) -> str|None:
 def timestamp(text: str) -> datetime:
     return datetime.strptime(text, '%Y-%m-%dT%H:%M:%SZ').replace(tzinfo=timezone.utc)
 
-def verify_signature(payload: bytes, sidecar: bytes, purpose: str) -> str:
-    sig=parse(sidecar,'signature')
-    if sig['purpose']!=purpose or sig['digest']!='sha256:'+sha(payload):
-        raise InvalidSet('Signature purpose or digest mismatch')
-    encoded=sig['signature']
+# Detached JWS (RFC 7515 Appendix F): header..signature over base64url(header).base64url(bytes).
+
+def verify_jws(payload: bytes, compact: str, typ: str) -> str:
+    """Verify a detached EdDSA JWS over exact bytes. Returns the signer key from `kid`."""
+    if len(compact.encode())>LIMITS['jws']:
+        raise InvalidSet('Signature file too large')
+    parts=compact.strip().split('.')
+    if len(parts)!=3 or parts[1]!='':
+        raise InvalidSet('A signature is a detached JWS: header..signature')
+    header=load_json(b64url_decode(parts[0]))
+    if not isinstance(header,dict) or set(header)!={'alg','kid','typ'}:
+        raise InvalidSet('Signature header must carry exactly alg, kid, and typ')
+    if header['alg']!='EdDSA' or header['typ']!=typ:
+        raise InvalidSet('Signature type mismatch: expected '+typ)
+    signature=b64url_decode(parts[2])
+    if len(signature)!=64 or b64url(signature)!=parts[2]:
+        raise InvalidSet('Noncanonical signature encoding')
     try:
-        raw=base64.urlsafe_b64decode(encoded+'==')
-        if len(raw)!=64 or base64.urlsafe_b64encode(raw).decode().rstrip('=')!=encoded:
-            raise InvalidSet('Noncanonical signature encoding')
-        message=f'slime/{purpose}/1'.encode('ascii')+b'\x00'+hashlib.sha256(payload).digest()
-        Ed25519PublicKey.from_public_bytes(key_decode(sig['signer'])).verify(raw,message)
-    except InvalidSet:
-        raise
+        Ed25519PublicKey.from_public_bytes(key_decode(header['kid'])).verify(signature,(parts[0]+'.'+b64url(payload)).encode('ascii'))
     except Exception as exc:
         raise InvalidSet('Invalid Ed25519 signature') from exc
-    return sig['signer']
+    return header['kid']
 
 def verify_set(directory: Path, expected_signer: str|None=None):
     directory=directory.resolve(strict=True)
@@ -180,84 +227,32 @@ def verify_set(directory: Path, expected_signer: str|None=None):
     if set(names)!=(set(actual)-CONTROL):
         raise InvalidSet('Missing or extra inventory files')
     signer=None
-    if 'set.sig.json' in actual:
-        signer=verify_signature(inv_bytes,actual['set.sig.json'].read_bytes(),'set')
+    if 'set.jws' in actual:
+        signer=verify_jws(inv_bytes,actual['set.jws'].read_text(),'slime-set')
     if expected_signer is not None and signer!=expected_signer:
-        raise InvalidSet('Unexpected or missing publisher signature')
+        raise InvalidSet('Unexpected or missing exporter signature')
     versions={}
-    origin_bodies={}
     payload={}
     for entry in inventory['files']:
-        name=entry['path'];safe_path(name)
+        name=entry['path']
         raw=actual[name].read_bytes()
-        if len(raw)!=entry['bytes'] or sha(raw)!=entry['sha256']:
+        if len(raw)!=entry['bytes'] or b3(raw)!=entry['blake3']:
             raise InvalidSet('Member mismatch: '+name)
         payload[name]=raw
         origin=entry.get('origin')
         if origin:
-            if name.startswith('records/'):
-                parts=name.split('/')
-                if len(parts)>=4 and len(parts[1])==52:
-                    key_decode(parts[1])
-                    conventional='pubky://'+parts[1]+'/'+ '/'.join(parts[2:])
-                    if conventional!=origin:
-                        raise InvalidSet('Path and origin mapping disagree')
-            versions[(origin,entry['sha256'])]=raw
-            origin_bodies.setdefault(origin,set()).add(entry['sha256'])
-    statements={}
-    for name,item in actual.items():
-        if name.startswith('proofs/') and name.endswith('.json') and not name.endswith('.sig.json'):
-            # This example checker recognizes only its own explicit record proof prefix.
-            raw=item.read_bytes()
-            try:
-                probe=json.loads(raw)
-            except Exception:
-                continue
-            if not isinstance(probe,dict) or probe.get('format')!='slime-record/1':
-                continue
-            statement=parse(raw,'record')
-            side_name=name[:-5]+'.sig.json'
-            if side_name not in actual:
-                raise InvalidSet('Missing statement signature')
-            author=verify_signature(raw,actual[side_name].read_bytes(),'record')
-            if author!=origin_author(statement['origin']):
-                raise InvalidSet('Statement signer is not record author')
-            if statement['operation']=='put' and (statement['origin'],statement['content_sha256']) not in versions:
-                raise InvalidSet('Missing/mismatched authenticated body in this complete fixture')
-            statements['sha256:'+sha(raw)]=statement
-    # Same-origin references are checked when the referenced statement is available.
-    for sid,statement in statements.items():
-        for parent in statement['parents']:
-            if parent in statements and statements[parent]['origin']!=statement['origin']:
-                raise InvalidSet('Cross-origin parent')
-            if parent==sid:
-                raise InvalidSet('Self-parent cycle')
-    return {'id':'sha256:'+sha(inv_bytes),'signer':signer,'files':len(names),'versions':versions,
-            'statements':statements,'payload':payload,'previous':inventory.get('previous')}
+            parts=name.split('/')
+            if parts[0]!='records' or len(parts)<4:
+                raise InvalidSet('Origins apply to records/ only')
+            if 'pubky://'+'/'.join(parts[1:])!=origin:
+                raise InvalidSet('Path and origin mapping disagree')
+            origin_author(origin)
+            versions[(origin,entry['blake3'])]=raw
+    return {'id':b3(inv_bytes),'signer':signer,'files':len(names),'versions':versions,
+            'payload':payload,'previous':inventory.get('previous')}
 
-def merge_heads(results):
-    """Fixture-only projection of verified same-origin statements; not mixed-source policy."""
-    statements={}
-    for result in results:
-        statements.update(result['statements'])
-    referenced=set()
-    for sid,statement in statements.items():
-        for parent in statement['parents']:
-            if parent in statements:
-                if statements[parent]['origin']!=statement['origin']:
-                    raise InvalidSet('Cross-origin parent across imports')
-                referenced.add(parent)
-    heads={}
-    for sid,statement in statements.items():
-        if sid not in referenced:
-            heads.setdefault(statement['origin'],[]).append((sid,statement['operation']))
-    return {k:sorted(v) for k,v in sorted(heads.items())}
-
-# Entries are derived from original bytes. A real client has an adapter for each record type
-# pubky-app-specs defines. In this fixture namespace, tags/ use the pubky-app-specs tag shape
-# (uri, label, created_at) and blobs/ are named by their SHA-256. Every other record is kind
-# "other": Slime retains, shares, and indexes it without knowing its schema, and takes its refs
-# from the pubky:// and http(s) URIs found anywhere in its JSON body.
+# Entry derivation. Record types from pubky-app-specs get their adapter; every other record is
+# kind "other", indexed by URI, author, and the pubky:// and http(s) URIs in its JSON body.
 
 def extract_refs(body) -> list[str]:
     found=set()
@@ -269,33 +264,49 @@ def extract_refs(body) -> list[str]:
             for item in value:
                 walk(item)
         elif isinstance(value,str) and len(value)<=8192:
-            match=PUBKY_REF.fullmatch(value)
-            if match:
-                try:
-                    key_decode(match.group(1))
-                except InvalidSet:
-                    return
-                found.add('pubky://'+match.group(1)+(match.group(2) or '/'))
-            elif WEB_REF.fullmatch(value):
-                found.add(value)
+            add_ref(found,value)
     walk(body)
     return sorted(found)[:MAX_REFS]
 
+def add_ref(found: set, value: str) -> None:
+    match=PUBKY_REF.fullmatch(value)
+    if match:
+        try:
+            key_decode(match.group(1))
+        except InvalidSet:
+            return
+        found.add('pubky://'+match.group(1)+(match.group(2) or '/'))
+    elif WEB_REF.fullmatch(value):
+        found.add(value)
+
+def text_refs(text: str) -> set:
+    """Links in free text: http(s) URLs and pubky:// URIs, with trailing punctuation removed."""
+    found=set()
+    for pattern in (TEXT_URL,TEXT_PUBKY):
+        for match in pattern.findall(text):
+            add_ref(found,match.rstrip('.,;:!?'))
+    return found
+
+def app_body(raw: bytes) -> dict:
+    body=load_json(raw)
+    if not isinstance(body,dict):
+        raise InvalidSet('pubky.app record body is not an object')
+    return body
+
+def tag_fields(body: dict) -> tuple[str,str]:
+    label,target=body.get('label'),body.get('uri')
+    if not isinstance(label,str) or not isinstance(target,str) or not isinstance(body.get('created_at'),int):
+        raise InvalidSet('Tag needs uri, label, and created_at')
+    if label!=label.strip().lower() or not 1<=len(label)<=TAG_LABEL_MAX or TAG_INVALID&set(label):
+        raise InvalidSet('Tag label breaks pubky-app-specs rules: '+label)
+    return label,target
+
 def derive(origin: str, raw: bytes) -> dict:
     """Derive an entry's kind, refs, and label from the original bytes."""
-    origin_author(origin)
+    author=origin_author(origin)
     path=urlsplit(origin).path
-    rest=path[len(EXAMPLE):] if path.startswith(EXAMPLE) else None
-    if rest is not None and rest.startswith('blobs/'):
-        if rest[len('blobs/'):]!=sha(raw):
-            raise InvalidSet('Blob name does not match its bytes')
-        return {'kind':'blob'}
-    if rest is not None and rest.startswith('tags/'):
-        body=load_json(raw)
-        label,target=(body.get('label'),body.get('uri')) if isinstance(body,dict) else (None,None)
-        if not isinstance(label,str) or not re.fullmatch(r'[^\s]{1,100}',label) or not isinstance(target,str):
-            raise InvalidSet('Tag needs a label and a target')
-        return {'kind':'tag','label':label,'refs':[target]}
+    if path.startswith(APP):
+        return derive_app(author,path[len(APP):],raw)
     try:
         body=load_json(raw)
     except InvalidSet:
@@ -303,14 +314,81 @@ def derive(origin: str, raw: bytes) -> dict:
     refs=extract_refs(body)
     return {'kind':'other','refs':refs} if refs else {'kind':'other'}
 
+def derive_app(author: str, rest: str, raw: bytes) -> dict:
+    segment,_,ident=rest.partition('/')
+    if rest=='profile.json':
+        body=app_body(raw)
+        found=set()
+        if isinstance(body.get('image'),str):
+            add_ref(found,body['image'])
+        for link in body.get('links') or []:
+            if isinstance(link,dict) and isinstance(link.get('url'),str):
+                add_ref(found,link['url'])
+        return with_refs('profile',found)
+    if rest=='last_read':
+        return {'kind':'last_read'}
+    if segment=='blobs':
+        if ident!=hash_id(raw):
+            raise InvalidSet('Blob id does not match its bytes')
+        return {'kind':'blob'}
+    if segment=='tags':
+        body=app_body(raw)
+        label,target=tag_fields(body)
+        if ident!=hash_id(f'{target}:{label}'.encode()):
+            raise InvalidSet('Tag id does not match uri and label')
+        return {'kind':'tag','label':label,'refs':[target]}
+    if segment=='bookmarks':
+        body=app_body(raw)
+        if not isinstance(body.get('uri'),str) or ident!=hash_id(body['uri'].encode()):
+            raise InvalidSet('Bookmark id does not match its uri')
+        return {'kind':'bookmark','refs':[body['uri']]}
+    if segment in {'follows','mutes'}:
+        key_decode(ident)
+        return {'kind':segment[:-1],'refs':[f'pubky://{ident}/']}
+    if segment=='files':
+        timestamp_id_micros(ident)
+        body=app_body(raw)
+        if not isinstance(body.get('src'),str):
+            raise InvalidSet('File needs a src')
+        return with_refs('file',{body['src']})
+    if segment=='posts':
+        timestamp_id_micros(ident)
+        body=app_body(raw)
+        found=text_refs(body.get('content','')) if isinstance(body.get('content'),str) else set()
+        if isinstance(body.get('parent'),str):
+            found.add(body['parent'])
+        embed=body.get('embed')
+        if isinstance(embed,dict) and isinstance(embed.get('uri'),str):
+            found.add(embed['uri'])
+        found.update(a for a in body.get('attachments') or [] if isinstance(a,str))
+        return with_refs('post',found)
+    if segment=='feeds':
+        app_body(raw)
+        return {'kind':'feed'}
+    return with_refs('other',set(extract_refs(load_json(raw))))
+
+def with_refs(kind: str, found: set) -> dict:
+    refs=sorted(found)[:MAX_REFS]
+    return {'kind':kind,'refs':refs} if refs else {'kind':kind}
+
+def profile_uri(key: str) -> str:
+    return f'pubky://{key}{APP}profile.json'
+
 def dependencies(origin: str, raw: bytes) -> list[str]:
-    """Records this record needs in order to render: targets, media, parents."""
-    return [r for r in derive(origin,raw).get('refs',[]) if r.startswith('pubky://') and '/pub/' in r]
+    """What a record needs to render: referenced records, and its author's profile."""
+    derived=derive(origin,raw)
+    needed={r for r in derived.get('refs',[]) if r.startswith('pubky://') and '/pub/' in r}
+    if derived['kind']!='profile':
+        needed.add(profile_uri(origin_author(origin)))
+    return sorted(needed)
 
 def same_claims(claimed: dict, derived: dict) -> None:
     for field in ('kind','refs','label'):
         if claimed.get(field)!=derived.get(field):
             raise InvalidSet(f'Entry {field} does not match the record bytes: '+claimed['uri'])
+
+def is_last_read(uri: str) -> bool:
+    return urlsplit(uri).path==APP+'last_read'
 
 def matches(query: dict, uri: str, fields: dict) -> bool:
     """The four deterministic primitives. fields carries kind, refs, and label."""
@@ -357,35 +435,66 @@ def check_entries(entries: list) -> int:
             raise InvalidSet('Entries must be in strictly ascending seq order')
         last=number
         authority(entry['uri'])
+        if is_last_read(entry['uri']):
+            raise InvalidSet('The last-read marker is never shared')
         refs=entry.get('refs')
         if refs is not None and refs!=sorted(refs):
             raise InvalidSet('Entry refs must be sorted')
-        if 'sha256' in entry:
-            version=(entry['uri'],entry['sha256'])
+        if 'blake3' in entry:
+            version=(entry['uri'],entry['blake3'])
             if version in versions:
                 raise InvalidSet('Repeated entry version')
             versions.add(version)
     return last
 
-def check_delegation(delegation: dict, identity: str, key: str, cert_id: str, now: datetime) -> None:
-    """Check that an identity currently delegates a key for Slime.
+# Pubky grants: pubky-grant JWS, EdDSA over header.payload by the iss key (pubky-common).
 
-    delegation is the identity's verified KeyBinding for app_id "slime", reduced to what the
-    UKD library returns after checking the KeyBinding and each AppCert against the RootKey:
-    {"identity": ..., "app_id": "slime", "app_keys": [{"key", "cert_id", "expires_at"?}]}.
-    """
-    key_decode(key)
-    if not re.fullmatch(r'[0-9a-f]{32}',cert_id):
-        raise InvalidSet('Malformed cert_id')
-    if delegation.get('identity')!=identity or delegation.get('app_id')!='slime':
-        raise InvalidSet('No slime KeyBinding for this identity')
-    for entry in delegation.get('app_keys',[]):
-        if entry.get('key')==key and entry.get('cert_id')==cert_id:
-            expires=entry.get('expires_at')
-            if expires is not None and now>=timestamp(expires):
-                raise InvalidSet('Delegated key has expired')
-            return
-    raise InvalidSet('Key is not delegated by this identity')
+def verify_grant(compact: str, now: datetime) -> dict:
+    parts=compact.split('.')
+    if len(parts)!=3:
+        raise InvalidSet('A grant is a three-part JWS')
+    header=load_json(b64url_decode(parts[0]))
+    claims=load_json(b64url_decode(parts[1]))
+    if not isinstance(header,dict) or header.get('alg')!='EdDSA' or header.get('typ')!=GRANT_TYP:
+        raise InvalidSet('A grant header must be alg EdDSA and typ pubky-grant')
+    if not isinstance(claims,dict) or not {'iss','client_id','caps','cnf','jti','iat','exp'}<=set(claims):
+        raise InvalidSet('Grant claims are incomplete')
+    if not isinstance(claims['caps'],list) or not all(isinstance(c,str) for c in claims['caps']):
+        raise InvalidSet('Grant caps must be a list of capability strings')
+    if not isinstance(claims['exp'],int) or not isinstance(claims['iat'],int):
+        raise InvalidSet('Grant iat and exp must be integers')
+    signature=b64url_decode(parts[2])
+    if len(signature)!=64 or b64url(signature)!=parts[2]:
+        raise InvalidSet('Noncanonical grant signature encoding')
+    try:
+        Ed25519PublicKey.from_public_bytes(key_decode(claims['iss'])).verify(signature,(parts[0]+'.'+parts[1]).encode('ascii'))
+    except InvalidSet:
+        raise
+    except Exception as exc:
+        raise InvalidSet('Invalid grant signature') from exc
+    key_decode(claims['cnf'])
+    if now.timestamp()>=claims['exp']:
+        raise InvalidSet('Grant has expired')
+    return claims
+
+def grant_allows_write(claims: dict, path: str) -> bool:
+    """True when a grant capability `<scope>:<actions>` covers path with the w action."""
+    for capability in claims['caps']:
+        scope,sep,actions=capability.rpartition(':')
+        if sep and scope.startswith('/') and actions and 'w' in actions and set(actions)<={'r','w'} and path.startswith(scope):
+            return True
+    return False
+
+def check_grant_key(grant: str, issuer: str, key: str, now: datetime) -> dict:
+    """The key is the grant's client key, the identity issued it, and it may write Slime paths."""
+    claims=verify_grant(grant,now)
+    if claims['iss']!=issuer:
+        raise InvalidSet('Grant was issued by a different identity')
+    if claims['cnf']!=key:
+        raise InvalidSet("Signing key is not the grant's client key")
+    if not grant_allows_write(claims,SLIME_PATH):
+        raise InvalidSet('Grant does not allow writing '+SLIME_PATH)
+    return claims
 
 def check_provider(ad: dict, now: datetime|None=None) -> None:
     roles=set(ad['roles'])
@@ -399,29 +508,29 @@ def check_provider(ad: dict, now: datetime|None=None) -> None:
     if now is not None and not issued<=now<expires:
         raise InvalidSet('Advertisement is not valid at this time')
     if ad['provider']==ad['operator']:
-        raise InvalidSet('A provider key must be delegated, not the operator identity key')
+        raise InvalidSet('A provider key must be a grant client key, not the operator identity key')
     if any(peer['provider']==ad['provider'] for peer in ad.get('peers',[])):
         raise InvalidSet('An advertisement must not list its own provider as a peer')
 
-def verify_provider(advertisement: bytes, sidecar: bytes, delegation: dict|None=None,
-                    now: datetime|None=None) -> dict:
-    signer=verify_signature(advertisement,sidecar,'provider')
+def verify_provider(advertisement: bytes, signature: str, now: datetime|None=None) -> dict:
+    """Without a time, the grant is checked as of the advertisement's issued_at."""
+    signer=verify_jws(advertisement,signature,'slime-provider')
     ad=parse(advertisement,'provider')
     if signer!=ad['provider']:
         raise InvalidSet('Advertisement is not signed by the provider it describes')
     check_provider(ad,now)
-    if delegation is not None:
-        if now is None:
-            raise InvalidSet('Checking a delegation needs the current time')
-        check_delegation(delegation,ad['operator'],ad['provider'],ad['cert_id'],now)
+    check_grant_key(ad['grant'],ad['operator'],ad['provider'],now or timestamp(ad['issued_at']))
     return ad
 
-def providers_for(advertisements: list, key: str, role: str, now: datetime) -> list:
-    """Verified advertisements that serve a role for a key, newest sequence per provider."""
+def select_providers(advertisements: list, need: dict, role: str, now: datetime) -> list:
+    """Provider selection: advertisements whose role fits and whose scopes cover the need
+    (one of key, label, host, or uri), newest sequence per provider. Building the mesh and
+    fetching advertisements is outside this function."""
+    [(field,value)]=need.items()
     best={}
     for ad in advertisements:
         check_provider(ad,now)
-        if role in ad['roles'] and any(scope.get('key')==key for scope in ad['scopes']):
+        if role in ad['roles'] and any(scope.get(field)==value for scope in ad['scopes']):
             current=best.get(ad['provider'])
             if current is None or ad['sequence']>current['sequence']:
                 best[ad['provider']]=ad
@@ -435,17 +544,20 @@ def check_slice(entries_doc: dict, versions: dict) -> int:
     for entry in entries_doc['entries']:
         if not entry.get('gone') and not entry_in_scope(entry,entries_doc['scopes']):
             raise InvalidSet('Entry outside the shared scopes: '+entry['uri'])
-        if 'sha256' in entry:
-            listed.add((entry['uri'],entry['sha256']))
-            raw=versions.get((entry['uri'],entry['sha256']))
+        if 'blake3' in entry:
+            listed.add((entry['uri'],entry['blake3']))
+            raw=versions.get((entry['uri'],entry['blake3']))
             if raw is not None:
                 same_claims(entry,derive(entry['uri'],raw))
     for version in versions:
+        if is_last_read(version[0]):
+            raise InvalidSet('The last-read marker is never shared')
         if version not in listed:
             raise InvalidSet('Record body without a slice entry: '+version[0])
     return last
 
-def verify_slice(directory: Path, expected_provider: str|None=None):
+def verify_slice(directory: Path, expected_provider: str|None=None, now: datetime|None=None):
+    """Without a time, the provider's grant is checked as of the slice's as_of."""
     result=verify_set(directory)
     if 'slice.json' not in result['payload']:
         raise InvalidSet('A slice needs slice.json')
@@ -454,7 +566,11 @@ def verify_slice(directory: Path, expected_provider: str|None=None):
         raise InvalidSet('A slice must be signed by its provider key')
     if expected_provider is not None and entries_doc['provider']!=expected_provider:
         raise InvalidSet('Unexpected slice provider')
+    at=now or timestamp(entries_doc['as_of'])
+    claims=verify_grant(entries_doc['grant'],at)
+    check_grant_key(entries_doc['grant'],claims['iss'],entries_doc['provider'],at)
     check_slice(entries_doc,result['versions'])
+    result['operator']=claims['iss']
     result['slice']=entries_doc
     return result
 
@@ -483,11 +599,15 @@ def verify_candidates(data: bytes, advertisement: dict|None=None) -> dict:
                 raise InvalidSet('Entry outside the advertised scope: '+entry['uri'])
     return response
 
+# Notices. Flood rules follow the Open Inbox design (hypercolor-web ADR 0004): reject rather
+# than evict within one target, two-tier per-target caps, fair global eviction, a published
+# proof-of-work floor, a vouch path that bypasses it, and bounded state on the device.
+
 def verify_notice(data: bytes, source_uri: str, source: bytes) -> dict:
     notice=parse(data,'notice')
     if notice['source']!=source_uri:
         raise InvalidSet('Fetched record is not the notice source')
-    if 'sha256' in notice and sha(source)!=notice['sha256']:
+    if 'blake3' in notice and b3(source)!=notice['blake3']:
         raise InvalidSet('Source bytes do not match the notice')
     target=notice['target']
     refs=derive(source_uri,source).get('refs',[])
@@ -496,75 +616,191 @@ def verify_notice(data: bytes, source_uri: str, source: bytes) -> dict:
         raise InvalidSet('Source record does not reference the notice target')
     return notice
 
-def accepts_notice(notice: dict, provider: str, route: dict|None, advertisement: dict|None) -> bool:
-    """A provider accepts a notice for key X when X's route lists it as a notice provider, or
-    when its own advertised scopes already cover X or the target record."""
+def pow_digest(notice: dict) -> bytes:
+    hour=int(timestamp(notice['created_at']).timestamp())//3600*3600
+    return blake3(POW_DOMAIN+notice['target'].encode()+b'\x00'+notice['source'].encode()+b'\x00'
+                  +hour.to_bytes(8,'big')+bytes.fromhex(notice['pow'])).digest()
+
+def leading_zero_bits(digest: bytes) -> int:
+    bits=0
+    for byte in digest:
+        if byte==0:
+            bits+=8
+            continue
+        return bits+8-byte.bit_length()
+    return bits
+
+def check_pow(notice: dict, floor_bits: int, now: datetime) -> None:
+    """The work is bound to target, source, and the hour of created_at; only this hour or the last counts."""
+    if floor_bits==0:
+        return
+    if 'pow' not in notice:
+        raise InvalidSet('low-work: notice carries no proof of work')
+    hour=int(timestamp(notice['created_at']).timestamp())//3600
+    if hour not in {int(now.timestamp())//3600, int(now.timestamp())//3600-1}:
+        raise InvalidSet('stale-work: proof of work is outside the current or previous hour')
+    if leading_zero_bits(pow_digest(notice))<floor_bits:
+        raise InvalidSet('low-work: proof of work is below the floor')
+
+def is_vouched(source_uri: str, target_follows: set) -> bool:
+    """A source author the target publicly follows needs no proof of work."""
+    return origin_author(source_uri) in target_follows
+
+def accepts_notice(notice: dict, provider: str, services: dict|None, advertisement: dict|None) -> bool:
+    """A provider takes a notice for key X when X's services document lists it, or when it
+    advertises the notices role and its scopes already cover X or the target record."""
     target_key=authority(notice['target'])
-    if route is not None and route['identity']==target_key and any(p['provider']==provider for p in route.get('notice',[])):
+    if services is not None and services['identity']==target_key and any(p['provider']==provider for p in services.get('notice',[])):
         return True
     if advertisement is not None and advertisement['provider']==provider and 'notices' in advertisement['roles']:
         return any(scope.get('key')==target_key or scope.get('uri')==notice['target'] for scope in advertisement['scopes'])
     return False
 
-def verify_route(route: bytes, sidecar: bytes, identity: str) -> dict:
-    """A route is signed by the identity's RootKey, through Ring's typed signing."""
-    signer=verify_signature(route,sidecar,'route')
-    doc=parse(route,'route')
-    if signer!=identity or doc['identity']!=identity:
-        raise InvalidSet('A route must be signed by its own identity key')
+class NoticeQueue:
+    """Provider-side queue of unchecked notices, with the published caps."""
+    def __init__(self, cold_cap: int, warm_cap: int, global_cap: int, pow_floor_bits: int=0):
+        self.cold_cap,self.warm_cap,self.global_cap,self.pow_floor_bits=cold_cap,warm_cap,global_cap,pow_floor_bits
+        self.queues={}
+        self.warm=set()
+
+    def __len__(self):
+        return sum(len(q) for q in self.queues.values())
+
+    def mark_warm(self, target_key: str) -> None:
+        """A target that lists this provider, or has drained it once, gets the larger cap."""
+        self.warm.add(target_key)
+
+    def submit(self, notice: dict, now: datetime, vouched: bool=False) -> str:
+        target=authority(notice['target'])
+        if not vouched:
+            try:
+                check_pow(notice,self.pow_floor_bits,now)
+            except InvalidSet as exc:
+                return '400 '+str(exc).split(':')[0]
+        queue=self.queues.setdefault(target,[])
+        if any(n==notice for n in queue):
+            return '409 duplicate'
+        if len(queue)>=(self.warm_cap if target in self.warm else self.cold_cap):
+            return '503 queue-full'
+        if len(self)>=self.global_cap:
+            self._evict_one()
+        queue.append(notice)
+        return '202'
+
+    def _evict_one(self) -> None:
+        victim=max(self.queues,key=lambda k:(len(self.queues[k]),k not in self.warm))
+        oldest=min(self.queues[victim],key=lambda n:n['created_at'])
+        self.queues[victim].remove(oldest)
+
+    def drain(self, target_key: str) -> list:
+        self.mark_warm(target_key)
+        return self.queues.pop(target_key,[])
+
+class RequestsView:
+    """Device-side requests from unknown senders. Bounded: an unviewed row is the only kind a
+    stranger can push out; when every row is viewed, new requests are refused."""
+    def __init__(self, cap: int=256):
+        self.cap=cap
+        self.rows={}
+
+    def add(self, peer: str, arrived: str) -> bool:
+        if peer in self.rows:
+            return True
+        if len(self.rows)>=self.cap:
+            unviewed=[p for p,row in self.rows.items() if not row['viewed']]
+            if not unviewed:
+                return False
+            del self.rows[min(unviewed,key=lambda p:self.rows[p]['arrived'])]
+        self.rows[peer]={'arrived':arrived,'viewed':False}
+        return True
+
+    def view(self, peer: str) -> None:
+        self.rows[peer]['viewed']=True
+
+# Services documents, home statements, and failover.
+
+def load_services(data: bytes, identity: str) -> dict:
+    """A services document is published through the identity's own homeserver session."""
+    doc=parse(data,'services')
+    if doc['identity']!=identity:
+        raise InvalidSet('Services document belongs to a different identity')
     return doc
 
-def verify_home(home: bytes, sidecar: bytes, identity: str, route: bytes, route_sidecar: bytes,
-                delegation: dict, now: datetime, last_sequence: int|None=None) -> dict:
-    """A home statement is signed by the failover AppKey the route names and UKD delegates."""
-    signer=verify_signature(home,sidecar,'home')
+def verify_home(home: bytes, signature: str, identity: str, homeservers: list, now: datetime,
+                last_sequence: int|None=None) -> dict:
+    """homeservers are the `_pubky` targets of the identity's PKARR packet, in priority order."""
+    signer=verify_jws(home,signature,'slime-home')
     statement=parse(home,'home')
     if statement['identity']!=identity:
         raise InvalidSet('Home statement names a different identity')
-    if statement['route']!='sha256:'+sha(route):
-        raise InvalidSet('Home statement names a different route')
-    doc=verify_route(route,route_sidecar,identity)
-    if doc.get('failover')!=signer:
-        raise InvalidSet("Home statement is not signed by the route's failover key")
-    check_delegation(delegation,identity,signer,statement['cert_id'],now)
-    if statement['home'] not in doc['homeservers']:
-        raise InvalidSet('Home statement names a homeserver the route does not enroll')
+    check_grant_key(statement['grant'],identity,signer,now)
+    if statement['home'] not in homeservers:
+        raise InvalidSet("Home statement names a homeserver outside the identity's _pubky records")
     if last_sequence is not None and statement['sequence']<=last_sequence:
         raise InvalidSet('Stale home statement')
     return statement
 
-def resolve_home(identity: str, routes: list, homes: list, delegation: dict, now: datetime) -> dict:
-    """Pick the homeserver to read and publish through.
-
-    routes and homes are (bytes, signature bytes) pairs gathered from any carrier: enrolled
-    homeservers, mirrors, peers, folders. Invalid ones are ignored.
-    """
-    valid={}
-    for raw,sig in routes:
-        try:
-            doc=verify_route(raw,sig,identity)
-        except InvalidSet:
-            continue
-        valid.setdefault(doc['sequence'],{})[raw]=sig
-    if not valid:
-        raise InvalidSet('No valid route for this identity')
-    top=valid[max(valid)]
-    if len(top)>1:
-        raise InvalidSet('Conflicting routes at the same sequence')
-    [(raw,sig)]=top.items()
-    doc=parse(raw,'route')
+def resolve_home(identity: str, homeservers: list, homes: list, now: datetime) -> dict:
+    """The homeserver that decides mutable paths: the newest valid home statement, else the
+    first `_pubky` target. homes are (bytes, signature) pairs from any carrier."""
+    if not homeservers:
+        raise InvalidSet('The identity publishes no homeserver')
     best=None
-    for home,home_sig in homes:
+    for home,signature in homes:
         try:
-            statement=verify_home(home,home_sig,identity,raw,sig,delegation,now)
+            statement=verify_home(home,signature,identity,homeservers,now)
         except InvalidSet:
             continue
-        rank=(statement['sequence'],-doc['homeservers'].index(statement['home']))
+        rank=(statement['sequence'],-homeservers.index(statement['home']))
         if best is None or rank>best[0]:
             best=(rank,statement)
     if best is not None:
-        return {'home':best[1]['home'],'via':'failover','sequence':best[1]['sequence']}
-    return {'home':doc['homeservers'][0],'via':'route'}
+        return {'home':best[1]['home'],'via':'home statement','sequence':best[1]['sequence']}
+    return {'home':homeservers[0],'via':'pkarr'}
+
+# Merge over homeserver event streams (the /events-stream SSE format).
+
+def parse_events(text: str) -> list:
+    events=[]
+    for block in text.strip().split('\n\n'):
+        lines=[line for line in block.strip().split('\n') if line]
+        if not lines[0].startswith('event: '):
+            raise InvalidSet('Event block must start with event:')
+        op=lines[0][len('event: '):]
+        data=[line[len('data: '):] for line in lines[1:] if line.startswith('data: ')]
+        if op not in {'PUT','DEL'} or len(data)!=len(lines)-1 or not data:
+            raise InvalidSet('Malformed event block')
+        fields=dict(item.split(': ',1) for item in data[1:])
+        event={'op':op,'uri':data[0],'cursor':int(fields['cursor'])}
+        if op=='PUT':
+            event['blake3']=fields['content_hash']
+        events.append(event)
+    cursors=[e['cursor'] for e in events]
+    if cursors!=sorted(cursors) or len(set(cursors))!=len(cursors):
+        raise InvalidSet('Event cursors must increase')
+    return events
+
+def log_state(events: list) -> dict:
+    state={}
+    for event in events:
+        state[event['uri']]=('put',event['blake3']) if event['op']=='PUT' else ('del',)
+    return state
+
+def current_versions(logs: dict, copies: dict, authority_home: str|None=None) -> dict:
+    """Heads per URI. logs maps an enrolled homeserver to its events; copies maps a URI to the
+    BLAKE3 hashes held from suppliers. A log decides over copies; the home statement's
+    homeserver decides between logs; disagreement without a decider keeps every head."""
+    states={home:log_state(events) for home,events in logs.items()}
+    heads={}
+    for uri in sorted({u for s in states.values() for u in s}|set(copies)):
+        seen={home:s[uri] for home,s in states.items() if uri in s}
+        if authority_home in seen:
+            heads[uri]=[seen[authority_home]]
+        elif seen:
+            heads[uri]=sorted(set(seen.values()))
+        else:
+            heads[uri]=sorted(('put',h) for h in set(copies[uri]))
+    return heads
 
 class LocalIndex:
     """Fixture-scale replica index. Admits checked bytes and answers the four primitives."""
@@ -574,9 +810,9 @@ class LocalIndex:
     def __len__(self):
         return len(self._items)
 
-    def admit(self, uri: str, raw: bytes, expected_sha256: str|None=None, claimed: dict|None=None) -> bool:
-        digest=sha(raw)
-        if expected_sha256 is not None and digest!=expected_sha256:
+    def admit(self, uri: str, raw: bytes, expected_blake3: str|None=None, claimed: dict|None=None) -> bool:
+        digest=b3(raw)
+        if expected_blake3 is not None and digest!=expected_blake3:
             raise InvalidSet('Supplied bytes do not match the expected hash')
         derived=derive(uri,raw)
         if claimed is not None:
@@ -586,20 +822,38 @@ class LocalIndex:
         return added
 
     def admit_set(self, result: dict) -> int:
-        entries={(e['uri'],e['sha256']):e for e in result.get('slice',{}).get('entries',[]) if 'sha256' in e}
+        entries={(e['uri'],e['blake3']):e for e in result.get('slice',{}).get('entries',[]) if 'blake3' in e}
         return sum(self.admit(o,raw,d,entries.get((o,d))) for (o,d),raw in sorted(result['versions'].items()))
 
     def query(self, op: str, **args) -> list[str]:
         query={'op':op,**args}
         return sorted({uri for (uri,_),(_,fields) in self._items.items() if matches(query,uri,fields)})
 
-    def dependencies(self, uri: str) -> list[tuple[str,str]]:
-        retained={u for (u,_) in self._items}
+    def state(self, uri: str, holders: set, withheld: set) -> str:
+        if uri in withheld:
+            return 'withheld'
+        if any(u==uri for (u,_) in self._items):
+            return 'retained'
+        return 'fetchable' if uri in holders else 'missing'
+
+    def dependencies(self, uri: str, holders: set=frozenset(), withheld: set=frozenset()) -> list[tuple[str,str]]:
         needed=set()
         for (u,_),(raw,_) in self._items.items():
             if u==uri:
                 needed.update(dependencies(u,raw))
-        return [(d,'retained' if d in retained else 'missing') for d in sorted(needed)]
+        return [(d,self.state(d,holders,withheld)) for d in sorted(needed)]
+
+    def closure(self, uri: str, holders: set=frozenset(), withheld: set=frozenset()) -> list[tuple[str,str]]:
+        """Every transitive dependency, such as post to file to blob, with its state."""
+        seen={}
+        frontier=[uri]
+        while frontier:
+            for dep,state in self.dependencies(frontier.pop(),holders,withheld):
+                if dep not in seen and dep!=uri:
+                    seen[dep]=state
+                    if state=='retained':
+                        frontier.append(dep)
+        return sorted(seen.items())
 
 def main() -> int:
     parser=argparse.ArgumentParser(description=__doc__)
@@ -608,7 +862,7 @@ def main() -> int:
     args=parser.parse_args()
     try:
         if (args.directory/'provider.json').is_file():
-            ad=verify_provider((args.directory/'provider.json').read_bytes(),(args.directory/'provider.sig.json').read_bytes())
+            ad=verify_provider((args.directory/'provider.json').read_bytes(),(args.directory/'provider.jws').read_text())
             print(json.dumps({'provider':ad['provider'],'operator':ad['operator'],'sequence':ad['sequence'],
                               'roles':ad['roles'],'scopes':len(ad['scopes'])},indent=2))
             return 0

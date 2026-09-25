@@ -1,23 +1,27 @@
 {
-  "cert_id": "5ef311a24c4949da6d680f72284d37a9",
   "endpoints": [
     "https://slime.bob.example/1"
   ],
   "expires_at": "2026-10-25T11:00:00Z",
   "format": "slime-provider/1",
+  "grant": "eyJhbGciOiJFZERTQSIsInR5cCI6InB1Ymt5LWdyYW50In0.eyJpc3MiOiJ5YmE1emhncGVycXA0ZXl6N3Q2YzdpM2diNWRkeTlmZmM1OWJmeXB3YzUzZzh5Z3BoeXJ5IiwiY2xpZW50X2lkIjoicHJvdmlkZXIuYm9iLmV4YW1wbGUiLCJjYXBzIjpbIi9wdWIvc2xpbWUucHVia3kuYXBwLzpydyJdLCJjbmYiOiI3ZDZjbjYxYTZ4YTZrZmFxMTliZXBkZ2I4dzN6aTljdWR1N3NtOXhmY3BzOW1iODg3bmJ5IiwianRpIjoibE9XZk13dFlOZWh6Rm9mWDhnX1oxQSIsImlhdCI6MTc5MDA3ODQwMCwiZXhwIjoxODUzMTUwNDAwfQ.3NW8KP_qurjeUdgBW9eD-gfF0ZSw6K5Bd3LWZbqMT8nqOyFejGEVYW7H47CQG5qKeKiypAj-0pGyUBsHeSbqDg",
   "issued_at": "2026-09-25T11:00:00Z",
   "limits": {
     "max_entries": 500,
+    "notice_cold_cap": 4,
+    "notice_global_cap": 100000,
+    "notice_warm_cap": 64,
+    "pow_floor_bits": 8,
     "requests_per_minute": 60
   },
-  "operator": "ffifzgqfx1wcra161pa53pimmaeeu1cu1j6pa8cr15bpkx4cdugo",
+  "operator": "yba5zhgperqp4eyz7t6c7i3gb5ddy9ffc59bfypwc53g8ygphyry",
   "peers": [
     {
-      "operator": "7145u6nsw4zmoek1zj6uea16rd9h9kz6c9fe4kgajsad8e4q7awy",
-      "provider": "3w8r44dhogm5wpifquxnkonmrr8d5m3yoqmxjafah8eaq7rkr1fy"
+      "operator": "c6gu1yyozeupcsj71piu33xjzjjmr4mtzz71o57icuz4hmrapuso",
+      "provider": "wdm6w9kzn8mto8z53obao55bhtuoxq784w54nyk1f3c34yr6tk9o"
     }
   ],
-  "provider": "xow6mmo7j5her6boj1er4mdskyhsrzewr81iqqpk3bogyuq9o1io",
+  "provider": "7d6cn61a6xa6kfaq19bepdgb8w3zi9cudu7sm9xfcps9mb887nby",
   "roles": [
     "notices",
     "query",
@@ -26,15 +30,15 @@
   ],
   "scopes": [
     {
-      "key": "kq47ts1oghjief4acyjc7q8nuut5iodyw48atubb5d9h1gmoz1no"
+      "key": "pz6c7qywejnprcr9ixrscfpm88mxjxjx8kgpurk5qsx657i81mco"
     }
   ],
   "sequence": 2,
   "slices": [
     {
-      "set": "sha256:8843b7f49579c1414e7316df55ca48b0a2ef5a91b3a2d2cdd269d621eedefe86",
-      "through": "6",
-      "url": "pubky://ffifzgqfx1wcra161pa53pimmaeeu1cu1j6pa8cr15bpkx4cdugo/pub/slime/slices/2/"
+      "set": "RbQvTmgEtffaBFx8qTxFPhgU4E188/Jx+Od2YKc/i2s=",
+      "through": "7",
+      "url": "pubky://yba5zhgperqp4eyz7t6c7i3gb5ddy9ffc59bfypwc53g8ygphyry/pub/slime.pubky.app/slices/2/"
     }
   ]
 }

@@ -30,11 +30,15 @@
       "items": {
         "$ref": "urn:slime:schema:common#/$defs/entry"
       }
+    },
+    "grant": {
+      "$ref": "urn:slime:schema:common#/$defs/grant"
     }
   },
   "required": [
     "format",
     "provider",
+    "grant",
     "as_of",
     "scopes",
     "through",

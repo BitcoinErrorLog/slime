@@ -1,0 +1,24 @@
+{
+  "as_of": "2026-09-25T10:30:00Z",
+  "complete": true,
+  "entries": [
+    {
+      "blake3": "0Wzbbbkcd6tMm2XFgdoAwThkNLEIPCI3Fyf5Ah7/Aps=",
+      "kind": "tag",
+      "label": "great-print",
+      "refs": [
+        "pubky://pz6c7qywejnprcr9ixrscfpm88mxjxjx8kgpurk5qsx657i81mco/pub/pubky.app/posts/0035R99S3KA80"
+      ],
+      "seq": "7",
+      "uri": "pubky://qe6hdrmq1i9te5bggtkkjq93fxy39jgg1dkgjw5jkhhk6ryzirdy/pub/pubky.app/tags/08BDG67JTNQAMC7YSBN2KKNHNM"
+    }
+  ],
+  "format": "slime-candidates/1",
+  "provider": "7d6cn61a6xa6kfaq19bepdgb8w3zi9cudu7sm9xfcps9mb887nby",
+  "query": {
+    "after": "6",
+    "kind": "tag",
+    "op": "refs",
+    "uri": "pubky://pz6c7qywejnprcr9ixrscfpm88mxjxjx8kgpurk5qsx657i81mco/pub/pubky.app/posts/0035R99S3KA80"
+  }
+}

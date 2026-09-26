@@ -6,7 +6,7 @@
     "format": {
       "const": "slime-slice/1"
     },
-    "provider": {
+    "publisher": {
       "$ref": "urn:slime:schema:common#/$defs/key"
     },
     "as_of": {
@@ -37,7 +37,7 @@
   },
   "required": [
     "format",
-    "provider",
+    "publisher",
     "grant",
     "as_of",
     "scopes",

@@ -17,20 +17,12 @@
     "issued_at": {
       "$ref": "urn:slime:schema:common#/$defs/time"
     },
-    "notice": {
-      "type": "array",
-      "maxItems": 8,
-      "uniqueItems": true,
-      "items": {
-        "$ref": "urn:slime:schema:common#/$defs/provider_ref"
-      }
-    },
     "mirrors": {
       "type": "array",
       "maxItems": 8,
       "uniqueItems": true,
       "items": {
-        "$ref": "urn:slime:schema:common#/$defs/provider_ref"
+        "$ref": "urn:slime:schema:common#/$defs/key"
       }
     }
   },

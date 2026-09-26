@@ -1,8 +1,9 @@
-"""Folders, signatures, hostile input, pubky.app record adapters, and merges over event streams."""
+"""Folders, signatures, author signatures on records, hostile input, pubky.app record adapters,
+and merges over event streams."""
 from pathlib import Path
 import contextlib,json,shutil,tempfile,unittest,zipfile
 from check_sets import (InvalidSet,b3,current_versions,derive,dependencies,hash_id,key_decode,key_encode,
-                        parse,parse_events,safe_path,text_refs,timestamp_id_micros,verify_jws,verify_set)
+                        parse,parse_events,safe_path,text_refs,timestamp_id_micros,verify_jws,verify_record_signature,verify_set)
 
 E=Path(__file__).resolve().parent
 EXPECTED=json.loads((E/'expected.json').read_text())
@@ -26,15 +27,19 @@ class Folders(unittest.TestCase):
     def test_inventoried_sets(self):
         for name,want in EXPECTED['sets'].items():
             with self.subTest(name=name):self.assertEqual(verify_set(E/name)['id'],want)
-    def test_plain_set_has_no_required_metadata(self):
-        self.assertTrue((E/'github-plain/README.md').exists())
-        self.assertFalse((E/'github-plain/set.json').exists())
+    def test_records_need_author_signatures(self):
+        with fixture() as d:
+            inv=json.loads((d/'set.json').read_text())
+            for f in inv['files']:
+                if 'origin' in f:del f['sig']
+            (d/'set.json').write_text(json.dumps(inv,indent=2,sort_keys=True)+'\n');(d/'set.jws').unlink()
+            with self.assertRaises(InvalidSet):verify_set(d)
     def test_unsigned_inventory_allowed(self):
         self.assertIsNone(verify_set(E/'github-inventoried')['signer'])
     def test_expected_exporter(self):
-        self.assertEqual(verify_set(E/'shops-public',ID['curator'])['signer'],ID['curator'])
+        self.assertEqual(verify_set(E/'shops-public',ID['exporter'])['signer'],ID['exporter'])
     def test_signed_source_cannot_downgrade_to_unsigned(self):
-        with self.assertRaises(InvalidSet):verify_set(E/'github-inventoried',ID['curator'])
+        with self.assertRaises(InvalidSet):verify_set(E/'github-inventoried',ID['exporter'])
     def test_wrong_exporter_pin(self):
         with self.assertRaises(InvalidSet):verify_set(E/'shops-public',ID['dana'])
     def test_tamper_record(self):
@@ -105,6 +110,39 @@ class Signatures(unittest.TestCase):
     def test_signature_binds_exact_bytes(self):
         with self.assertRaises(InvalidSet):verify_jws((E/'github-signed/set.json').read_bytes()+b'\n',self.jws(),'slime-set')
 
+class RecordSignatures(unittest.TestCase):
+    """An author signature: the author's app key signs (uri, content_hash, iat) under its grant."""
+    def entry(self,uri=None):
+        inv=json.loads((E/'shops-public/set.json').read_text())
+        uri=uri or URI['listing']
+        return next(f for f in inv['files'] if f.get('origin')==uri)
+    def test_valid(self):
+        e=self.entry()
+        self.assertEqual(verify_record_signature(URI['listing'],e['blake3'],e['sig'],e['grant'])['uri'],URI['listing'])
+    def test_other_bytes(self):
+        e=self.entry()
+        with self.assertRaises(InvalidSet):verify_record_signature(URI['listing'],H['forged'],e['sig'],e['grant'])
+    def test_other_uri(self):
+        e=self.entry()
+        with self.assertRaises(InvalidSet):verify_record_signature(URI['shirt'],e['blake3'],e['sig'],e['grant'])
+    def test_grant_from_another_author(self):
+        e=self.entry();other=self.entry(URI['curator_tag'])
+        with self.assertRaises(InvalidSet):verify_record_signature(URI['listing'],e['blake3'],e['sig'],other['grant'])
+    def test_forged_listing_under_its_own_grant(self):
+        folder=E/'headline/forged-listing'
+        raw=(folder/'record.json').read_bytes()
+        with self.assertRaises(InvalidSet):
+            verify_record_signature(URI['listing'],b3(raw),(folder/'record.sig').read_text().strip(),(folder/'grant.jws').read_text().strip())
+    def test_verification_needs_no_clock(self):
+        e=self.entry()
+        claims=json.loads(__import__('base64').urlsafe_b64decode(e['grant'].split('.')[1]+'=='))
+        self.assertLess(claims['iat'],claims['exp'])
+        self.assertTrue(verify_record_signature(URI['listing'],e['blake3'],e['sig'],e['grant']))
+    def test_tampered_signature(self):
+        e=self.entry();head,body,sig=e['sig'].split('.')
+        forged=sig[:10]+('B' if sig[10]!='B' else 'C')+sig[11:]
+        with self.assertRaises(InvalidSet):verify_record_signature(URI['listing'],e['blake3'],'.'.join([head,body,forged]),e['grant'])
+
 class AppRecords(unittest.TestCase):
     def test_tag(self):
         d=derive(URI['author_tag'],record('github-signed',URI['author_tag']))
@@ -158,6 +196,11 @@ class Merge(unittest.TestCase):
     """Native identity and homeserver event streams decide the current version."""
     def log(self):
         return parse_events((E/'shops-events/events.txt').read_text())
+    def test_later_version_carries_its_own_author_signature(self):
+        sig=(E/'shops-events/withdrawn.sig').read_text().strip()
+        grant=json.loads((E/'shops-public/set.json').read_text())
+        grant=next(f['grant'] for f in grant['files'] if f.get('origin')==URI['listing'])
+        self.assertTrue(verify_record_signature(URI['listing'],H['listing_withdrawn'],sig,grant))
     def test_newer_version_beats_older_copy(self):
         heads=current_versions({ID['homeserver_primary']:self.log()},{URI['listing']:{H['listing']}})
         self.assertEqual(heads[URI['listing']],[('put',H['listing_withdrawn'])])

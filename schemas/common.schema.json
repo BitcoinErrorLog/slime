@@ -168,6 +168,12 @@
         },
         "gone": {
           "const": true
+        },
+        "sig": {
+          "$ref": "#/$defs/jws"
+        },
+        "grant": {
+          "$ref": "#/$defs/grant"
         }
       },
       "required": [
@@ -230,33 +236,29 @@
                   "required": [
                     "label"
                   ]
+                },
+                {
+                  "required": [
+                    "sig"
+                  ]
+                },
+                {
+                  "required": [
+                    "grant"
+                  ]
                 }
               ]
             }
           },
           "else": {
             "required": [
-              "blake3"
+              "blake3",
+              "sig",
+              "grant"
             ]
           }
         }
       ]
-    },
-    "provider_ref": {
-      "type": "object",
-      "properties": {
-        "operator": {
-          "$ref": "#/$defs/key"
-        },
-        "provider": {
-          "$ref": "#/$defs/key"
-        }
-      },
-      "required": [
-        "operator",
-        "provider"
-      ],
-      "additionalProperties": false
     },
     "grant": {
       "type": "string",
@@ -267,6 +269,11 @@
       "type": "string",
       "pattern": "^[A-Za-z0-9+/]{43}=$",
       "description": "BLAKE3 of the exact bytes, standard base64, as in the homeserver ETag and event content_hash"
+    },
+    "jws": {
+      "type": "string",
+      "maxLength": 8192,
+      "pattern": "^[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+$"
     }
   }
 }

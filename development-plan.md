@@ -2,21 +2,22 @@
 
 Slime (Social Latent Intelligence Mesh Exchange) has two jobs.
 
-1. **P2P indexing.** Peers share what they already know: records, tags, follows, shops, listings, and whatever parts of their own index they choose to share. The network stays densely indexed without any single indexer, and anyone can discover it and crawl it.
-2. **Local fallback.** When an indexer or a homeserver is disrupted or censored, the app keeps working from local state and replaceable providers. Reading, search, browsing followed shops and listings, composing, and publishing all continue. The switch is automatic.
+1. **Replaceable, verifiable indexing.** Several independent indexers provide discovery and search, and any of them can be replaced. Every record carries its author's signature, so every copy and every indexer answer can be checked. Anyone can also publish a signed slice of what they keep, the smallest indexer there is. Indexers do search. Slices do not.
+2. **Local fallback.** When an indexer or a homeserver is disrupted or refuses service, the app keeps working from local state and replaceable providers. Reading, search over what is retained, browsing followed shops and listings, composing, and publishing all continue. The switch is automatic.
 
 Synonym and every other provider is automatically replaceable.
 
-This plan builds both jobs into Pubky App and ends on one test:
+This plan builds both jobs into Pubky App and ends on one test and its harder variants:
 
-> Alice, Bob, and Carol use Pubky App. Dana sells prints from her own homeserver. Synonym's Nexus disappears completely. Alice follows Dana. Bob already retains Dana's shop, listings, and tags, has chosen to share them, and his Slime provider advertises that choice. Alice's app finds Bob's provider through her configured mesh, pulls Dana's shop, listings, and tags, builds them into her local index, and searches them offline. Carol publishes a new tag on one of Dana's listings. Alice sees it through Bob's index or a notice, with no Synonym service involved. Then Synonym's homeserver starts refusing Alice's writes. Alice publishes a new post. An alternate homeserver she enrolled earlier accepts it, her public location moves to that alternate, and Bob and Carol read the post. Alice's identity seed never leaves Pubky Ring.
-
+> Alice, Bob, and Carol use Pubky App on Synonym's homeserver. Dana sells prints from her own homeserver. Synonym's Nexus disappears completely, and Alice's app fails over to a second indexer that Synonym does not run. Then Dana's homeserver goes dark. Alice still opens Dana's shop, listings, and tags, because Bob's slice and the indexer both hold them and every copy carries Dana's signature, and she searches them offline. A forged copy of one listing, with a different price, is rejected rather than shown. Carol tags a listing, and Alice finds the tag through the indexer. Then Synonym's homeserver stops accepting Alice's writes while still serving stale reads. Alice publishes a new post. An alternate homeserver she enrolled earlier accepts it, readers find it through the homeservers her PKARR record lists, and her edits follow her signed home statement. Alice's identity seed never leaves Pubky Ring.
 
 Each phase closes one piece of that test. The rules are in the [specification](spec.md). The data each phase must cover is the [coverage matrix](spec.md#1-coverage).
 
-Build on the current releases: the Pubky SDK 0.13 (crate `pubky`, npm `@synonymdev/pubky`) from `pubky/pubky-homeserver`, which adds grants, path-addressed `/storage`, and WebDAV locks; `pubky-app-specs` 0.8.1 for record types; homeserver event streams; PKARR; Pubky grants for subordinate keys; Paykit; `pubky/locks`; and `pubky-backup`. Do not open a new protocol repository until a second implementation needs a shared crate. Read the current `pubky/pubky-app` sources for posts, session restore, and homeserver signup before editing.
+Build on the current releases: the Pubky SDK 0.13 (crate `pubky`, npm `@synonymdev/pubky`) from `pubky/pubky-homeserver`, which adds grants, path-addressed `/storage`, and WebDAV locks; `pubky-app-specs` 0.8.1 for record types; homeserver event streams; PKARR; Pubky grants for every signing key; Paykit; `pubky/locks`; and `pubky-backup`. Read the current `pubky/pubky-app` sources for posts, session restore, and homeserver signup before editing.
 
-Reference fixtures and a Python checker live in [examples/](examples/README.md). They use real pubky.app records and cover folders, signatures, slices, advertisements, query responses, notices and their flood rules, services documents, home statements, merges over event streams, and the headline test's data path. Port those vectors. They do not build the configured mesh from the network, and they do not show that the App survives a restart, that Ring signs a grant, or that a homeserver accepts a write. Those gates need real clients.
+The base comes first, in order: the local replica (phases 0 to 2), several homeservers in the PKARR record (phase 3), author signatures at write time (phase 4), and replaceable indexers (phase 5). Signed indexer answers and static slices come on top (phase 6). Publishing failover and the headline variants close it (phases 7 and 8).
+
+Reference fixtures and a Python checker live in [examples/](examples/README.md). They use real pubky.app records with author signatures. Port those vectors. They do not show that the App survives a restart, that an indexer fails over, that Ring signs a grant, or that a homeserver accepts a write. Those gates need real clients.
 
 ## Phase 0. Durable workspace
 
@@ -60,129 +61,114 @@ Buy hands the seller and the record reference to Paykit, which checks the live c
 
 Time fixtures of 50, 250, and 2,500 familiar keys on a phone. If the phone cannot hold the pinned scope, the app asks for a companion instead of evicting pins.
 
-## Phase 3. Provider routing and automatic replacement
+## Phase 3. Several homeservers in the PKARR record
 
-**Job:** local fallback. **Repos:** `pubky-app`, the SDK in `pubky/pubky-homeserver`
+**Job:** local fallback. **Repos:** `pubky/pubky-homeserver` (SDK and homeserver), Pubky Ring, `pubky-app`
 
-Build the provider table: roles, scopes, privacy class, order, credentials, cursors, and health per role and scope. Implement the read order: local index, retained slices, live peers, the author's enrolled homeservers, the preferred large indexer, alternate large indexers. Nexus becomes one `index` provider among several. A local hit never contacts it.
-
-Implement the failure classes and cooldowns from the specification. Show local retention, acceptance per homeserver, and indexer visibility as separate fields, and show which role is degraded and who took over.
-
-Add the read side of failover: read every `_pubky` target of a followed identity once the SDK exposes them, take the union of their event streams for new records, fetch home statements from those homeservers and the identity's mirrors, and verify each statement's grant offline. Port the grant, home-statement, and merge vectors.
-
-**Gate:** kill Nexus in the middle of a session. Local answers appear immediately, the next eligible provider takes the `index` role, and no endpoint is edited by hand. A homeserver that refuses one scope stays healthy for another. A private query never reaches a public provider when its private provider fails. A provider's omission never produces a tombstone. The vectors pass, including the unenrolled home, wrong signer, read-only grant, expired grant, stale sequence, delete-after-copy, and disagreeing-homeservers cases.
-
-## Phase 4. Sharing controls and slices
-
-**Job:** P2P indexing. **Repo:** `pubky-app`
-
-Build the sharing controls: share and don't-share choices for keys, all followed keys, shops, single listings or records, tag labels, link domains, and record kinds. A don't-share choice overrides any share choice it overlaps. The controls list public records only. Private favorites, private follows, trust marks, searches, the workspace, transactions, locked bytes, and the last-read marker never appear. The user can see exactly what the current slice contains.
-
-The slice is the result of those choices. The app generates a provider key and gets it a grant through Ring's existing `signin_grant` flow, with write on `/pub/slime/`. The app signs the slice with that key as a detached JWS and publishes it to `pubky://<user>/pub/slime/slices/<n>/`, naming the previous one in `set.json`, whenever the result changes. It publishes a `slices`-only advertisement at `pubky://<user>/pub/slime/providers/<provider-key>.json`. It imports other users' slices into the replica with the provider recorded as supplier.
-
-Add folder export and import. Export a README, optional key and link lists, and `records/<author>/...` holding original bytes, for public record types only. Import by staging, enforcing filename and size rules, previewing, then committing once. Keeping records, following keys, refreshing, and changing sharing choices are separate options at import.
-
-Port the inventory, JWS, slice, and scope checks from the Python checker. Grants and JWS reuse the `pubky-common` helpers.
-
-**Gate:** the slice lists exactly the records the choices select, before and after a choice changes, and a don't-share choice removes what it names. No slice or export contains orders, favorites, private follows, trust marks, searches, or the last-read marker. Reimport is idempotent. Two paths with the same bytes and different origins stay two origins. A tampered signed file fails. A hostile ZIP (path traversal, link, duplicate names) never escapes staging. A second client downloads the first client's slice from its homeserver and builds the same answers to `author`, `label`, and `refs`. A slice whose grant has expired, or cannot write `/pub/slime/`, is rejected. A Rust implementation passes the same vectors as the Python checker.
-
-## Phase 5. Providers, advertisements, and discovery
-
-**Job:** P2P indexing. **Repos:** `pubky-backup` for the companion provider, `pubky-app` for the client, `pubky-nexus` for an optional Slime interface on Nexus
-
-A browser cannot accept connections, so live providers run where a process can listen: a companion built on the `pubky-backup` core, a community host, or a large indexer.
-
-The companion generates a provider key and gets it a grant through Ring's `signin_grant` flow, with write on `/pub/slime/`. It signs `slime-provider/1` with it, serves `provider.json`, `query`, `record`, and the operator's slice, and enforces its advertised limits. Its scopes are the operator's sharing choices. It writes the advertisement to `pubky://<operator>/pub/slime/providers/<provider-key>.json` through its grant session. Exposing the same four primitives on Nexus, under a Synonym provider key, makes Nexus a replaceable provider like the others.
-
-The client builds its configured mesh from user-added providers, shipped defaults, providers run by familiar keys, mirrors and notice providers in familiar keys' services documents, and advertised `peers` within a crawl budget. For each need it asks at most 2 providers whose scope covers it.
-
-**Gate, first part of the headline test:** three clients, with Nexus and every Synonym-operated indexer blocked. Alice follows Dana and Bob. Bob has chosen to share Dana's records, and his companion advertises that choice. Alice's app builds its mesh, finds Bob's provider with no manual endpoint, verifies its grant, imports his slice, tops it up with a live `after` query, and searches Dana's shop and listings with the network blocked. Bob's provider log shows only the keys and URIs Alice's app named, never a search term. The same query against the same provider state returns the same response. A client that follows nobody receives nothing pushed to it.
-
-## Phase 6. Notices
-
-**Job:** P2P indexing, for inbound activity. **Repos:** `pubky-app`, `pubky-backup`
-
-After publishing a record that references another key, the client posts `slime-notice/1` to that key's notice providers and to up to 2 providers whose scopes cover it, meeting each provider's published proof-of-work floor, and retries with backoff for 7 days. A provider accepts a notice when the target key's services document lists it, or when it has the `notices` role and its scopes cover the target key or record. It answers `403` otherwise.
-
-The provider queue follows the Open Inbox design (`hypercolor-web` ADR 0004): reject rather than evict within a target, a cold cap of 4 and a warm cap of 64 per target, a global cap with fair eviction from the deepest target, an optional proof-of-work floor raised under attack, vouched senders (keys the target publicly follows) exempt from the floor, a per-IP token bucket, and every cap published in the advertisement. It fetches and checks each source before indexing it. Unchecked notices are never served.
-
-The recipient drains its notice providers, and providers that cover its key, with `refs` and `after`. It admits each source under the normal rules and derives notifications locally. Sources from keys outside the recipient's trust paths go to a requests view capped at 256 rows, where a stranger can only push out an unviewed row. Rows show the sender's key, arrival time, and provider until the user opens one. Nothing auto-follows or auto-accepts.
-
-**Gate, second part of the headline test:** Carol, whom neither Alice nor Dana follows, tags one of Dana's listings. With Nexus still blocked, Alice sees the tag within one refresh, through Bob's `refs` answer or his next slice. A provider neither listed by the target nor covering it refuses the notice. A notice whose source does not reference its target is never served. A Sybil flood of 10,000 fresh keys against one target leaves the honest notices already queued in place, fills the target's queue, and is then refused with `503`, while notices to other targets still land. The requests view stays at its cap and keeps every viewed row. A stranger's reply to Alice lands in her requests view.
-
-## Phase 7. Publishing failover
-
-**Job:** local fallback, for publishing. **Repos:** Pubky Ring, `pubky/pubky-homeserver` (SDK and homeserver), `pubky-app`, `pubky-backup`
-
-Enrollment runs once through Ring. The user picks one or more alternate homeservers. For each, Ring approves a `signup_grant` for the designated publisher's client key, with write on `/pub/`, so the account exists and the publisher holds a session there. Ring signs one PKARR packet with a `_pubky` record per enrolled homeserver, in priority order. The designated publisher writes the services document.
-
-That packet needs three changes in `pubky/pubky-homeserver`, each small:
+Three small changes in `pubky/pubky-homeserver`:
 
 1. The SDK publishes several `_pubky` records. Today `build_homeserver_packet` (`pubky-sdk/src/actors/pkdns.rs`) writes one.
 2. The SDK tries each `_pubky` target in priority order, as PKARR's endpoint design specifies. Today `extract_host_from_packet` takes the first match.
 3. A homeserver republishes a packet that lists it in any `_pubky` record. Today the user-key republisher (`src/republishers/user_keys_republisher.rs`) skips a packet whose first target is another homeserver.
 
-Until they land, publishing still fails over automatically, and other readers follow once Ring moves `_pubky`. The designated publisher and the mirrors in the services document republish the identity's last signed packet unchanged from the start, so a primary that stops republishing cannot make the identity unresolvable.
+Enrollment through Ring: the user picks alternates and gets a signup token from each operator (the homeserver default is `signup_mode = "token_required"`), Ring approves a `signup_grant` per alternate for the designated publisher's client key, and Ring signs one packet listing every enrolled homeserver. The designated publisher and the mirrors republish the last signed packet unchanged. Readers accept the newest signed packet from any carrier. Browsers resolve through a relay list that includes relays Synonym does not run.
 
-The designated publisher replicates every authored public record to every enrolled homeserver and tracks acceptance per destination. On persistent refusal, or 3 failures across 10 minutes, it switches to the next healthy enrolled homeserver with a verified copy, writes pending operations there, signs a home statement with the failover key (carrying its grant), and writes it to every reachable enrolled homeserver and the mirrors. It then queues a request for Ring to reorder `_pubky`, and the app says when that has not happened.
+**Gate:** with the primary's republisher stopped, the identity still resolves after the DHT would have dropped an unrepublished packet. A reader holding an old packet picks up the newer one from a mirror. A client without Slime reaches the alternate when the primary is unreachable.
 
-Edits and deletes of mutable paths use the 0.13 lock on the path-addressed `/storage` route: `storage.lock`, compare the ETag with the outbox row's base hash, then `put_locked` or a locked delete, then `unlock`. A mismatch leaves the row `conflicted`. Ask the homeserver team for `If-Match` and `If-None-Match: *` on `PUT` and `DELETE` (RFC 9110), which turn this into one request.
+## Phase 4. Author signatures at write time
 
-**Gate, third part of the headline test:** Synonym's homeserver disables Alice's account for writes (`POST /users/{pubkey}/disable` on its admin API, which refuses writes with 403 and keeps serving reads). Alice's next post publishes on her enrolled alternate with no prompt, and Bob and Carol read it from the union of her enrolled homeservers. Ring was not contacted during the switch, and the app never held the identity seed. With the primary's republisher stopped, Alice still resolves after the DHT would have dropped an unrepublished packet. A home statement naming a homeserver outside Alice's `_pubky` records is ignored. A statement whose signer is not its grant's client key, or whose grant cannot write `/pub/slime/`, is ignored. After the failover key's grant expires, its statements are ignored. Two devices edit one listing while partitioned, and neither a silent last write nor a doubled stock count wins. A returning primary with stale edits does not overwrite an accepted successor. A crash after the local commit and before any acceptance keeps the right state for each destination.
+**Job:** both. **Repos:** `pubky/pubky-homeserver` (SDK and homeserver), `pubky-app`, `pubky-app-specs`
 
-## Phase 8. The headline test
+The app key that writes a record signs its URI, content hash, and signing time. The homeserver stores the signature and the grant, and returns them with the record on GET and in the event stream. Readers verify offline: the grant's issuer is the author, its client key is the signer, its capabilities allow the path, and the signing time falls within the grant's validity. Follow the delegated-key design in progress in the Pubky team (Marcos's research) rather than a Slime-specific encoding; the reference fixtures use a provisional encoding of the same claims. Records written before this lands are re-signed by the author's app on its next write session.
+
+The app admits a copy from anyone other than the author's own homeserver only with a valid author signature, and rejects unsigned or badly signed copies. §8.1's rule changes with it: a bearer session token never signs content, and a grant client key signs what its capabilities allow.
+
+**Gate:** a forged listing among several copies is rejected, not shown. An enrolled homeserver cannot add a record the author did not sign. A record still verifies after its grant expires. The ported author-signature vectors pass.
+
+## Phase 5. Replaceable indexers
+
+**Job:** indexing. **Repos:** `pubky-app`, `pubky/pubky-nexus`
+
+- `pubky-app`: `nexusUrl` (`src/libs/runtime-config/runtime-config.schema.ts`) becomes an ordered list with health-based failover.
+- `pubky-nexus`: return each record's `content_hash` and author signature, so the app can check what the indexer served, and raise `monitored_homeservers_limit` above its default of 50.
+- Ship at least one indexer and one PKARR relay that Synonym does not run as defaults.
+
+An indexer's counts, rankings, and recommendations stay labeled as its claims.
+
+**Gate, first part of the headline test:** Nexus is removed completely, and the app fails over to the second indexer with no manual edit. Search and discovery work through it. A record it serves without a valid author signature is not shown as the author's. A fresh install finds content through its default indexers alone.
+
+## Phase 6. Signed indexer answers and static slices
+
+**Job:** indexing. **Repos:** `pubky/pubky-nexus`, `pubky-app`
+
+Indexers sign their answers to the four primitives (`slime-candidates/1`, signed with an indexer key that holds a grant from its operator), so omission and equivocation become provable. A reader with two indexers configured MAY cross-check reverse-edge queries.
+
+Build the sharing controls and the slice: the app publishes a static signed slice of what the user chose to share at `pubky://<user>/pub/slime/slices/<n>/`, with author-signed records, on a schedule rather than on every change, keeping the latest few. Other users' slices import into the replica with the publisher recorded as supplier. Folder export and import use the same format.
+
+**Gate, second part of the headline test:** Dana's homeserver goes dark. Alice opens Dana's shop, listings, and tags from Bob's slice and the indexer, every copy verified against Dana's signature, and searches them offline. Carol's new tag on a listing reaches Alice through the indexer. One indexer omits a tag and the other's signed answer exposes it. The slice lists exactly what the sharing choices select, and never the last-read marker, private favorites, private follows, trust marks, or searches.
+
+## Phase 7. Publishing failover
+
+**Job:** local fallback, for publishing. **Repos:** `pubky/pubky-homeserver`, `pubky-app`, `pubky-backup`
+
+The designated publisher replicates every authored public record, with its author signature, to every enrolled homeserver. On persistent refusal, 3 failures across 10 minutes, or a primary that serves a version older than one it accepted, it switches to the next healthy enrolled homeserver with a verified copy and signs a home statement for mutable paths. It asks Ring to reorder `_pubky`, and the app says when that has not happened.
+
+Mutable edits use the 0.13 lock on `/storage`: `storage.lock`, compare the ETag with the outbox row's base hash, `put_locked`, `unlock`. A mismatch leaves the row `conflicted`. Upstream asks: `If-Match` and `If-None-Match: *` on writes, and `ETag` exposed through CORS so web apps can run the compare. Until then web apps hand mutable edits to a companion.
+
+**Gate, third part of the headline test:** Synonym's homeserver disables Alice's writes (`POST /users/{pubkey}/disable`) while serving stale reads. Alice's next post publishes on her alternate with no prompt, and Bob and Carol read it through her `_pubky` records. Her edits follow her home statement. The same holds when the primary times out instead. Ring was not contacted during the switch, and the app never held the identity seed. Two devices editing one listing while partitioned produce a conflict, not a silent overwrite.
+
+## Phase 8. The headline test and its variants
 
 **Job:** both. This is the final gate.
 
-Run the headline test end to end with real clients and independently operated services:
+Run with real clients:
 
-- Alice, Bob, and Carol on separate devices. Bob's provider on a companion host he operates.
-- Dana's homeserver, Carol's homeserver, and Alice's enrolled alternate each run by an operator other than Synonym. Alice's primary is Synonym's homeserver.
-- Nexus removed completely: its hostnames resolve nowhere for the whole run. PKARR resolves through a non-Synonym relay or the DHT directly.
-- Dana publishes one new record after Nexus is gone, so the test cannot pass on a static cache.
+1. The headline test in the specification.
+2. The seller's homeserver down, served from author-signed copies.
+3. A forged listing among several copies, rejected.
+4. The primary timing out, and separately serving stale data while refusing writes.
+5. A fresh install finding content through default indexers alone.
+6. Every participant on Synonym-operated homeservers.
+7. Nexus down, with a second indexer restoring search.
+8. The primary's republisher stopped, with the identity still resolving.
 
-**Pass when**, with no manual endpoint edits and no Synonym service answering any request:
-
-1. Alice follows Dana. Her app finds Bob's provider through her configured mesh, pulls Dana's shop records, listings (including the new one), tags, and images, and searches them with the network blocked.
-2. Carol tags one of Dana's listings. Alice sees the tag through Bob's index or a notice.
-3. Synonym's homeserver refuses Alice's writes. Alice publishes a post. Her enrolled alternate accepts it, her home statement names that alternate, and Bob and Carol read the post.
-4. Alice's identity seed stays in Ring throughout, and none of Alice's searches, favorites, private follows, trust marks, or unshared records appear in any request, slice, or advertisement.
-
-Repeat the run with the failures in a different order, and once with all of them at the same time. Independence means separate operators and machines, not two hostnames on one backend.
+Nexus's hostnames resolve nowhere for runs 1, 5, and 7. Independence means separate operators and machines, not two hostnames on one backend.
 
 ## What each phase is allowed to claim
 
 | After | Claim |
 |---|---|
 | 0 | Offline reading and composing for data already on the device. |
-| 1 | The app answers from its own index, built from original records of any type. |
-| 2 | Followed keys, shops, and listings stay current without Nexus and browse offline with their dependencies. |
-| 3 | Every read role is replaceable automatically. Nexus is one provider among several. |
-| 4 | Users choose what they share, and publish exactly that as a slice anyone can search privately. |
-| 5 | Peers discover each other's providers and fill each other's indexes without a central indexer. |
-| 6 | Replies, tags, follows, and mentions from unknown keys arrive without a central indexer. |
-| 7 | Publishing fails over automatically within the enrolled set, without the identity seed leaving Ring. |
-| 8 | The headline test passes. Nexus and the Synonym homeserver are conveniences. |
+| 1 | The app answers from its own index, built from original records. |
+| 2 | Followed keys, shops, and listings stay current and browse offline with their dependencies. |
+| 3 | An identity lists several homeservers, and stays resolvable when one stops republishing it. |
+| 4 | Every copy can be checked against its author. Forgeries are rejected. |
+| 5 | Search survives losing Nexus. No indexer is required. |
+| 6 | Indexer answers are accountable, and anyone can publish a signed slice. |
+| 7 | Publishing fails over automatically within the enrolled homeservers, without the identity seed leaving Ring. |
+| 8 | The headline test and its variants pass. |
+
+## Deferred
+
+| Work | Returns when |
+|---|---|
+| Live query providers and their advertisements | Someone wants to run one, after phase 6 |
+| Crawling providers through `peers` lists | Live providers exist |
+| Notices from unknown senders | Indexers prove unable to carry inbound activity |
+| Home statements beyond the stale-primary case | A failure mode needs them |
+| Sharing controls beyond "share what I follow" plus per-key choices | Users ask for them |
+| Privacy and compliance layers | The base works |
 
 ## Not in this plan
 
 | Work | Reason |
 |---|---|
-| New PKARR records, or a global index of tags or keys in the DHT | Slices and providers carry the index. The identity's PKARR packet keeps only `_pubky`. |
-| A new key delegation mechanism | Slime keys are the client keys of Pubky grants. |
-| A custom conditional-write endpoint | The homeserver's WebDAV lock covers it; `If-Match` is the standard remainder. |
-| Author signatures on records | No Pubky client can produce them. A record's authority is its author's homeserver and event stream. |
-| Shared rankings, consensus on index contents, universal reputation | Providers return candidates. Each reader ranks locally. |
-| Flooding gossip or broadcast search | References are followed one hop at a time. Queries name only what the user asked. |
-| A torrent client in the app | Folders, ZIP, HTTP, and homeservers carry slices. A torrent MAY carry a snapshot. |
-| A homeserver process in the browser | The replica is in-process storage. Live providers run on companions and hosts. |
-| The app changing the identity's PKARR packet | Ring owns the identity seed. The failover key names the active home within the enrolled set. |
-| A message protocol | Notices are pointers to public records. |
-| A shop, listing, or review schema | Slime retains, shares, and indexes whatever records sellers publish. |
-| Running an imported recipe | A preference is data. |
+| A global index in the DHT, shared rankings, universal reputation | Indexers answer, each reader ranks locally. |
+| A new key delegation mechanism | Slime keys are client keys of Pubky grants. |
+| A shop, listing, or review schema | Slime indexes whatever records sellers publish. |
+| Protection against state seizure or anonymity | Outside Slime's threat model. |
+| A homeserver process in the browser | The replica is in-process storage. |
 
 ## Tests
 
-Each phase lists the behavior that closes it. An import mock does not close offline boot. The Python checker does not close Ring issuance, companion serving, or homeserver acceptance. Those need real clients and real services.
-
-The checker suite covers what files can show: folders, detached JWS signatures, hostile archives, real pubky.app records and their ids, dependency chains and states, slices and their scopes, provider selection, query responses, notices with their acceptance and flood rules, Pubky grants, services documents, home statements, merges over homeserver event streams, and the headline test's data path offline (`examples/test_headline.py`). Every phase that ports a format ports its vectors, and the App's copy runs in CI.
+Each phase lists the behavior that closes it. The Python checker covers what files can show: folders, author signatures and forged copies, detached JWS signatures, hostile archives, real pubky.app records and their ids, dependency chains and states, slices and their scopes, signed indexer answers, grants, services documents, home statements, merges over homeserver event streams, and the headline test's data path offline (`examples/test_headline.py`). It does not show indexer failover, offline boot, Ring grants, or homeserver acceptance. Those need real clients.

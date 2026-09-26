@@ -2,12 +2,12 @@
   "created_at": "2026-09-23T13:00:00Z",
   "files": [
     {
-      "blake3": "D4fdNlGgtBEEigHGEDLpywDtqIsK4spU2Bc/E4xFoSM=",
-      "bytes": 204,
+      "blake3": "yOhjDuiSmERPhiocYe/wJtLSXof3Q2L8Ae42ki4Wa+A=",
+      "bytes": 236,
       "path": "README.md"
     },
     {
-      "blake3": "z/OdoVXTBgW9Le+WPGveNDPJBjVS7/xLunF8qy+/BdM=",
+      "blake3": "AUMuqVKKJmg+hkFgdEZDzQGCMxRaE7P+Q9grJHBIIAM=",
       "bytes": 53,
       "path": "keys.txt"
     },
@@ -19,14 +19,18 @@
     {
       "blake3": "Cf3aHf7VuVnYd9DbxPfIPg38dRf5cvEatWsPS8gwgQc=",
       "bytes": 145,
-      "origin": "pubky://be9uh3uu3ex3jdouo5hw5j791mt6i1fiwun1a93tdh35541u1ahy/pub/pubky.app/profile.json",
-      "path": "records/be9uh3uu3ex3jdouo5hw5j791mt6i1fiwun1a93tdh35541u1ahy/pub/pubky.app/profile.json"
+      "grant": "eyJhbGciOiJFZERTQSIsInR5cCI6InB1Ymt5LWdyYW50In0.eyJpc3MiOiI0d3k0cGhibW9tcWhlcHd3ejFrdXNwd3N4enNyNXNpcTYzeDE3cmc4cGNkNTY2bzduNjZvIiwiY2xpZW50X2lkIjoiZnJhbmt5LnB1Ymt5LmFwcCIsImNhcHMiOlsiL3B1Yi9wdWJreS5hcHAvOnJ3Il0sImNuZiI6ImF5aGd5OThzNm5oNG96aW9jNWhnZmR3NHlibnprZ29uaTd5ODgxdW93eWZ0amU3eGVraHkiLCJqdGkiOiJMZWIwcERnQTZkTnZOdjB2NFhhNlZBIiwiaWF0IjoxNzkwMDc4NDAwLCJleHAiOjE4NTMxNTA0MDB9.nQqDGZwX0v20qA7wBXwxNo5BWDaP9kf0MBrCnIAl201v6YiPqnRpwLYYyj3fpe3Rt_37eP78Aje8hiXUUjV1BA",
+      "origin": "pubky://4wy4phbmomqhepwwz1kuspwsxzsr5siq63x17rg8pcd566o7n66o/pub/pubky.app/profile.json",
+      "path": "records/4wy4phbmomqhepwwz1kuspwsxzsr5siq63x17rg8pcd566o7n66o/pub/pubky.app/profile.json",
+      "sig": "eyJhbGciOiJFZERTQSIsImtpZCI6ImF5aGd5OThzNm5oNG96aW9jNWhnZmR3NHlibnprZ29uaTd5ODgxdW93eWZ0amU3eGVraHkiLCJ0eXAiOiJwdWJreS1yZWNvcmQifQ.eyJ1cmkiOiJwdWJreTovLzR3eTRwaGJtb21xaGVwd3d6MWt1c3B3c3h6c3I1c2lxNjN4MTdyZzhwY2Q1NjZvN242Nm8vcHViL3B1Ymt5LmFwcC9wcm9maWxlLmpzb24iLCJjb250ZW50X2hhc2giOiJDZjNhSGY3VnVWbllkOURieFBmSVBnMzhkUmY1Y3ZFYXRXc1BTOGd3Z1FjPSIsImlhdCI6MTc5MDE2NDgwMH0.7kkwOBLxtdVX2Lh94Vj5OXPWG3YEXsnRLZWqI_ZFPZhQNedpHnkdE3j28VP2Dg4htXuvw4utn9z0mdgOU8NXCw"
     },
     {
       "blake3": "3izzXT9D9svUlGDFrDS+JfJ3njiCNfS8Gb8UVo2Othk=",
       "bytes": 96,
-      "origin": "pubky://be9uh3uu3ex3jdouo5hw5j791mt6i1fiwun1a93tdh35541u1ahy/pub/pubky.app/tags/AHF3FGYT714TDAYH5101WPGTV8",
-      "path": "records/be9uh3uu3ex3jdouo5hw5j791mt6i1fiwun1a93tdh35541u1ahy/pub/pubky.app/tags/AHF3FGYT714TDAYH5101WPGTV8"
+      "grant": "eyJhbGciOiJFZERTQSIsInR5cCI6InB1Ymt5LWdyYW50In0.eyJpc3MiOiI0d3k0cGhibW9tcWhlcHd3ejFrdXNwd3N4enNyNXNpcTYzeDE3cmc4cGNkNTY2bzduNjZvIiwiY2xpZW50X2lkIjoiZnJhbmt5LnB1Ymt5LmFwcCIsImNhcHMiOlsiL3B1Yi9wdWJreS5hcHAvOnJ3Il0sImNuZiI6ImF5aGd5OThzNm5oNG96aW9jNWhnZmR3NHlibnprZ29uaTd5ODgxdW93eWZ0amU3eGVraHkiLCJqdGkiOiJMZWIwcERnQTZkTnZOdjB2NFhhNlZBIiwiaWF0IjoxNzkwMDc4NDAwLCJleHAiOjE4NTMxNTA0MDB9.nQqDGZwX0v20qA7wBXwxNo5BWDaP9kf0MBrCnIAl201v6YiPqnRpwLYYyj3fpe3Rt_37eP78Aje8hiXUUjV1BA",
+      "origin": "pubky://4wy4phbmomqhepwwz1kuspwsxzsr5siq63x17rg8pcd566o7n66o/pub/pubky.app/tags/AHF3FGYT714TDAYH5101WPGTV8",
+      "path": "records/4wy4phbmomqhepwwz1kuspwsxzsr5siq63x17rg8pcd566o7n66o/pub/pubky.app/tags/AHF3FGYT714TDAYH5101WPGTV8",
+      "sig": "eyJhbGciOiJFZERTQSIsImtpZCI6ImF5aGd5OThzNm5oNG96aW9jNWhnZmR3NHlibnprZ29uaTd5ODgxdW93eWZ0amU3eGVraHkiLCJ0eXAiOiJwdWJreS1yZWNvcmQifQ.eyJ1cmkiOiJwdWJreTovLzR3eTRwaGJtb21xaGVwd3d6MWt1c3B3c3h6c3I1c2lxNjN4MTdyZzhwY2Q1NjZvN242Nm8vcHViL3B1Ymt5LmFwcC90YWdzL0FIRjNGR1lUNzE0VERBWUg1MTAxV1BHVFY4IiwiY29udGVudF9oYXNoIjoiM2l6elhUOUQ5c3ZVbEdERnJEUytKZkozbmppQ05mUzhHYjhVVm8yT3Roaz0iLCJpYXQiOjE3OTAxNjQ4MDB9.4b1QH8ti0TkB2i0MmkDBf-dazB6o4ybSX3sHwbrGeOFKBHJlvNQTes0ArTFcdJHem_w4L_K-PbvItRhl3ZutCg"
     }
   ],
   "format": "slime-set/1"

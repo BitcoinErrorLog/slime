@@ -30,6 +30,12 @@
             "type": "string",
             "format": "uri",
             "maxLength": 8192
+          },
+          "sig": {
+            "$ref": "urn:slime:schema:common#/$defs/jws"
+          },
+          "grant": {
+            "$ref": "urn:slime:schema:common#/$defs/grant"
           }
         },
         "required": [

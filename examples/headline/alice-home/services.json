@@ -1,12 +1,9 @@
 {
   "format": "slime-services/1",
-  "identity": "cxhu1uo1w81etszkisa3fnrr18yokw4rffighbrk3d13xpkexfay",
+  "identity": "i5opxbdbqzyg1astazhb6pzioqaew69eczqigic847j68oydbmny",
   "issued_at": "2026-09-20T12:00:00Z",
-  "notice": [
-    {
-      "operator": "ahj91ipj5suirodjthq7ncnquxdnuemyaicofp7jo1hzam6e5day",
-      "provider": "pngqa3xbs7baahkgerq1faxhtwrety1z4ezuogtsqw7wk3917rpy"
-    }
+  "mirrors": [
+    "gpbtcczjbs7si4o1rcxnng7jfe6b1hc88er1rgk7u5mswdkpq5dy"
   ],
   "sequence": 1
 }

@@ -1,39 +1,45 @@
 {
   "hashes": {
-    "listing": "D6ql0jCM9FFC2aRF9pWDeh8rkGCxzu2KxQSH/O2QWN4=",
-    "listing_withdrawn": "STJ/vrsOr0HdOwlLpVoPvOEr5IX3RD0ks15J75GDT5E=",
+    "forged": "DixR4a1HjGGnNfycLQlkMPzgVNClOwRWcwIN+E7jdo0=",
+    "listing": "JP1jk0/X374X9PIMhtkCNm2W3RAh9PsR3ZG4XBxLtWI=",
+    "listing_withdrawn": "m+K0xYavq3wGIE5xk5dRksq1jb2ihNZ4LH80veijbDw=",
     "shirt": "drPQhK7MrotitRs4i8DD7Y/OEjB1Bu0SYJJqX0+ek5E="
   },
   "identities": {
-    "alice": "cxhu1uo1w81etszkisa3fnrr18yokw4rffighbrk3d13xpkexfay",
-    "alice_publisher": "nea4aju311rizw356nmgxf5n6xm65euoju6oi65zjff85tcyoj9o",
-    "author": "be9uh3uu3ex3jdouo5hw5j791mt6i1fiwun1a93tdh35541u1ahy",
-    "bob": "ahj91ipj5suirodjthq7ncnquxdnuemyaicofp7jo1hzam6e5day",
-    "bob_provider": "pngqa3xbs7baahkgerq1faxhtwrety1z4ezuogtsqw7wk3917rpy",
-    "carol": "9m6qdf7idnd934ukps7qt53j1thu7yy61k9phoq6cr9qkg3sommy",
-    "curator": "7wemdsgczoipwrrxhdkzrmg1sxon614hi7ccxm9z3r1puemdzw4y",
-    "dana": "451qzkxosuipo54canbsqqx3uz44nmbfe9ebwcagjjyto9zct6fo",
-    "homeserver_alternate": "rgfjuapu5x6uw1t6n6ikq38t7p8hrbqhjgy9u7u7od1k4dts7egy",
-    "homeserver_primary": "8dffkmdfafteuceeexmkqo8e1otqqf8d456dbbwf1x7ic9sgafry",
-    "homeserver_unenrolled": "xezqa447pw3eygzgz4nop7ojtsmypek9reh4g7t4wskygwi8r77y",
-    "other_provider": "9bgghohzqcert6k6w5cce5mbc6fxkrogxgttctekpk93imzser1o"
+    "alice": "i5opxbdbqzyg1astazhb6pzioqaew69eczqigic847j68oydbmny",
+    "alice_failover": "pz374uyg8xrb69353wramfkd4mqifhintn1dfuz6417a39ry3p7y",
+    "author": "4wy4phbmomqhepwwz1kuspwsxzsr5siq63x17rg8pcd566o7n66o",
+    "bob": "urk64jpp674wnnapsojn7gahnbe5j6t9fihbahqw5cbrzdnydqjy",
+    "bob_publisher": "hf3dohbjge3gfxu8qxzmcrd18c8ybtnynad4tqx3tnt93wswkupy",
+    "carol": "5wyjaig7wsce9eu9byehmupcgpmc5dfnuf4zsmo5tu8zkom88tay",
+    "curator": "auhb7jscxmx9fursx1559ajw6f3bbuzibfe4aaso36bfehhj35to",
+    "dana": "xdmexuzfiny9axyj49m6pkp3axifbr7r46j3wgon6qnwfi6odudo",
+    "dana_app": "3h1ftykcso53koj83gw9zz81yeruxj3qi9j3r9uxir89pmrjt5yo",
+    "exporter": "5cm7qjcbppn4brgbgjud99md4bqpnssi7omtb1x3n43dqhnjycqo",
+    "homeserver_alternate": "ptgfpuyg78u1iwiybys5cnjo4bsoiugjmg51jxh95se39gk1mkko",
+    "homeserver_primary": "379u86f3d1f6q8pt6mh99r18oypbqerz6jpspnob9xjmkaf77uuo",
+    "homeserver_unenrolled": "bexiy5ia8x8x9onoozu7kbg9tsbwh7z976udugqcrtq4xzy3dx3y",
+    "indexer": "e95bmeze8oocxiiazf8ckhydo955pw5bmyqe7b5zs13wms414qjy",
+    "indexer_operator": "9okhmnnoi7ioyw45bdr6exog5hkbf5qagw5466tj9a7sqjctdhqy",
+    "mallory": "skrj5yxipab98xho6cscbhri983zu9xnn93n1umu1u394cuf4azo",
+    "mirror": "gpbtcczjbs7si4o1rcxnng7jfe6b1hc88er1rgk7u5mswdkpq5dy"
   },
   "sets": {
-    "github-inventoried": "C2pWI4T4Wfu+A9agd5wDYXXsSHICmztlzxaSiFdFq34=",
-    "github-signed": "C2pWI4T4Wfu+A9agd5wDYXXsSHICmztlzxaSiFdFq34=",
-    "headline/bob-slice-1": "kkRZMh3eb2Z25zzRv1y9sgptGxUJnTrTogKOLhrag3Q=",
-    "headline/bob-slice-2": "wTwjvzpcbWyEXUKztcqa4F9Jm8xQI7VkczoJCMM9Hug=",
-    "shops-public": "nHDQLr0s8GFUYDeOBNq7q2Zr38GRb4jSb4AS4hNV7A4="
+    "github-inventoried": "ZrFpaXSFXnh0tMfQe1WZRMxRXj4LmgLwI0fZ30S6lVc=",
+    "github-signed": "ZrFpaXSFXnh0tMfQe1WZRMxRXj4LmgLwI0fZ30S6lVc=",
+    "headline/bob-slice-1": "p6bkwpyZwdjTJEcqTstOcx6U1U9hIvJFZjqMDLqdazc=",
+    "headline/bob-slice-2": "X5XYxWTwGHS6QqL5Ez6oqiEwLiXYlSLPhxh7CqfHQv8=",
+    "shops-public": "gGkTAFiygjolcrNoJ8AaOUl5fW3Cr1Ip9AmiGCt1B5Y="
   },
   "uris": {
-    "author_profile": "pubky://be9uh3uu3ex3jdouo5hw5j791mt6i1fiwun1a93tdh35541u1ahy/pub/pubky.app/profile.json",
-    "author_tag": "pubky://be9uh3uu3ex3jdouo5hw5j791mt6i1fiwun1a93tdh35541u1ahy/pub/pubky.app/tags/AHF3FGYT714TDAYH5101WPGTV8",
-    "blob": "pubky://451qzkxosuipo54canbsqqx3uz44nmbfe9ebwcagjjyto9zct6fo/pub/pubky.app/blobs/5XNKD7A969EC9G522PYQ5G9BTM",
-    "carol_tag": "pubky://9m6qdf7idnd934ukps7qt53j1thu7yy61k9phoq6cr9qkg3sommy/pub/pubky.app/tags/PQ98B856HYWHHQQAEYG1DEEVB4",
-    "curator_tag": "pubky://7wemdsgczoipwrrxhdkzrmg1sxon614hi7ccxm9z3r1puemdzw4y/pub/pubky.app/tags/1RAZHMQ6T4GK3JMM0MFZA5ZWM8",
-    "dana_profile": "pubky://451qzkxosuipo54canbsqqx3uz44nmbfe9ebwcagjjyto9zct6fo/pub/pubky.app/profile.json",
-    "file": "pubky://451qzkxosuipo54canbsqqx3uz44nmbfe9ebwcagjjyto9zct6fo/pub/pubky.app/files/0035R99S1P940",
-    "listing": "pubky://451qzkxosuipo54canbsqqx3uz44nmbfe9ebwcagjjyto9zct6fo/pub/pubky.app/posts/0035R99S3KA80",
-    "shirt": "pubky://451qzkxosuipo54canbsqqx3uz44nmbfe9ebwcagjjyto9zct6fo/pub/pubky.app/posts/0035R99S5GBC0"
+    "author_profile": "pubky://4wy4phbmomqhepwwz1kuspwsxzsr5siq63x17rg8pcd566o7n66o/pub/pubky.app/profile.json",
+    "author_tag": "pubky://4wy4phbmomqhepwwz1kuspwsxzsr5siq63x17rg8pcd566o7n66o/pub/pubky.app/tags/AHF3FGYT714TDAYH5101WPGTV8",
+    "blob": "pubky://xdmexuzfiny9axyj49m6pkp3axifbr7r46j3wgon6qnwfi6odudo/pub/pubky.app/blobs/5XNKD7A969EC9G522PYQ5G9BTM",
+    "carol_tag": "pubky://5wyjaig7wsce9eu9byehmupcgpmc5dfnuf4zsmo5tu8zkom88tay/pub/pubky.app/tags/C5N1YBDPBPDBFCGF8BS9HS42K4",
+    "curator_tag": "pubky://auhb7jscxmx9fursx1559ajw6f3bbuzibfe4aaso36bfehhj35to/pub/pubky.app/tags/PPZ4EQ5HR6XWN42J480MYEAY04",
+    "dana_profile": "pubky://xdmexuzfiny9axyj49m6pkp3axifbr7r46j3wgon6qnwfi6odudo/pub/pubky.app/profile.json",
+    "file": "pubky://xdmexuzfiny9axyj49m6pkp3axifbr7r46j3wgon6qnwfi6odudo/pub/pubky.app/files/0035R99S1P940",
+    "listing": "pubky://xdmexuzfiny9axyj49m6pkp3axifbr7r46j3wgon6qnwfi6odudo/pub/pubky.app/posts/0035R99S3KA80",
+    "shirt": "pubky://xdmexuzfiny9axyj49m6pkp3axifbr7r46j3wgon6qnwfi6odudo/pub/pubky.app/posts/0035R99S5GBC0"
   }
 }

@@ -1,0 +1,26 @@
+{
+  "as_of": "2026-09-25T11:30:00Z",
+  "complete": true,
+  "entries": [
+    {
+      "blake3": "3KxFKSUXMGkRACNXZEtIJLuLdWacudahEktqJS8wcb0=",
+      "grant": "eyJhbGciOiJFZERTQSIsInR5cCI6InB1Ymt5LWdyYW50In0.eyJpc3MiOiI1d3lqYWlnN3dzY2U5ZXU5YnllaG11cGNncG1jNWRmbnVmNHpzbW81dHU4emtvbTg4dGF5IiwiY2xpZW50X2lkIjoiZnJhbmt5LnB1Ymt5LmFwcCIsImNhcHMiOlsiL3B1Yi9wdWJreS5hcHAvOnJ3Il0sImNuZiI6Imp3c3I3eHM4ZmV6YWRhYXB1ZWNqOXF1cmF4aTk1MXpjZWVzMzl1OGluY2F6OGhrM21kd28iLCJqdGkiOiI2aWJSeXN3V2s3VVNKMlkxUjV6eFF3IiwiaWF0IjoxNzkwMDc4NDAwLCJleHAiOjE4NTMxNTA0MDB9._yaUACcOdM2o_I0UridSo_H1zCawRXzPa_B4ikPG9e7-aI_mCXLtoORzG3H5exj-lQM8EXSHn-3OE6yyEc0JCA",
+      "kind": "tag",
+      "label": "great-print",
+      "refs": [
+        "pubky://xdmexuzfiny9axyj49m6pkp3axifbr7r46j3wgon6qnwfi6odudo/pub/pubky.app/posts/0035R99S3KA80"
+      ],
+      "seq": "7",
+      "sig": "eyJhbGciOiJFZERTQSIsImtpZCI6Imp3c3I3eHM4ZmV6YWRhYXB1ZWNqOXF1cmF4aTk1MXpjZWVzMzl1OGluY2F6OGhrM21kd28iLCJ0eXAiOiJwdWJreS1yZWNvcmQifQ.eyJ1cmkiOiJwdWJreTovLzV3eWphaWc3d3NjZTlldTlieWVobXVwY2dwbWM1ZGZudWY0enNtbzV0dTh6a29tODh0YXkvcHViL3B1Ymt5LmFwcC90YWdzL0M1TjFZQkRQQlBEQkZDR0Y4QlM5SFM0Mks0IiwiY29udGVudF9oYXNoIjoiM0t4RktTVVhNR2tSQUNOWFpFdElKTHVMZFdhY3VkYWhFa3RxSlM4d2NiMD0iLCJpYXQiOjE3OTAyNTEyMDB9.sPWTtXKrkdkC0rTg7Ewc8R1pAxqoPjboc7NZEaYcQuEhAgiNPm_F_iBinH6fjcD0j2f59exYHud-ZQdf4aB7Bw",
+      "uri": "pubky://5wyjaig7wsce9eu9byehmupcgpmc5dfnuf4zsmo5tu8zkom88tay/pub/pubky.app/tags/C5N1YBDPBPDBFCGF8BS9HS42K4"
+    }
+  ],
+  "format": "slime-candidates/1",
+  "grant": "eyJhbGciOiJFZERTQSIsInR5cCI6InB1Ymt5LWdyYW50In0.eyJpc3MiOiI5b2tobW5ub2k3aW95dzQ1YmRyNmV4b2c1aGtiZjVxYWd3NTQ2NnRqOWE3c3FqY3RkaHF5IiwiY2xpZW50X2lkIjoiaW5kZXguZXhhbXBsZSIsImNhcHMiOlsiL3B1Yi9zbGltZS86cnciXSwiY25mIjoiZTk1Ym1lemU4b29jeGlpYXpmOGNraHlkbzk1NXB3NWJteXFlN2I1enMxM3dtczQxNHFqeSIsImp0aSI6IlE3d3JEVnNFZ2o4MV8xQ0xqV25VaFEiLCJpYXQiOjE3OTAwNzg0MDAsImV4cCI6MTg1MzE1MDQwMH0.8nwoqrPzhIO_Ob96zDRau8H08Gn9YXuXosntzf63eCVgobDLotUgUudMpm419nHvAlgO3kIzLd1pQWKczGONBA",
+  "indexer": "e95bmeze8oocxiiazf8ckhydo955pw5bmyqe7b5zs13wms414qjy",
+  "operator": "9okhmnnoi7ioyw45bdr6exog5hkbf5qagw5466tj9a7sqjctdhqy",
+  "query": {
+    "label": "great-print",
+    "op": "label"
+  }
+}

@@ -1,13 +1,19 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Slime query response v1",
+  "title": "Slime signed indexer answer v1",
   "type": "object",
   "properties": {
     "format": {
       "const": "slime-candidates/1"
     },
-    "provider": {
+    "indexer": {
       "$ref": "urn:slime:schema:common#/$defs/key"
+    },
+    "operator": {
+      "$ref": "urn:slime:schema:common#/$defs/key"
+    },
+    "grant": {
+      "$ref": "urn:slime:schema:common#/$defs/grant"
     },
     "query": {
       "oneOf": [
@@ -114,7 +120,9 @@
   },
   "required": [
     "format",
-    "provider",
+    "indexer",
+    "operator",
+    "grant",
     "query",
     "as_of",
     "entries",

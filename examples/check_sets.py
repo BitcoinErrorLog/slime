@@ -1,16 +1,18 @@
 #!/usr/bin/env python3
 """Read-only checker for the Slime fixture formats.
 
-Checks staged folders and slices, provider advertisements, query responses, notices,
+Checks staged folders and slices, author signatures on records, signed indexer answers,
 services documents, home statements, and merges over homeserver event streams. No network,
 extraction, signing, or credential access. This is not a production importer or a complete
 Pubky client.
 
 Hashes are BLAKE3 in standard base64, the encoding the homeserver uses for its ETag and for
 content_hash in its event stream. Signatures are detached JWS (RFC 7515 Appendix F) with EdDSA.
-Provider keys and failover keys are the client keys of Pubky grants: a `pubky-grant` JWS the
-identity key signs through Ring, binding a client key (`cnf`) to capabilities and an expiry.
-The checker verifies those grants offline, as a homeserver does.
+Every Slime signing key is the client key of a Pubky grant: a `pubky-grant` JWS the identity
+key signs through Ring, binding a client key (`cnf`) to capabilities and an expiry. An author's
+app key signs each record at write time; that record signature is the author signature. The
+record-signature encoding here is provisional until pubky-homeserver settles its delegated-key
+design; what a reader checks (issuer, client key, capabilities, signing time) is not.
 """
 from __future__ import annotations
 import argparse
@@ -30,11 +32,10 @@ ROOT = Path(__file__).resolve().parents[1]
 ALPHABET = 'ybndrfg8ejkmcpqxot1uwisza345h769'
 CROCKFORD = '0123456789ABCDEFGHJKMNPQRSTVWXYZ'
 CONTROL = {'set.json', 'set.jws'}
-LIMITS = {'set': 16*1024*1024, 'jws': 8192, 'provider': 65536, 'slice': 16*1024*1024,
-          'candidates': 4*1024*1024, 'notice': 8192, 'services': 65536, 'home': 16384}
+LIMITS = {'set': 16*1024*1024, 'jws': 8192, 'slice': 16*1024*1024, 'candidates': 4*1024*1024,
+          'services': 65536, 'home': 16384}
 APP = '/pub/pubky.app/'
 SLIME_PATH = '/pub/slime/'
-LIVE_ROLES = {'records', 'query', 'notices'}
 MAX_REFS = 64
 TAG_LABEL_MAX = 20
 TAG_INVALID = set(',: \t\n\r')
@@ -44,7 +45,7 @@ WEB_REF = re.compile(r'https?://[^\s]+')
 TEXT_URL = re.compile(r'https?://[^\s<>"\'()\[\]{}]+')
 TEXT_PUBKY = re.compile(r'pubky://[ybndrfg8ejkmcpqxot1uwisza345h769]{52}(?:/pub/[^\s<>"\'()\[\]{}?#]+)?')
 GRANT_TYP = 'pubky-grant'
-POW_DOMAIN = b'slime-notice-pow/1'
+RECORD_TYP = 'pubky-record'
 
 class InvalidSet(ValueError):
     """Invalid, unsupported, incomplete, or over-budget fixture."""
@@ -232,6 +233,7 @@ def verify_set(directory: Path, expected_signer: str|None=None):
     if expected_signer is not None and signer!=expected_signer:
         raise InvalidSet('Unexpected or missing exporter signature')
     versions={}
+    sigs={}
     payload={}
     for entry in inventory['files']:
         name=entry['path']
@@ -246,9 +248,12 @@ def verify_set(directory: Path, expected_signer: str|None=None):
                 raise InvalidSet('Origins apply to records/ only')
             if 'pubky://'+'/'.join(parts[1:])!=origin:
                 raise InvalidSet('Path and origin mapping disagree')
-            origin_author(origin)
+            if 'sig' not in entry or 'grant' not in entry:
+                raise InvalidSet('A record needs its author signature: '+origin)
+            verify_record_signature(origin,entry['blake3'],entry['sig'],entry['grant'])
             versions[(origin,entry['blake3'])]=raw
-    return {'id':b3(inv_bytes),'signer':signer,'files':len(names),'versions':versions,
+            sigs[(origin,entry['blake3'])]=(entry['sig'],entry['grant'])
+    return {'id':b3(inv_bytes),'signer':signer,'files':len(names),'versions':versions,'sigs':sigs,
             'payload':payload,'previous':inventory.get('previous')}
 
 # Entry derivation. Record types from pubky-app-specs get their adapter; every other record is
@@ -496,45 +501,46 @@ def check_grant_key(grant: str, issuer: str, key: str, now: datetime) -> dict:
         raise InvalidSet('Grant does not allow writing '+SLIME_PATH)
     return claims
 
-def check_provider(ad: dict, now: datetime|None=None) -> None:
-    roles=set(ad['roles'])
-    if roles&LIVE_ROLES and not ad.get('endpoints'):
-        raise InvalidSet('A provider with records, query, or notices roles needs an endpoint')
-    if ('slices' in roles)!=bool(ad.get('slices')):
-        raise InvalidSet('Listed slices and the slices role must agree')
-    issued,expires=timestamp(ad['issued_at']),timestamp(ad['expires_at'])
-    if expires<=issued:
-        raise InvalidSet('Advertisement expires before it is issued')
-    if now is not None and not issued<=now<expires:
-        raise InvalidSet('Advertisement is not valid at this time')
-    if ad['provider']==ad['operator']:
-        raise InvalidSet('A provider key must be a grant client key, not the operator identity key')
-    if any(peer['provider']==ad['provider'] for peer in ad.get('peers',[])):
-        raise InvalidSet('An advertisement must not list its own provider as a peer')
+def verify_record_signature(uri: str, content_hash: str, sig: str, grant: str) -> dict:
+    """An author signature: a JWS over {uri, content_hash, iat} by the client key of a grant the
+    author issued, whose capabilities allow writing the record's path, made while the grant was
+    valid. A record outlives its grant: the signature stays valid after exp."""
+    parts=sig.split('.')
+    if len(parts)!=3 or not parts[1]:
+        raise InvalidSet('A record signature is a JWS with an attached payload')
+    header=load_json(b64url_decode(parts[0]))
+    claims=load_json(b64url_decode(parts[1]))
+    if not isinstance(header,dict) or set(header)!={'alg','kid','typ'} or header['alg']!='EdDSA' or header['typ']!=RECORD_TYP:
+        raise InvalidSet('A record signature header must be alg EdDSA, kid, and typ pubky-record')
+    if not isinstance(claims,dict) or set(claims)!={'uri','content_hash','iat'} or not isinstance(claims['iat'],int):
+        raise InvalidSet('A record signature carries exactly uri, content_hash, and iat')
+    if claims['uri']!=uri or claims['content_hash']!=content_hash:
+        raise InvalidSet('Record signature is for other bytes or another URI')
+    signature=b64url_decode(parts[2])
+    if len(signature)!=64 or b64url(signature)!=parts[2]:
+        raise InvalidSet('Noncanonical record signature encoding')
+    try:
+        Ed25519PublicKey.from_public_bytes(key_decode(header['kid'])).verify(signature,(parts[0]+'.'+parts[1]).encode('ascii'))
+    except InvalidSet:
+        raise
+    except Exception as exc:
+        raise InvalidSet('Invalid record signature') from exc
+    at=datetime.fromtimestamp(claims['iat'],timezone.utc)
+    grant_claims=verify_grant(grant,at)
+    if not grant_claims['iat']<=claims['iat']:
+        raise InvalidSet('Record signed before its grant was issued')
+    if grant_claims['iss']!=origin_author(uri):
+        raise InvalidSet("Record signature grant was not issued by the record's author")
+    if grant_claims['cnf']!=header['kid']:
+        raise InvalidSet("Record signed by a key that is not the grant's client key")
+    if not grant_allows_write(grant_claims,urlsplit(uri).path):
+        raise InvalidSet("Grant does not allow writing the record's path")
+    return claims
 
-def verify_provider(advertisement: bytes, signature: str, now: datetime|None=None) -> dict:
-    """Without a time, the grant is checked as of the advertisement's issued_at."""
-    signer=verify_jws(advertisement,signature,'slime-provider')
-    ad=parse(advertisement,'provider')
-    if signer!=ad['provider']:
-        raise InvalidSet('Advertisement is not signed by the provider it describes')
-    check_provider(ad,now)
-    check_grant_key(ad['grant'],ad['operator'],ad['provider'],now or timestamp(ad['issued_at']))
-    return ad
-
-def select_providers(advertisements: list, need: dict, role: str, now: datetime) -> list:
-    """Provider selection: advertisements whose role fits and whose scopes cover the need
-    (one of key, label, host, or uri), newest sequence per provider. Building the mesh and
-    fetching advertisements is outside this function."""
-    [(field,value)]=need.items()
-    best={}
-    for ad in advertisements:
-        check_provider(ad,now)
-        if role in ad['roles'] and any(scope.get(field)==value for scope in ad['scopes']):
-            current=best.get(ad['provider'])
-            if current is None or ad['sequence']>current['sequence']:
-                best[ad['provider']]=ad
-    return [best[k] for k in sorted(best)]
+def check_signed_entries(entries: list) -> None:
+    for entry in entries:
+        if not entry.get('gone'):
+            verify_record_signature(entry['uri'],entry['blake3'],entry['sig'],entry['grant'])
 
 def check_slice(entries_doc: dict, versions: dict) -> int:
     last=check_entries(entries_doc['entries'])
@@ -549,6 +555,7 @@ def check_slice(entries_doc: dict, versions: dict) -> int:
             raw=versions.get((entry['uri'],entry['blake3']))
             if raw is not None:
                 same_claims(entry,derive(entry['uri'],raw))
+    check_signed_entries(entries_doc['entries'])
     for version in versions:
         if is_last_read(version[0]):
             raise InvalidSet('The last-read marker is never shared')
@@ -556,171 +563,51 @@ def check_slice(entries_doc: dict, versions: dict) -> int:
             raise InvalidSet('Record body without a slice entry: '+version[0])
     return last
 
-def verify_slice(directory: Path, expected_provider: str|None=None, now: datetime|None=None):
-    """Without a time, the provider's grant is checked as of the slice's as_of."""
+def verify_slice(directory: Path, expected_publisher: str|None=None, now: datetime|None=None):
+    """A static signed export. Without a time, the publisher's grant is checked as of as_of."""
     result=verify_set(directory)
     if 'slice.json' not in result['payload']:
         raise InvalidSet('A slice needs slice.json')
     entries_doc=parse(result['payload']['slice.json'],'slice')
-    if result['signer'] is None or result['signer']!=entries_doc['provider']:
-        raise InvalidSet('A slice must be signed by its provider key')
-    if expected_provider is not None and entries_doc['provider']!=expected_provider:
-        raise InvalidSet('Unexpected slice provider')
+    if result['signer'] is None or result['signer']!=entries_doc['publisher']:
+        raise InvalidSet('A slice must be signed by its publisher key')
+    if expected_publisher is not None and entries_doc['publisher']!=expected_publisher:
+        raise InvalidSet('Unexpected slice publisher')
     at=now or timestamp(entries_doc['as_of'])
     claims=verify_grant(entries_doc['grant'],at)
-    check_grant_key(entries_doc['grant'],claims['iss'],entries_doc['provider'],at)
+    check_grant_key(entries_doc['grant'],claims['iss'],entries_doc['publisher'],at)
     check_slice(entries_doc,result['versions'])
     result['operator']=claims['iss']
     result['slice']=entries_doc
     return result
 
-def verify_candidates(data: bytes, advertisement: dict|None=None) -> dict:
-    response=parse(data,'candidates')
-    entries=response['entries']
+def verify_answer(data: bytes, signature: str, operator: str|None=None, now: datetime|None=None) -> dict:
+    """A signed indexer answer: candidates for one query, each carrying its author signature,
+    signed by the indexer's grant key. `complete` stays the indexer's claim."""
+    signer=verify_jws(data,signature,'slime-answer')
+    answer=parse(data,'candidates')
+    if signer!=answer['indexer']:
+        raise InvalidSet('Answer is not signed by the indexer it names')
+    if operator is not None and answer['operator']!=operator:
+        raise InvalidSet('Answer is from an indexer operator the reader did not configure')
+    check_grant_key(answer['grant'],answer['operator'],answer['indexer'],now or timestamp(answer['as_of']))
+    entries=answer['entries']
     check_entries(entries)
-    query=response['query']
+    query=answer['query']
     if 'after' in query and entries and int(entries[0]['seq'])<=int(query['after']):
         raise InvalidSet('Entry at or before the after cursor')
     for entry in entries:
         if not entry.get('gone') and not matches(query,entry['uri'],entry):
             raise InvalidSet('Entry does not match the query: '+entry['uri'])
-    if not response['complete'] and (not entries or response['next']!=entries[-1]['seq']):
+    if not answer['complete'] and (not entries or answer['next']!=entries[-1]['seq']):
         raise InvalidSet('next must be the seq of the last returned entry')
-    if advertisement is not None:
-        if response['provider']!=advertisement['provider']:
-            raise InvalidSet('Response is from a different provider')
-        if 'query' not in advertisement['roles']:
-            raise InvalidSet('Provider does not advertise the query role')
-        limit=advertisement.get('limits',{}).get('max_entries')
-        if limit is not None and len(entries)>limit:
-            raise InvalidSet('Response exceeds the advertised entry limit')
-        for entry in entries:
-            if not entry.get('gone') and not entry_in_scope(entry,advertisement['scopes']):
-                raise InvalidSet('Entry outside the advertised scope: '+entry['uri'])
-    return response
-
-# Notices. Flood rules follow the Open Inbox design (hypercolor-web ADR 0004): reject rather
-# than evict within one target, two-tier per-target caps, fair global eviction, a published
-# proof-of-work floor, a vouch path that bypasses it, and bounded state on the device.
-
-def verify_notice(data: bytes, source_uri: str, source: bytes) -> dict:
-    notice=parse(data,'notice')
-    if notice['source']!=source_uri:
-        raise InvalidSet('Fetched record is not the notice source')
-    if 'blake3' in notice and b3(source)!=notice['blake3']:
-        raise InvalidSet('Source bytes do not match the notice')
-    target=notice['target']
-    refs=derive(source_uri,source).get('refs',[])
-    bare_key=urlsplit(target).path=='/'
-    if not (target in refs or (bare_key and any(r.startswith('pubky://') and authority(r)==authority(target) for r in refs))):
-        raise InvalidSet('Source record does not reference the notice target')
-    return notice
-
-def pow_digest(notice: dict) -> bytes:
-    hour=int(timestamp(notice['created_at']).timestamp())//3600*3600
-    return blake3(POW_DOMAIN+notice['target'].encode()+b'\x00'+notice['source'].encode()+b'\x00'
-                  +hour.to_bytes(8,'big')+bytes.fromhex(notice['pow'])).digest()
-
-def leading_zero_bits(digest: bytes) -> int:
-    bits=0
-    for byte in digest:
-        if byte==0:
-            bits+=8
-            continue
-        return bits+8-byte.bit_length()
-    return bits
-
-def check_pow(notice: dict, floor_bits: int, now: datetime) -> None:
-    """The work is bound to target, source, and the hour of created_at; only this hour or the last counts."""
-    if floor_bits==0:
-        return
-    if 'pow' not in notice:
-        raise InvalidSet('low-work: notice carries no proof of work')
-    hour=int(timestamp(notice['created_at']).timestamp())//3600
-    if hour not in {int(now.timestamp())//3600, int(now.timestamp())//3600-1}:
-        raise InvalidSet('stale-work: proof of work is outside the current or previous hour')
-    if leading_zero_bits(pow_digest(notice))<floor_bits:
-        raise InvalidSet('low-work: proof of work is below the floor')
-
-def is_vouched(source_uri: str, target_follows: set) -> bool:
-    """A source author the target publicly follows needs no proof of work."""
-    return origin_author(source_uri) in target_follows
-
-def accepts_notice(notice: dict, provider: str, services: dict|None, advertisement: dict|None) -> bool:
-    """A provider takes a notice for key X when X's services document lists it, or when it
-    advertises the notices role and its scopes already cover X or the target record."""
-    target_key=authority(notice['target'])
-    if services is not None and services['identity']==target_key and any(p['provider']==provider for p in services.get('notice',[])):
-        return True
-    if advertisement is not None and advertisement['provider']==provider and 'notices' in advertisement['roles']:
-        return any(scope.get('key')==target_key or scope.get('uri')==notice['target'] for scope in advertisement['scopes'])
-    return False
-
-class NoticeQueue:
-    """Provider-side queue of unchecked notices, with the published caps."""
-    def __init__(self, cold_cap: int, warm_cap: int, global_cap: int, pow_floor_bits: int=0):
-        self.cold_cap,self.warm_cap,self.global_cap,self.pow_floor_bits=cold_cap,warm_cap,global_cap,pow_floor_bits
-        self.queues={}
-        self.warm=set()
-
-    def __len__(self):
-        return sum(len(q) for q in self.queues.values())
-
-    def mark_warm(self, target_key: str) -> None:
-        """A target that lists this provider, or has drained it once, gets the larger cap."""
-        self.warm.add(target_key)
-
-    def submit(self, notice: dict, now: datetime, vouched: bool=False) -> str:
-        target=authority(notice['target'])
-        if not vouched:
-            try:
-                check_pow(notice,self.pow_floor_bits,now)
-            except InvalidSet as exc:
-                return '400 '+str(exc).split(':')[0]
-        queue=self.queues.setdefault(target,[])
-        if any(n==notice for n in queue):
-            return '409 duplicate'
-        if len(queue)>=(self.warm_cap if target in self.warm else self.cold_cap):
-            return '503 queue-full'
-        if len(self)>=self.global_cap:
-            self._evict_one()
-        queue.append(notice)
-        return '202'
-
-    def _evict_one(self) -> None:
-        victim=max(self.queues,key=lambda k:(len(self.queues[k]),k not in self.warm))
-        oldest=min(self.queues[victim],key=lambda n:n['created_at'])
-        self.queues[victim].remove(oldest)
-
-    def drain(self, target_key: str) -> list:
-        self.mark_warm(target_key)
-        return self.queues.pop(target_key,[])
-
-class RequestsView:
-    """Device-side requests from unknown senders. Bounded: an unviewed row is the only kind a
-    stranger can push out; when every row is viewed, new requests are refused."""
-    def __init__(self, cap: int=256):
-        self.cap=cap
-        self.rows={}
-
-    def add(self, peer: str, arrived: str) -> bool:
-        if peer in self.rows:
-            return True
-        if len(self.rows)>=self.cap:
-            unviewed=[p for p,row in self.rows.items() if not row['viewed']]
-            if not unviewed:
-                return False
-            del self.rows[min(unviewed,key=lambda p:self.rows[p]['arrived'])]
-        self.rows[peer]={'arrived':arrived,'viewed':False}
-        return True
-
-    def view(self, peer: str) -> None:
-        self.rows[peer]['viewed']=True
+    check_signed_entries(entries)
+    return answer
 
 # Services documents, home statements, and failover.
 
 def load_services(data: bytes, identity: str) -> dict:
-    """A services document is published through the identity's own homeserver session."""
+    """A services document names the identity's mirrors and is published through its own session."""
     doc=parse(data,'services')
     if doc['identity']!=identity:
         raise InvalidSet('Services document belongs to a different identity')
@@ -788,7 +675,7 @@ def log_state(events: list) -> dict:
 
 def current_versions(logs: dict, copies: dict, authority_home: str|None=None) -> dict:
     """Heads per URI. logs maps an enrolled homeserver to its events; copies maps a URI to the
-    BLAKE3 hashes held from suppliers. A log decides over copies; the home statement's
+    BLAKE3 hashes of author-signed copies held from suppliers (unsigned copies never get here). A log decides over copies; the home statement's
     homeserver decides between logs; disagreement without a decider keeps every head."""
     states={home:log_state(events) for home,events in logs.items()}
     heads={}
@@ -810,10 +697,17 @@ class LocalIndex:
     def __len__(self):
         return len(self._items)
 
-    def admit(self, uri: str, raw: bytes, expected_blake3: str|None=None, claimed: dict|None=None) -> bool:
+    def admit(self, uri: str, raw: bytes, sig: str|None=None, grant: str|None=None,
+              claimed: dict|None=None, from_origin: bool=False) -> bool:
+        """Copies need a valid author signature. Bytes read from the author's own homeserver
+        (from_origin) carry the homeserver session's authority instead."""
         digest=b3(raw)
-        if expected_blake3 is not None and digest!=expected_blake3:
+        if claimed is not None and claimed.get('blake3') not in (None,digest):
             raise InvalidSet('Supplied bytes do not match the expected hash')
+        if not from_origin:
+            if sig is None or grant is None:
+                raise InvalidSet('A copy without an author signature is rejected')
+            verify_record_signature(uri,digest,sig,grant)
         derived=derive(uri,raw)
         if claimed is not None:
             same_claims(claimed,derived)
@@ -823,7 +717,8 @@ class LocalIndex:
 
     def admit_set(self, result: dict) -> int:
         entries={(e['uri'],e['blake3']):e for e in result.get('slice',{}).get('entries',[]) if 'blake3' in e}
-        return sum(self.admit(o,raw,d,entries.get((o,d))) for (o,d),raw in sorted(result['versions'].items()))
+        return sum(self.admit(o,raw,*result['sigs'][(o,d)],entries.get((o,d)))
+                   for (o,d),raw in sorted(result['versions'].items()))
 
     def query(self, op: str, **args) -> list[str]:
         query={'op':op,**args}
@@ -861,14 +756,9 @@ def main() -> int:
     parser.add_argument('--expected-signer')
     args=parser.parse_args()
     try:
-        if (args.directory/'provider.json').is_file():
-            ad=verify_provider((args.directory/'provider.json').read_bytes(),(args.directory/'provider.jws').read_text())
-            print(json.dumps({'provider':ad['provider'],'operator':ad['operator'],'sequence':ad['sequence'],
-                              'roles':ad['roles'],'scopes':len(ad['scopes'])},indent=2))
-            return 0
         if (args.directory/'slice.json').is_file():
             result=verify_slice(args.directory,args.expected_signer)
-            print(json.dumps({'id':result['id'],'provider':result['signer'],'files':result['files'],
+            print(json.dumps({'id':result['id'],'publisher':result['signer'],'files':result['files'],
                               'entries':len(result['slice']['entries']),'through':result['slice']['through']},indent=2))
             return 0
         result=verify_set(args.directory,args.expected_signer)

@@ -1,9 +1,11 @@
 """Folders, signatures, author signatures on records, hostile input, pubky.app record adapters,
 and merges over event streams."""
 from pathlib import Path
-import contextlib,json,shutil,tempfile,unittest,zipfile
+from datetime import datetime, timezone
+import contextlib,json,shutil,subprocess,sys,tempfile,unittest,zipfile
 from check_sets import (InvalidSet,b3,current_versions,derive,dependencies,hash_id,key_decode,key_encode,
-                        parse,parse_events,safe_path,text_refs,timestamp_id_micros,verify_jws,verify_record_signature,verify_set)
+                        parse,parse_events,safe_path,text_refs,timestamp_id_micros,verify_grant,verify_jws,
+                        verify_record_signature,verify_set)
 
 E=Path(__file__).resolve().parent
 EXPECTED=json.loads((E/'expected.json').read_text())
@@ -133,11 +135,17 @@ class RecordSignatures(unittest.TestCase):
         raw=(folder/'record.json').read_bytes()
         with self.assertRaises(InvalidSet):
             verify_record_signature(URI['listing'],b3(raw),(folder/'record.sig').read_text().strip(),(folder/'grant.jws').read_text().strip())
-    def test_verification_needs_no_clock(self):
-        e=self.entry()
-        claims=json.loads(__import__('base64').urlsafe_b64decode(e['grant'].split('.')[1]+'=='))
-        self.assertLess(claims['iat'],claims['exp'])
-        self.assertTrue(verify_record_signature(URI['listing'],e['blake3'],e['sig'],e['grant']))
+    def expired(self,name):
+        folder=E/'expired-grant'
+        return (URI['old_post'],b3((folder/'record.json').read_bytes()),(folder/name).read_text().strip(),
+                (folder/'grant.jws').read_text().strip())
+    def test_record_outlives_its_grant(self):
+        uri,digest,sig,grant=self.expired('record.sig')
+        self.assertEqual(digest,H['old_post'])
+        with self.assertRaises(InvalidSet):verify_grant(grant,datetime.now(timezone.utc))
+        self.assertEqual(verify_record_signature(uri,digest,sig,grant)['uri'],uri)
+    def test_signed_after_grant_expired(self):
+        with self.assertRaises(InvalidSet):verify_record_signature(*self.expired('late.sig'))
     def test_tampered_signature(self):
         e=self.entry();head,body,sig=e['sig'].split('.')
         forged=sig[:10]+('B' if sig[10]!='B' else 'C')+sig[11:]
@@ -209,9 +217,6 @@ class Merge(unittest.TestCase):
     def test_delete_resists_replay(self):
         heads=current_versions({ID['homeserver_primary']:self.log()},{URI['shirt']:{H['shirt']}})
         self.assertEqual(heads[URI['shirt']],[('del',)])
-    def test_copies_alone_keep_every_head(self):
-        heads=current_versions({},{URI['listing']:{H['listing'],H['listing_withdrawn']}})
-        self.assertEqual(len(heads[URI['listing']]),2)
     def alternate(self,hash_):
         return parse_events(f'event: PUT\ndata: {URI["listing"]}\ndata: cursor: 5\ndata: content_hash: {hash_}\n\n'
                             f'event: PUT\ndata: {URI["listing"][:-2]}ZZ\ndata: cursor: 6\ndata: content_hash: {hash_}\n')
@@ -233,5 +238,25 @@ class Merge(unittest.TestCase):
         with self.assertRaises(InvalidSet):parse_events(text)
     def test_malformed_events(self):
         with self.assertRaises(InvalidSet):parse_events('event: PATCH\ndata: x\ndata: cursor: 1\n')
+
+class Reproducible(unittest.TestCase):
+    """make_fixtures.py derives every key from a fixed seed, so it rebuilds the committed fixtures exactly."""
+    def test_generator_reproduces_fixtures(self):
+        generated=['expected.json','github-inventoried','github-signed','shops-public','shops-events','expired-grant','headline']
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d)
+            shutil.copytree(E.parent/'schemas',root/'schemas')
+            (root/'examples').mkdir()
+            for script in ('check_sets.py','make_fixtures.py'):
+                shutil.copy(E/script,root/'examples'/script)
+            subprocess.run([sys.executable,str(root/'examples/make_fixtures.py')],check=True,capture_output=True)
+            for name in generated:
+                with self.subTest(name=name):
+                    self.assertEqual(tree(root/'examples'/name),tree(E/name))
+
+def tree(path):
+    if path.is_file():
+        return {'':path.read_bytes()}
+    return {p.relative_to(path).as_posix():p.read_bytes() for p in sorted(path.rglob('*')) if p.is_file() and '__pycache__' not in p.parts}
 
 if __name__=='__main__':unittest.main()

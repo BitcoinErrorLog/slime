@@ -3,22 +3,22 @@
   "complete": true,
   "entries": [
     {
-      "blake3": "3KxFKSUXMGkRACNXZEtIJLuLdWacudahEktqJS8wcb0=",
-      "grant": "eyJhbGciOiJFZERTQSIsInR5cCI6InB1Ymt5LWdyYW50In0.eyJpc3MiOiI1d3lqYWlnN3dzY2U5ZXU5YnllaG11cGNncG1jNWRmbnVmNHpzbW81dHU4emtvbTg4dGF5IiwiY2xpZW50X2lkIjoiZnJhbmt5LnB1Ymt5LmFwcCIsImNhcHMiOlsiL3B1Yi9wdWJreS5hcHAvOnJ3Il0sImNuZiI6Imp3c3I3eHM4ZmV6YWRhYXB1ZWNqOXF1cmF4aTk1MXpjZWVzMzl1OGluY2F6OGhrM21kd28iLCJqdGkiOiI2aWJSeXN3V2s3VVNKMlkxUjV6eFF3IiwiaWF0IjoxNzkwMDc4NDAwLCJleHAiOjE4NTMxNTA0MDB9._yaUACcOdM2o_I0UridSo_H1zCawRXzPa_B4ikPG9e7-aI_mCXLtoORzG3H5exj-lQM8EXSHn-3OE6yyEc0JCA",
+      "blake3": "94zn0BnnNZDD4x2ewiqGqZYjegWFpiGikHyqh3N+zLE=",
+      "grant": "eyJhbGciOiJFZERTQSIsInR5cCI6InB1Ymt5LWdyYW50In0.eyJpc3MiOiJtczg4NWRjZ2UzM3l3OGlpb3J4YzRiNHo1ZWZyd25hZ3A3cWUxbzk5am80aG80NnBmdHNvIiwiY2xpZW50X2lkIjoiZnJhbmt5LnB1Ymt5LmFwcCIsImNhcHMiOlsiL3B1Yi9wdWJreS5hcHAvOnJ3Il0sImNuZiI6ImlxOHhrOGM2OXA4dWs0aGVzeHM3MXhiZnhlaTljemNpMWZpYzRyaWphemN3bXFvbjF4M28iLCJqdGkiOiI4dFlOY0kyZnNmNGlZWDloeUN1WU5nIiwiaWF0IjoxNzkwMDc4NDAwLCJleHAiOjE4NTMxNTA0MDB9.XKhAmgzngbSFpq2XCB1K_alvZorkIUPioB0MFfhfphJAzaop5DPAeNej8nkEPx0GgEeXqGG78x5Fb8GxI2B-Bw",
       "kind": "tag",
       "label": "great-print",
       "refs": [
-        "pubky://xdmexuzfiny9axyj49m6pkp3axifbr7r46j3wgon6qnwfi6odudo/pub/pubky.app/posts/0035R99S3KA80"
+        "pubky://q5yw8xk34yomdqo34ra1y3jj7q7jjdjcfnh8y9a1mzpw455i35by/pub/pubky.app/posts/0035R99S3KA80"
       ],
       "seq": "7",
-      "sig": "eyJhbGciOiJFZERTQSIsImtpZCI6Imp3c3I3eHM4ZmV6YWRhYXB1ZWNqOXF1cmF4aTk1MXpjZWVzMzl1OGluY2F6OGhrM21kd28iLCJ0eXAiOiJwdWJreS1yZWNvcmQifQ.eyJ1cmkiOiJwdWJreTovLzV3eWphaWc3d3NjZTlldTlieWVobXVwY2dwbWM1ZGZudWY0enNtbzV0dTh6a29tODh0YXkvcHViL3B1Ymt5LmFwcC90YWdzL0M1TjFZQkRQQlBEQkZDR0Y4QlM5SFM0Mks0IiwiY29udGVudF9oYXNoIjoiM0t4RktTVVhNR2tSQUNOWFpFdElKTHVMZFdhY3VkYWhFa3RxSlM4d2NiMD0iLCJpYXQiOjE3OTAyNTEyMDB9.sPWTtXKrkdkC0rTg7Ewc8R1pAxqoPjboc7NZEaYcQuEhAgiNPm_F_iBinH6fjcD0j2f59exYHud-ZQdf4aB7Bw",
-      "uri": "pubky://5wyjaig7wsce9eu9byehmupcgpmc5dfnuf4zsmo5tu8zkom88tay/pub/pubky.app/tags/C5N1YBDPBPDBFCGF8BS9HS42K4"
+      "sig": "eyJhbGciOiJFZERTQSIsImtpZCI6ImlxOHhrOGM2OXA4dWs0aGVzeHM3MXhiZnhlaTljemNpMWZpYzRyaWphemN3bXFvbjF4M28iLCJ0eXAiOiJwdWJreS1yZWNvcmQifQ.eyJ1cmkiOiJwdWJreTovL21zODg1ZGNnZTMzeXc4aWlvcnhjNGI0ejVlZnJ3bmFncDdxZTFvOTlqbzRobzQ2cGZ0c28vcHViL3B1Ymt5LmFwcC90YWdzL0EyVlJKVlFRVk5FMENNTlFYNFlKTURWRjQ4IiwiY29udGVudF9oYXNoIjoiOTR6bjBCbm5OWkRENHgyZXdpcUdxWllqZWdXRnBpR2lrSHlxaDNOK3pMRT0iLCJpYXQiOjE3OTAyNTEyMDB9.2nUO3glZK5CewTtoZDwYWqJgbxxj0llv7jGjZaz0l6wgEVaxeziR_9sCw4eY0s2qdWs2ZRbedLzi4_p6nLUZDw",
+      "uri": "pubky://ms885dcge33yw8iiorxc4b4z5efrwnagp7qe1o99jo4ho46pftso/pub/pubky.app/tags/A2VRJVQQVNE0CMNQX4YJMDVF48"
     }
   ],
   "format": "slime-candidates/1",
-  "grant": "eyJhbGciOiJFZERTQSIsInR5cCI6InB1Ymt5LWdyYW50In0.eyJpc3MiOiI5b2tobW5ub2k3aW95dzQ1YmRyNmV4b2c1aGtiZjVxYWd3NTQ2NnRqOWE3c3FqY3RkaHF5IiwiY2xpZW50X2lkIjoiaW5kZXguZXhhbXBsZSIsImNhcHMiOlsiL3B1Yi9zbGltZS86cnciXSwiY25mIjoiZTk1Ym1lemU4b29jeGlpYXpmOGNraHlkbzk1NXB3NWJteXFlN2I1enMxM3dtczQxNHFqeSIsImp0aSI6IlE3d3JEVnNFZ2o4MV8xQ0xqV25VaFEiLCJpYXQiOjE3OTAwNzg0MDAsImV4cCI6MTg1MzE1MDQwMH0.8nwoqrPzhIO_Ob96zDRau8H08Gn9YXuXosntzf63eCVgobDLotUgUudMpm419nHvAlgO3kIzLd1pQWKczGONBA",
-  "indexer": "e95bmeze8oocxiiazf8ckhydo955pw5bmyqe7b5zs13wms414qjy",
-  "operator": "9okhmnnoi7ioyw45bdr6exog5hkbf5qagw5466tj9a7sqjctdhqy",
+  "grant": "eyJhbGciOiJFZERTQSIsInR5cCI6InB1Ymt5LWdyYW50In0.eyJpc3MiOiJhbTR0NXlvamFoZWZhcjFjNDk4ZzNhdW1md2p6YTl3N2UzY3BwcngxbjZicnNqYTR4d3R5IiwiY2xpZW50X2lkIjoiaW5kZXguZXhhbXBsZSIsImNhcHMiOlsiL3B1Yi9zbGltZS86cnciXSwiY25mIjoicjFwNmhmd2tncGNpZGhxeHk3bnhyZ29kcGg4ZmQ2cG5jczF4ejE5OXB0d3F5ZmZlcDVreSIsImp0aSI6IjRaWmpCdy1Kcm9NaDgtRENpdUJWeUEiLCJpYXQiOjE3OTAwNzg0MDAsImV4cCI6MTg1MzE1MDQwMH0.0jWJZqTB-xbxGQihyY29dSXGJtLni3XwgUruxSjysDlJU-_aIpIBF6stXGU3oTacwLRMt17oIhCv2lS7hsxnBA",
+  "indexer": "r1p6hfwkgpcidhqxy7nxrgodph8fd6pncs1xz199ptwqyffep5ky",
+  "operator": "am4t5yojahefar1c498g3aumfwjza9w7e3cpprx1n6brsja4xwty",
   "query": {
     "label": "great-print",
     "op": "label"

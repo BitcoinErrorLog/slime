@@ -28,7 +28,6 @@ test_key_codec_roundtrip (test_checks.Json.test_key_codec_roundtrip) ... ok
 test_symlink (test_checks.Json.test_symlink) ... ok
 test_unknown_control_fields (test_checks.Json.test_unknown_control_fields) ... ok
 test_unsafe_paths (test_checks.Json.test_unsafe_paths) ... ok
-test_copies_alone_keep_every_head (test_checks.Merge.test_copies_alone_keep_every_head) ... ok
 test_cursors_must_increase (test_checks.Merge.test_cursors_must_increase) ... ok
 test_delete_resists_replay (test_checks.Merge.test_delete_resists_replay) ... ok
 test_homeservers_that_disagree_keep_both_until_a_home_statement_decides (test_checks.Merge.test_homeservers_that_disagree_keep_both_until_a_home_statement_decides) ... ok
@@ -41,9 +40,11 @@ test_forged_listing_under_its_own_grant (test_checks.RecordSignatures.test_forge
 test_grant_from_another_author (test_checks.RecordSignatures.test_grant_from_another_author) ... ok
 test_other_bytes (test_checks.RecordSignatures.test_other_bytes) ... ok
 test_other_uri (test_checks.RecordSignatures.test_other_uri) ... ok
+test_record_outlives_its_grant (test_checks.RecordSignatures.test_record_outlives_its_grant) ... ok
+test_signed_after_grant_expired (test_checks.RecordSignatures.test_signed_after_grant_expired) ... ok
 test_tampered_signature (test_checks.RecordSignatures.test_tampered_signature) ... ok
 test_valid (test_checks.RecordSignatures.test_valid) ... ok
-test_verification_needs_no_clock (test_checks.RecordSignatures.test_verification_needs_no_clock) ... ok
+test_generator_reproduces_fixtures (test_checks.Reproducible.test_generator_reproduces_fixtures) ... ok
 test_attached_payload_rejected (test_checks.Signatures.test_attached_payload_rejected) ... ok
 test_bad_signature (test_checks.Signatures.test_bad_signature) ... ok
 test_signature_binds_exact_bytes (test_checks.Signatures.test_signature_binds_exact_bytes) ... ok
@@ -93,9 +94,10 @@ test_listing_kinds_are_not_slime_kinds (test_headline.Slices.test_listing_kinds_
 test_other_publisher_pin (test_headline.Slices.test_other_publisher_pin) ... ok
 test_score_field_rejected (test_headline.Slices.test_score_field_rejected) ... ok
 test_seq_order (test_headline.Slices.test_seq_order) ... ok
+test_slice_from_another_identity (test_headline.Slices.test_slice_from_another_identity) ... ok
 test_slice_must_be_signed_by_its_publisher (test_headline.Slices.test_slice_must_be_signed_by_its_publisher) ... ok
 
 ----------------------------------------------------------------------
-Ran 96 tests in 0.311s
+Ran 98 tests in 0.444s
 
 OK

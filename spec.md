@@ -89,7 +89,7 @@ Every record carries an **author signature**. The app writing the record signs t
 - the grant's capabilities allow writing the record's path, and
 - the signing time falls within the grant's validity.
 
-A record outlives its grant: the signature stays valid after the grant's `exp`. The encoding follows the delegated-key design adopted in `pubky/pubky-homeserver` and the SDK. The reference fixtures use a provisional JWS encoding of the same claims. A bearer session token MUST NOT sign content. A grant client key signs only what its capabilities allow.
+A record outlives its grant: the signature stays valid after the grant's `exp`. The wire encoding will follow the delegated-key design being developed for `pubky/pubky-homeserver` and the SDK, which is not settled yet. Until it is, the reference fixtures use a provisional JWS encoding of the same claims. A bearer session token MUST NOT sign content. A grant client key signs only what its capabilities allow.
 
 A copy from anyone other than the author's own homeserver (an indexer, a slice, a folder, a mirror) is admitted only with a valid author signature. An unsigned or badly signed copy is rejected. It is never ranked or shown as a version. Bytes read from the author's own homeserver carry that homeserver's session authority. Readers cannot see a grant's revocation (section 7.2), so a revoked key's earlier signatures still verify.
 
@@ -122,7 +122,6 @@ Replica
 `putLocal` and `deleteLocal` record intent. They MUST NOT report that a homeserver accepted anything. A record under another key MAY be retained. It MUST NOT be edited or deleted locally as if the reader authored it. `query` uses the same four primitives and the same ordering as an indexer, so a slice, a signed answer, and the local index are interchangeable inputs.
 
 Four absences stay distinct: the source is unavailable, the client has not looked, the source reports the record gone, and a deletion in the author's event stream. An indexer's omission is never an author deletion. Dropping a record from a personal scope is a retention choice, not an author deletion.
-
 
 ### 2.3 Sync architecture
 
@@ -163,6 +162,7 @@ Text dependencies of a retained record are fetched with it. Media follows the me
 
 Any holder MAY serve a public dependency. The receiver MUST check the bytes against the author signature and the content hash or blob id before use. A slice that carries records SHOULD carry their public dependencies.
 
+## 3. What the device keeps and shares
 
 ### 3.1 Familiar scope
 
@@ -180,7 +180,6 @@ A record is in the **familiar scope** when any of these is true:
 The homeserver sync loop collects the familiar scope during ordinary use, so on native clients and companions an outage is never the first time those records are fetched. In a browser, it covers what synced while a tab was open (section 12). For keys the user follows or pins, resolve their enrolled homeservers (section 7.3) and read their event streams. Group keys by host.
 
 Starting budgets, to be measured on phones: no automatic graph expansion, 4 requests in flight, 2 per host, a 128 MiB text target, and media on demand in its own budget. Text comes before media. A phone that cannot hold its pinned scope asks for a companion. It MUST NOT evict pins.
-
 
 ### 3.2 Sharing controls
 
@@ -339,7 +338,6 @@ Health is kept per provider, per role, and per scope. A host can serve Dana's re
 
 A failed provider cools down for 1 minute, doubling to 30 minutes, with jitter. After the cooldown, one probe decides whether it returns to healthy. The client never waits on a known failed provider before showing local data. These values are starting points to measure.
 
-
 ### 6.5 Replaceability
 
 | Role | Default today | Replaced by | Switch |
@@ -474,7 +472,6 @@ Parsing ceilings: `set.json` and `slice.json` 16 MiB and 100,000 entries, an ind
 
 Import is staged and idempotent. It MUST NOT publish under the receiver's key, follow imported keys, pay, or change sharing choices or policy. Importing a folder MUST NOT add anything to what the receiver shares. Importing the same bytes again MUST NOT create a second post, follow, or tag. Store original bytes before building any normalized view.
 
-
 ## 9. Merge
 
 | Question | Answered by |
@@ -501,7 +498,6 @@ Duplicates merge on native identity and retained version. An app that reads list
 Local search and retained images, with the network quiet, MUST NOT open sockets. That includes analytics and remote images.
 
 A contact link or a payment link is a hint. Starting Paykit, or opening a Lock, is a separate action against the live counterparty. A retained copy MUST NOT reserve inventory or guarantee a price. A signature on a tag or review is not proof of purchase and not proof the claim is true.
-
 
 ## 11. What the interface shows
 
@@ -539,5 +535,5 @@ On web, "retained" means what synced while a tab was open. The storage rules in 
 - The primary times out; separately, it serves stale data while refusing writes.
 - A fresh install finds content through its default indexers alone.
 - Every participant uses Synonym-operated homeservers.
-- Nexus is down and a second indexer restores search. The mesh does not restore search, and the test says so.
+- Nexus is down and a second indexer restores search. Slices and the local index keep retained records searchable, but only an indexer restores discovery.
 - The primary stops republishing, and the identity still resolves.

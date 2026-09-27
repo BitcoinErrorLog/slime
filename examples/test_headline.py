@@ -53,8 +53,8 @@ class Headline(NoNetwork):
         dana=answer('author-dana')
         self.assertEqual({e['uri'] for e in dana['entries'] if e['kind']=='post'},{URI['listing'],URI['shirt']})
         # Dana's homeserver is dark. Alice imports Bob's static slice; every copy carries its author signature.
-        first=verify_slice(E/'headline/bob-slice-1')
-        self.assertEqual(first['operator'],ID['bob'])
+        first=verify_slice(E/'headline/bob-slice-1',ID['bob'])
+        self.assertEqual(first['identity'],ID['bob'])
         index=LocalIndex()
         self.assertEqual(index.admit_set(first),6)
         self.assertEqual(index.query('author',key=ID['dana'],kind='post'),sorted([URI['listing'],URI['shirt']]))
@@ -70,7 +70,7 @@ class Headline(NoNetwork):
         self.assertTrue(index.admit(tag['uri'],body,tag['sig'],tag['grant'],tag))
         self.assertEqual(index.query('refs',uri=URI['listing'],kind='tag'),sorted([URI['curator_tag'],URI['carol_tag']]))
         # Bob's next snapshot carries the same tag; importing it adds nothing twice.
-        second=verify_slice(E/'headline/bob-slice-2')
+        second=verify_slice(E/'headline/bob-slice-2',ID['bob'])
         self.assertEqual(second['previous'],first['id'])
         self.assertEqual(index.admit_set(second),0)
         # Alice's primary refuses her writes and serves stale reads; her home statement names the alternate for edits.
@@ -100,16 +100,28 @@ class Headline(NoNetwork):
             except UnicodeDecodeError:
                 pass
 
+def listing_record():
+    """Dana's listing as published, with its author signature and grant."""
+    raw=(E/'shops-public/records'/URI['listing'][len('pubky://'):]).read_bytes()
+    entry=next(f for f in json.loads((E/'shops-public/set.json').read_text())['files'] if f.get('origin')==URI['listing'])
+    return raw,entry['sig'],entry['grant']
+
 class Conflicts(NoNetwork):
     """Only author-signed versions count. Unsigned or badly signed copies never reach the merge."""
     def test_unsigned_copy_rejected(self):
         raw,_,_=forged()
         with self.assertRaises(InvalidSet):LocalIndex().admit(URI['listing'],raw)
     def test_two_signed_versions_conflict_until_the_stream_decides(self):
-        heads=current_versions({},{URI['listing']:{HASH['listing'],HASH['listing_withdrawn']}})
-        self.assertEqual(len(heads[URI['listing']]),2)
+        raw,sig,grant=listing_record()
+        withdrawn=(E/'shops-events/records'/URI['listing'][len('pubky://'):]).read_bytes()
+        withdrawn_sig=(E/'shops-events/withdrawn.sig').read_text().strip()
+        index=LocalIndex()
+        self.assertTrue(index.admit(URI['listing'],raw,sig,grant))
+        self.assertTrue(index.admit(URI['listing'],withdrawn,withdrawn_sig,grant))
+        heads=current_versions({},{URI['listing']:{b3(raw),b3(withdrawn)}})
+        self.assertEqual(heads[URI['listing']],sorted([('put',HASH['listing']),('put',HASH['listing_withdrawn'])]))
     def test_origin_reads_need_no_signature(self):
-        raw,_,_=forged()
+        raw,_,_=listing_record()
         self.assertTrue(LocalIndex().admit(URI['listing'],raw,from_origin=True))
 
 class Sharing(NoNetwork):
@@ -166,6 +178,8 @@ class Slices(NoNetwork):
             dest=Path(d)/'s';shutil.copytree(E/'headline/bob-slice-1',dest)
             (dest/'set.jws').unlink()
             with self.assertRaises(InvalidSet):verify_slice(dest)
+    def test_slice_from_another_identity(self):
+        with self.assertRaises(InvalidSet):verify_slice(E/'headline/bob-slice-1',ID['carol'])
     def test_other_publisher_pin(self):
         with self.assertRaises(InvalidSet):verify_slice(E/'headline/bob-slice-1',expected_publisher=ID['carol'])
     def test_expired_publisher_grant(self):

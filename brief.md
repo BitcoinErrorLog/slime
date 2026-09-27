@@ -11,7 +11,7 @@ Synonym and every other provider is automatically replaceable. Synonym's Nexus a
 
 Alice, Bob, and Carol use Pubky App on Synonym's homeserver. Dana sells prints from her own homeserver. Synonym's Nexus disappears completely, and Alice's app fails over to a second indexer that Synonym does not run. Then Dana's homeserver goes dark. Alice still opens Dana's shop, listings, and tags, because Bob's slice and the indexer both hold them and every copy carries Dana's signature, and she searches them offline. A forged copy of one listing, with a different price, is rejected rather than shown. Carol tags a listing, and Alice finds the tag through the indexer. Then Synonym's homeserver stops accepting Alice's writes while still serving stale reads. Alice publishes a new post. An alternate homeserver she enrolled earlier accepts it, readers find it through the homeservers her PKARR record lists, and her edits follow her signed home statement. Alice's identity seed never leaves Pubky Ring.
 
-The [development plan](development-plan.md) ends on this test and harder variants: the seller's homeserver down, the primary timing out or serving stale data, a fresh install, and everyone on Synonym's homeservers.
+The [development plan](development-plan.md) ends on this test and harder variants: the seller's homeserver down, a forged listing among several copies, the primary timing out or serving stale data, a fresh install finding content through default indexers alone, everyone on Synonym's homeservers, Nexus down with a second indexer restoring search, and the primary no longer republishing the user's PKARR record.
 
 ## Job 1: indexing that no one owns
 

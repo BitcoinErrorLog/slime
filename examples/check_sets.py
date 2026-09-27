@@ -219,7 +219,7 @@ def verify_set(directory: Path, expected_signer: str|None=None):
         elif not item.is_dir():
             raise InvalidSet('Nonregular filesystem entry')
     if 'set.json' not in actual:
-        raise InvalidSet('This checker requires an optional inventory; plain sets need no such file')
+        raise InvalidSet('Missing set.json: a folder that carries records needs its inventory')
     inv_bytes=actual['set.json'].read_bytes()
     inventory=parse(inv_bytes,'set')
     names=[x['path'] for x in inventory['files']]
@@ -490,10 +490,11 @@ def grant_allows_write(claims: dict, path: str) -> bool:
             return True
     return False
 
-def check_grant_key(grant: str, issuer: str, key: str, now: datetime) -> dict:
-    """The key is the grant's client key, the identity issued it, and it may write Slime paths."""
+def check_grant_key(grant: str, issuer: str|None, key: str, now: datetime) -> dict:
+    """The key is the grant's client key, the expected identity issued it, and it may write Slime
+    paths. Without an expected issuer, the caller reads who issued it from the returned claims."""
     claims=verify_grant(grant,now)
-    if claims['iss']!=issuer:
+    if issuer is not None and claims['iss']!=issuer:
         raise InvalidSet('Grant was issued by a different identity')
     if claims['cnf']!=key:
         raise InvalidSet("Signing key is not the grant's client key")
@@ -563,8 +564,10 @@ def check_slice(entries_doc: dict, versions: dict) -> int:
             raise InvalidSet('Record body without a slice entry: '+version[0])
     return last
 
-def verify_slice(directory: Path, expected_publisher: str|None=None, now: datetime|None=None):
-    """A static signed export. Without a time, the publisher's grant is checked as of as_of."""
+def verify_slice(directory: Path, identity: str|None=None, expected_publisher: str|None=None,
+                 now: datetime|None=None):
+    """A static signed export. identity is whose slice the reader expects: the identity that granted
+    the publisher key. Without a time, the publisher's grant is checked as of as_of."""
     result=verify_set(directory)
     if 'slice.json' not in result['payload']:
         raise InvalidSet('A slice needs slice.json')
@@ -573,11 +576,9 @@ def verify_slice(directory: Path, expected_publisher: str|None=None, now: dateti
         raise InvalidSet('A slice must be signed by its publisher key')
     if expected_publisher is not None and entries_doc['publisher']!=expected_publisher:
         raise InvalidSet('Unexpected slice publisher')
-    at=now or timestamp(entries_doc['as_of'])
-    claims=verify_grant(entries_doc['grant'],at)
-    check_grant_key(entries_doc['grant'],claims['iss'],entries_doc['publisher'],at)
+    claims=check_grant_key(entries_doc['grant'],identity,entries_doc['publisher'],now or timestamp(entries_doc['as_of']))
     check_slice(entries_doc,result['versions'])
-    result['operator']=claims['iss']
+    result['identity']=claims['iss']
     result['slice']=entries_doc
     return result
 
@@ -675,8 +676,9 @@ def log_state(events: list) -> dict:
 
 def current_versions(logs: dict, copies: dict, authority_home: str|None=None) -> dict:
     """Heads per URI. logs maps an enrolled homeserver to its events; copies maps a URI to the
-    BLAKE3 hashes of author-signed copies held from suppliers (unsigned copies never get here). A log decides over copies; the home statement's
-    homeserver decides between logs; disagreement without a decider keeps every head."""
+    BLAKE3 hashes of author-signed copies held from suppliers (unsigned copies never get here).
+    A log decides over copies; the home statement's homeserver decides between logs;
+    disagreement without a decider keeps every head."""
     states={home:log_state(events) for home,events in logs.items()}
     heads={}
     for uri in sorted({u for s in states.values() for u in s}|set(copies)):
@@ -754,11 +756,12 @@ def main() -> int:
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('directory',type=Path)
     parser.add_argument('--expected-signer')
+    parser.add_argument('--identity',help='for a slice, the identity expected to have granted its publisher key')
     args=parser.parse_args()
     try:
         if (args.directory/'slice.json').is_file():
-            result=verify_slice(args.directory,args.expected_signer)
-            print(json.dumps({'id':result['id'],'publisher':result['signer'],'files':result['files'],
+            result=verify_slice(args.directory,args.identity,args.expected_signer)
+            print(json.dumps({'id':result['id'],'identity':result['identity'],'publisher':result['signer'],'files':result['files'],
                               'entries':len(result['slice']['entries']),'through':result['slice']['through']},indent=2))
             return 0
         result=verify_set(args.directory,args.expected_signer)

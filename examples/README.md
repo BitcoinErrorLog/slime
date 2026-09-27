@@ -1,8 +1,8 @@
 # Reference fixtures
 
-Slime has two jobs: replaceable, verifiable indexing, and local fallback when an indexer or homeserver fails. These fixtures cover the file formats both rely on. Public keys and signatures are real. There are no private keys, and no real seller, buyer, or order.
+Slime has two jobs: replaceable, verifiable indexing, and local fallback when an indexer or homeserver fails. These fixtures cover the file formats both rely on. Keys and signatures are real Ed25519, but every key is a test key derived from a fixed, public seed in `make_fixtures.py`, so no real identity uses them. There is no real seller, buyer, or order.
 
-Every record is a real pubky.app record under `/pub/pubky.app/`: profiles, posts, a file record whose `src` is a blob, the blob itself, and tags. Tag ids and blob ids are `pubky-app-specs` HashIds, and post and file ids are TimestampIds. Every record carries its author signature: the author's app key, the client key of a Pubky grant with write on `/pub/pubky.app/`, signs the record's URI, content hash, and signing time. That signature encoding is provisional until `pubky/pubky-homeserver` settles its delegated-key design. What a reader checks is fixed: the grant's issuer is the author, its client key is the signer, its capabilities allow the path, and the signing time falls within the grant's validity.
+Every record is a real pubky.app record under `/pub/pubky.app/`: profiles, posts, a file record whose `src` is a blob, the blob itself, and tags. Tag ids and blob ids are `pubky-app-specs` HashIds, and post and file ids are TimestampIds. Every record carries its author signature: the author's app key, the client key of a Pubky grant with write on `/pub/pubky.app/`, signs the record's URI, content hash, and signing time. That signature encoding is provisional until `pubky/pubky-homeserver` settles its delegated-key design. What a reader checks is fixed: the grant's issuer is the author, its client key is the signer, its capabilities allow the path, and the signing time falls within the grant's validity. A record signed while its grant was valid stays valid after the grant expires.
 
 | Folder | What it covers |
 |---|---|
@@ -10,6 +10,7 @@ Every record is a real pubky.app record under `/pub/pubky.app/`: profiles, posts
 | `github-signed/` | The same folder with an exporter signature |
 | `shops-public/` | Dana's shop: profile, two posts used as listings, the image post's file and blob, and a curator's tag, with an exporter signature |
 | `shops-events/` | Dana's homeserver event stream, in the `/events-stream` SSE format, in which the listing is edited to withdrawn and the second post deleted, plus the author signature of the withdrawn version |
+| `expired-grant/` | A post of Dana's signed under a grant that has since expired, which still verifies, and a copy claiming a signing time after expiry, which does not |
 | `headline/` | The Alice, Bob, Carol, and Dana test: two snapshots of Bob's static slice of Dana's records, two signed indexer answers, a forged listing signed under someone else's grant, and Alice's services document and home statements |
 
 Hashes are BLAKE3 in standard base64, the encoding the homeserver uses for its ETag and for `content_hash` in its event stream. Signatures on Slime documents are detached JWS with EdDSA: `header..signature` in a `.jws` file next to the signed file. Grants are `pubky-grant` JWS values encoded exactly as `pubky-common` encodes them.
@@ -35,6 +36,16 @@ python examples/check_sets.py examples/headline/bob-slice-2
 python -m unittest discover -s examples -p 'test_*.py' -v
 ```
 
+For a slice, add `--identity <key>` to confirm whose slice it is: the identity that granted the publisher key.
+
 The checker reads staged directories and files. It checks inventories and their signatures, author signatures on every record, pubky.app record ids and the refs derived from each record, slices against their record bytes and scopes, signed indexer answers, home statements against grants and `_pubky` targets, and merges over event streams. It does not extract archives, sign, or use the network.
 
-`test_checks.py` covers folders, signatures, author signatures, hostile input, pubky.app records, and merges. `test_headline.py` runs the headline test's data path with sockets disabled: Dana's records from a signed indexer answer and Bob's slice, local search, the post-to-file-to-blob dependency chain, a forged listing rejected, Carol's tag found through the indexer's label search, and Alice's deciding homeserver from her `_pubky` targets and home statement. Indexer failover itself needs real clients and is not covered.
+`test_checks.py` covers folders, signatures, author signatures including a record that outlives its grant, hostile input, pubky.app records, merges, and that `make_fixtures.py` rebuilds every fixture byte for byte. `test_headline.py` runs the headline test's data path with sockets disabled: Dana's records from a signed indexer answer and Bob's slice, local search, the post-to-file-to-blob dependency chain, a forged listing rejected, Carol's tag found through the indexer's label search, and Alice's deciding homeserver from her `_pubky` targets and home statement. Indexer failover itself needs real clients and is not covered.
+
+## Regenerate the fixtures
+
+```sh
+python examples/make_fixtures.py
+```
+
+The generator rewrites every fixture folder and `expected.json`. Because every key comes from a fixed seed, the output is identical on every run.

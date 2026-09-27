@@ -81,7 +81,7 @@ Enrollment through Ring: the user picks alternates and gets a signup token from 
 
 The app key that writes a record signs its URI, content hash, and signing time. The homeserver stores the signature and the grant, and returns them with the record on GET and in the event stream. Readers verify offline: the grant's issuer is the author, its client key is the signer, its capabilities allow the path, and the signing time falls within the grant's validity. Follow the delegated-key design in progress in the Pubky team (Marcos's research) rather than a Slime-specific encoding; the reference fixtures use a provisional encoding of the same claims. Records written before this lands are re-signed by the author's app on its next write session.
 
-The app admits a copy from anyone other than the author's own homeserver only with a valid author signature, and rejects unsigned or badly signed copies. §8.1's rule changes with it: a bearer session token never signs content, and a grant client key signs what its capabilities allow.
+The app admits a copy from anyone other than the author's own homeserver only with a valid author signature, and rejects unsigned or badly signed copies. A bearer session token never signs content, and a grant client key signs only what its capabilities allow ([specification section 2.1](spec.md#21-records-and-author-signatures)).
 
 **Gate:** a forged listing among several copies is rejected, not shown. An enrolled homeserver cannot add a record the author did not sign. A record still verifies after its grant expires. The ported author-signature vectors pass.
 
@@ -143,7 +143,7 @@ Nexus's hostnames resolve nowhere for runs 1, 5, and 7. Independence means separ
 | 2 | Followed keys, shops, and listings stay current and browse offline with their dependencies. |
 | 3 | An identity lists several homeservers, and stays resolvable when one stops republishing it. |
 | 4 | Every copy can be checked against its author. Forgeries are rejected. |
-| 5 | Search survives losing Nexus. No indexer is required. |
+| 5 | Search survives losing Nexus. No single indexer is required. |
 | 6 | Indexer answers are accountable, and anyone can publish a signed slice. |
 | 7 | Publishing fails over automatically within the enrolled homeservers, without the identity seed leaving Ring. |
 | 8 | The headline test and its variants pass. |

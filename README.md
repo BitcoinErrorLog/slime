@@ -13,7 +13,7 @@ Read in this order:
 
 1. [Brief](brief.md): the two jobs, the test, what a person gets, and the limits.
 2. [Specification](spec.md): the coverage matrix, the replica and author signatures, sharing controls, replaceable indexers and signed answers, slices, routing, keys and publishing failover, folders, the commerce boundary, and limits.
-3. [Development plan](development-plan.md): phases toward the test, the repos each one touches, and the gate that closes it.
+3. [Development plan](development-plan.md): phases toward the test, the repos each one touches, and the gate that closes it; milestones from a testnet demo to the headline on real infrastructure; blockers and upstream asks; the developer offering; platforms; and roles.
 4. [Examples](examples/README.md): reference fixtures, JSON schemas in [schemas/](schemas/), and a Python checker with its tests.
 
 License: [LICENSE](LICENSE)
